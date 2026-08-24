@@ -22,6 +22,7 @@ export const planEnablement = ({
             operation: plugin.enabled[profile] ? ("enable" as const) : ("disable" as const),
             id: plugin.id,
             detail: `${profile} is ${current}`,
+            profile,
           },
         ]
   })

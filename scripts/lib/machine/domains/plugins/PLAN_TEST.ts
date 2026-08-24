@@ -62,7 +62,17 @@ void test("an undeclared enablement is planned per profile and names the current
   const changes = plan({ manifest: createPluginsManifest(), state: createPluginsState() })
 
   assert.deepEqual(changes, [
-    { operation: "disable", id: "alpha@official", detail: "claude-personal is undeclared" },
-    { operation: "disable", id: "alpha@official", detail: "claude-favish is undeclared" },
+    {
+      operation: "disable",
+      id: "alpha@official",
+      detail: "claude-personal is undeclared",
+      profile: "claude-personal",
+    },
+    {
+      operation: "disable",
+      id: "alpha@official",
+      detail: "claude-favish is undeclared",
+      profile: "claude-favish",
+    },
   ])
 })

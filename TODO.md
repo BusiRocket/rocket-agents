@@ -1,12 +1,14 @@
-# TODO — agents-tools
+# TODO — rocket-agents
 
 > Consolidated from the accessible Claude, Codex, Cursor, and Antigravity project history plus the
 > `~/p` meta backlog (routed 2026-08-13) and the archived `BusiRocket/agents-skills` backlog. Last
-> reviewed: 2026-08-24. History coverage: Partial — Claude Code transcripts before 2026-07-19 no
-> longer exist on disk (repo work starts 2026-02-27), and the 2026-07-19 audit scratchpad reports
-> (`findings.md`, `findings30.md`) were reconstructed from Codex rollouts, not read from disk. Open
-> items from `TODO-skills-audit.md` (append-only audit history) are tracked here; that file is no
-> longer a backlog.
+> reviewed: 2026-08-24, when the library's own content decisions moved to
+> `~/p/rocket-agents-library/TODO.md` and every remaining item was given an explicit disposition.
+> History coverage: Partial — Claude Code transcripts before 2026-07-19 no longer exist on disk
+> (repo work starts 2026-02-27), and the 2026-07-19 audit scratchpad reports (`findings.md`,
+> `findings30.md`) were reconstructed from Codex rollouts, not read from disk. Open items from
+> `TODO-skills-audit.md` (append-only audit history) are tracked here; that file is no longer a
+> backlog.
 >
 > States: `[ ]` pending · `[~]` partial or unverified · `[!]` blocked · `[x]` verified complete ·
 > `[-]` obsolete or superseded. Closed work moves to `TODO_LOG.md`.
@@ -21,24 +23,29 @@
 
 ## Skills
 
-- [ ] Candidate skills from the Codex 30-day pass, unbuilt: `communications-work-intake` (13
-      sessions; Slack/Discord/WhatsApp/email intake, wider than `stakeholder-recap`) and
-      `document-intake-reconciler` (Downloads/PDF/OCR triage into Holded).
-- [ ] Pilot skill-creator-style blind A/B evals on one BRP skill (with-skill vs without-skill,
-      isolated contexts); if pass rates match, the skill adds nothing. Also pressure-test skill
-      wording adversarially (Superpowers method). Source:
+- [ ] Pilot blind A/B evals on one BRP skill (with-skill vs without-skill, isolated contexts); if
+      pass rates match, the skill adds nothing. Also pressure-test skill wording adversarially
+      (Superpowers method). Needs authorization before running: every arm is a paid model call, and
+      a meaningful sample is many of them. `claude plugin eval` exists as the harness, so the
+      missing piece is a decision on which skill and how many cases, not tooling. Source:
       `~/p/brain/topics/claude-skills-ecosystem.md`.
-- [ ] Evaluate a conversation-only "grill" gate skill for business/marketing decisions (offer,
-      positioning, pricing), modeled on Pocock's grill-me as used by practitioners on non-code
-      ideas: questions in rounds (dependent questions wait), ~46 questions / 4 rounds as an ordinary
-      session, ends when nothing is left to ask, and the pushback rule ("a session with no pushback
-      is a session you didn't need"). Source: `~/p/brain/topics/claude-skills-ecosystem.md`
-      (2026-08-19 section).
+- [ ] Decide whether to build a conversation-only "grill" gate skill for business decisions (offer,
+      positioning, pricing), modeled on Pocock's `grill-me`: refuses to write anything, interviews
+      instead; questions in rounds, with a question that depends on an unanswered one held for a
+      later round; ~46 questions across 4 rounds is an ordinary session; ends when nothing is left
+      to ask; questions needing something to react to are deferred to a mockup step. The rule that
+      makes it work is the user's, not the skill's - "a session with no pushback from you is a
+      session you didn't need". Cost reference: `/grilling` is 345 tokens invoked, because a
+      gate-shaped skill keeps its body on demand. Blocked on a user decision, and if taken it needs
+      a brainstorming session first: the question set is the product, not the wrapper. Source:
+      `~/p/brain/topics/claude-skills-ecosystem.md` (2026-08-19 section).
 - [ ] Candidate BRP rule/hook: require a screen-recording video attached to any PR that changes UI
       state (steipete's one-line AGENTS.md rule at openclaw; GitHub accepts programmatic video
-      upload — worked example openclaw/openclaw#124013). Fits next to the existing
-      evidence-before-claims posture. Source: `~/p/brain/topics/claude-code-practice.md` (2026-08-19
-      X sweep section).
+      upload - worked example openclaw/openclaw#124013). Fits next to the existing
+      evidence-before-claims posture. Blocked on a user decision rather than on work: a rule here
+      changes the agent contract on every linked client, and this one would make a class of PR
+      impossible to finish without recording a video. Source:
+      `~/p/brain/topics/claude-code-practice.md` (2026-08-19 X sweep section).
 
 ## Skills library cleanup
 
@@ -46,39 +53,17 @@
 > the current split where Claude Code is offered 13 skills and the other 94 bundles reach only
 > Codex. Nothing is deleted; unused bundles leave the default fan-out and stay in the repo.
 > Measurements: `~/p/dotfiles/docs/machine-inventory/skills-triage.md`.
+>
+> The content decisions moved to `~/p/rocket-agents-library/TODO.md` on 2026-08-24 - deleting the
+> Java/Spring bundles, the skill-by-skill triage, the 87 parked entries, the multi-surface
+> capabilities, the two dropped classifications, the re-check window, and the five measured-but-
+> unbuilt skill gaps. They are decisions about that repository's contents, and executing them here
+> would edit another repo. What stays below is the part this engine owns.
 
 - [ ] Link the curated list into `~/.claude/skills` and into Antigravity (`~/.gemini/config/skills`,
       which currently carries only the 7 BRP skills). Claude Code sees 13 of 273 skills today and
-      all 13 are BRP; the rest were never offered to it.
-- [ ] Build `communications-work-intake`: Discord, Slack, WhatsApp and email intake to context plus
-      drafted reply. 141 requests across four projects in 30 days; `stakeholder-recap` covers only
-      the narrower recap shape and fired once. Largest measured gap.
-- [ ] Build a screenshot-to-component skill for the real stack (shadcn/Radix/Tailwind, project
-      tokens, existing components). 182 requests arrive as pasted screenshots; the seven design
-      skills installed are all about taste or review and none does this job. Use `ckm-ui-styling` as
-      source material, not as a competitor.
-- [ ] Extend the business lane next to `invoice-quarter-close` (27 invocations, the most-used
-      non-Superpowers skill): contracts review and modification (26 requests) and digital PDF
-      signing (12) have no coverage.
-- [ ] Build a background-job watch procedure: 44 requests asking for progress on long-running jobs,
-      with no skill and only `/loop` as a harness feature.
-- [ ] Delete the 16 Java/Spring-only bundles (14 `unit-test-*` plus `clean-architecture` and
-      `docs-updater`). Body scan confirms no other tech signal, and no Spring codebase exists in
-      `~/p`.
-- [ ] Review skill by skill against the work actually done here, deciding for each what it does and
-      whether it earns its place. This is the real cleanup: the library is an accumulation of
-      experiments that were never triaged. Start with the six bundles holding ~170 SKILL.md files
-      and one recorded call between them (`engineering-advanced-skills` 47, `marketing-skills` 45,
-      `engineering-skills` 37, `product-skills` 17, `ra-qm-skills` 14, `pm-skills` 8), then the 21
-      Java/Spring `unit-test-*` bundles, which match no codebase in `~/p`.
-- [ ] Resolve the capabilities that exist on several surfaces at once: `frontend-design` is both an
-      `~/.agents` bundle and an official plugin, both called 11 times; `context7` is a plugin, an
-      MCP server and an always-on rule. Pick one surface each.
-- [ ] Re-check `brp-rust-quality` and `lovable-sync` after another month. Both are linked and had
-      zero calls in the 30-day window, but both are recent and narrow, so the window is too short to
-      conclude anything.
-- [ ] Re-run the classification for `pm-skills/SKILL.md` and `drizzle-orm-patterns/SKILL.md`, the
-      two the mining pass dropped.
+      all 13 are BRP; the rest were never offered to it. This is a machine mutation (`skills:link`)
+      and needs explicit authorization.
 
 ## Skill library and learning loop
 
@@ -94,10 +79,14 @@
   proposals were reviewed and endorsed - 11 promoted skills with zero invocations ride the auto-park
   grace period, and the promotions that fired (frontend-design, computer-use, orca-cli, the core
   lanes) stay.
-- [ ] Exercise patch reapplication against a real fork. Implemented and tested for the conflict
-      case, never run for real, because nothing is forked yet.
-- [ ] Decide what to do with the 87 parked entries, now that parking is cheap and reversible. The 16
-      Java/Spring bundles are the obvious first pass.
+- [!] Exercise patch reapplication against a real fork. Implemented and tested for the conflict
+  case, never run for real. Blocked on its own precondition: nothing in the library is forked yet,
+  so there is no upstream change to reapply a local patch onto. Unblock action: the first time a
+  library skill is forked and its upstream moves, run the reapplication then.
+- [!] Decide what to do with the 87 parked entries. Moved 2026-08-24 to
+  `~/p/rocket-agents-library/TODO.md`, where the entries live; it is a content decision about that
+  repository, not about this engine. Blocked here only in the sense that this repo cannot execute
+  it.
 
 ## Machine provisioning
 
@@ -116,10 +105,15 @@
 - [~] Plugin manifest: capture, schema, parser, planner, the `machine:diff` lane and apply are all
   built and verified (2026-08-22 and 2026-08-24, see `TODO_LOG.md`). Apply drives the
   `claude plugin` CLI rather than editing its state files, and reports a version pin as manual work
-  because the CLI cannot install a specific version. Remaining: author the private `plugins.json` in
-  `BusiRocket/dotfiles` from `pnpm run machine:capture:plugins -- --json`, which is where the real
-  values belong; until it exists, the plugins domain reports `skipped`. Running apply against this
-  machine still needs explicit authorization.
+  because the CLI cannot install a specific version. Remaining is one command, now that
+  `machine:capture:plugins -- --manifest` emits the declarable shape - the `--json` capture never
+  parsed, because it carries tri-state `enablement` while the manifest wants boolean `enabled`
+  (found and fixed 2026-08-24):
+  `pnpm run machine:capture:plugins -- --manifest > <dotfiles>/machine/plugins.json`. Verified to
+  converge - that file diffed against this machine reports `plugins: converged, 0 changes` across
+  all 37 plugins. Writing it into `BusiRocket/dotfiles` is a write to another repo, and running
+  apply against this machine still needs explicit authorization; until the file exists the plugins
+  domain reports `skipped`.
 - [~] Plugin cache hygiene: the one-off sweep is done (2026-08-22, 2.5 GB to 271 MB) and the
   recurring policy is decided (2026-08-24): `machine:apply -- --prune-cache` removes cache
   directories belonging to no known marketplace, opt-in rather than automatic. Stale _version_
@@ -127,7 +121,9 @@
   resolve `settings.json` references and a `statusLine` can point into a version that reads as
   stale. Remaining: teach capture to resolve those references, then decide whether version pruning
   can be safe. The `realpath` constraint (13 of 37 plugins are recorded through the
-  `~/.claude-favish/plugins` symlink) is already honoured by `toRealPath`.
+  `~/.claude-favish/plugins` symlink) is already honoured by `toRealPath`. The accumulation rate is
+  confirmed rather than assumed: `machine:capture:plugins` reported 19 orphan directories on
+  2026-08-24, two days after the sweep that took the cache to zero.
 - [~] Services: schema, both renderers, the diff domain and apply are built and verified (2026-08-22
   and 2026-08-24, see `TODO_LOG.md`). Apply writes each drifted unit and loads it (launchd
   `bootout`+`bootstrap`, systemd one `daemon-reload` plus `enable --now` on the timer), and the
@@ -159,8 +155,11 @@
   plus the providers themselves. Unblock action when resumed: the per-provider dashboard checklist
   from the 2026-08-22 session.
 - [ ] Install `detect-secrets` as a pre-commit hook and enable GitHub secret scanning on the active
-      repos. A leaked AWS key was used 11 minutes after the push in one documented case. Cheap,
-      one-time. Source: `~/p/brain/topics/app-security.md`.
+      repos. A leaked AWS key was used 11 minutes after the push in one documented case. Cheap and
+      one-time, but it is a multi-repo change and enabling scanning is a write to GitHub settings,
+      so it needs authorization and a named repo list before anything is installed. Tracked here by
+      the 2026-08-13 routing decision even though execution spans `~/p`. Source:
+      `~/p/brain/topics/app-security.md`.
 - [ ] Adopt pnpm 11 supply-chain controls across the other `~/p` repos: `minimumReleaseAge: 1440`
       (24h cooldown defeats the compromised-token window) and `blockExoticSubdeps: true`. Needs Node
       22 and pnpm 11; check per repo. This repository was verified compliant 2026-08-22
@@ -175,15 +174,25 @@
 
 ## Harness
 
-
 - [ ] Dependency sweep for native replacements across the `~/p` frontends: `Intl.*` for formatting,
       `crypto.randomUUID`, `structuredClone`, `URLSearchParams`, `AbortController`. Measured
       elsewhere: audit vulnerabilities 17 -> 5. Fewer deps also shrinks the supply-chain surface.
-      Source: `~/p/brain/topics/web-platform.md`.
-- [ ] Decide whether to keep the `security-review` auto fan-out: measured 2026-08-13 at ~$2,691/30d
-      list-price equivalent (2,324 sessions, ~77/day, Opus 4.7) with a ~1.7% candidate-flag rate and
-      no confirmed real finding in the sampled verdicts. Options: keep (subscription absorbs it),
-      scope to risky paths only, or disable. Numbers in `TODO_LOG.md` 2026-08-13.
+      Out of this repository's scope to execute - it changes other projects' dependencies - so the
+      smallest real step is to run it in one frontend when that project is next open, and file the
+      result there. Tracked here by the 2026-08-13 routing decision. Source:
+      `~/p/brain/topics/web-platform.md`.
+- [ ] Decide the `security-guidance@claude-plugins-official` review layer. Identified 2026-08-24:
+      this is not a local hook but the official plugin enabled in `~/.claude/settings.json`, and it
+      has three layers - regex pattern warnings on edit (free), an LLM diff review on every turn end
+      (the expensive one, Opus 4.7 by default), and an agentic reviewer on `git commit`. Cost is
+      layer 2: ~$2,691/30d list-price equivalent (2,324 sessions, ~77/day) measured 2026-08-13, 1.7%
+      escalation rate, no confirmed real finding in the sampled verdicts. Still running at the same
+      rate - 450 of 756 sessions in the 7 days to 2026-08-24, 17 escalations. The levers are
+      environment variables, so the choice is finer than keep/disable: `ENABLE_STOP_REVIEW=0` drops
+      only layer 2 and keeps patterns plus commit review (recommended), `SECURITY_REVIEW_MODEL`
+      moves it to a cheap model, `ENABLE_CODE_SECURITY_REVIEW=0` drops all LLM review,
+      `SECURITY_GUIDANCE_DISABLE=1` kills the plugin. Needs a user decision; it changes machine
+      configuration. Numbers in `TODO_LOG.md` 2026-08-13.
 
 ## Cross-project
 

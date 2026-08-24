@@ -6,16 +6,52 @@
 
 ### 2026-08
 
+- [x] 2026-08-24 - **Machine provisioning:** The plugins capture could not be used as a manifest;
+      now it can, and the private-repo authoring step is one command.
+  - The documented workflow ("author `plugins.json` from `machine:capture:plugins -- --json`") had
+    never been executed, and it did not work: capture emits `enablement` as a tri-state (`enabled` /
+    `disabled` / `undeclared`, because a plugin can simply be absent from a profile's settings)
+    while the manifest parser requires boolean `enabled`. Feeding the real capture to the parser
+    failed on all 37 plugins.
+  - Both shapes are right - observed state has three values, a declaration has to be a decision - so
+    the fix is a converter, not a schema change. `undeclared` collapses to false: settings that
+    never enable a plugin do not enable it. `machine:capture:plugins -- --manifest` now prints the
+    declarable document.
+  - Evidence: the real machine's capture parses (37 plugins) where it previously failed; that file
+    diffed against the machine it came from reports `plugins: converged, 0 changes`;
+    `pnpm run machine:test` 203 pass / 0 fail; `pnpm run check` exit 0.
+  - Files: `scripts/lib/machine/domains/plugins/toDeclaredPluginsManifest.ts` plus its test and
+    capture fixture, `scripts/commands/machineCapturePlugins.ts`.
+
+- [x] 2026-08-24 - **Backlog:** Every remaining item given an explicit disposition, and the
+      library's content decisions moved to the repository that owns them.
+  - Moved to `~/p/rocket-agents-library/TODO.md` (filed and pushed there): deleting the 16
+    Java/Spring bundles, the skill-by-skill triage of the six large bundles, the 87 parked entries,
+    the multi-surface capabilities, the two dropped classifications, the re-check window, and the
+    five measured-but-unbuilt skill gaps (`communications-work-intake`, screenshot-to-component, the
+    business lane extension, `document-intake-reconciler`, background-job watch). They are decisions
+    about that repository's contents; executing them from here would edit another repo.
+  - Sharpened here with what was actually measured rather than remembered: the security-review item
+    now names the plugin and its three layers, the per-variable levers, and a fresh count (450 of
+    756 sessions in the 7 days to 2026-08-24); the grill item carries the real mechanics and the
+    345-token cost reference; the A/B eval item names its harness and its cost; the PR-video rule
+    states that it changes the contract on every linked client.
+  - Reclassified two items from pending to blocked with their real preconditions: patch
+    reapplication (nothing forked yet) and the parked entries (now owned elsewhere).
+  - The cache-hygiene rate is now evidence rather than assumption: 19 orphan cache directories two
+    days after the sweep that took the cache to zero.
+
 - [x] 2026-08-24 - **Harness:** Two pieces of noise removed - a load-sensitive test and npm chatter
       in every loop report.
-  - `RUN_LIVE_PROBE_TEST` was failing 3 to 5 of its 8 cases whenever the machine was busy, always
-    at ~1003ms, while passing 8/0 on a quiet machine with identical code. Cause: the shared fixture
-    pinned `timeoutMs` to 1,000, and under load average ~40 spawning the probe script alone
-    exceeded it. These cases classify probe output, not latency, and the timeout path has its own
-    case that passes a 20ms budget explicitly, so the fixture now allows 30s.
-  - Every loop report section opened with `npm warn Unknown env config
-    "manage-package-manager-versions"`, because each stage shells out through npx. `runBinStage`
-    already stripped `npm notice`; the strip moved into `stripNpmChatter` and now covers warnings.
+  - `RUN_LIVE_PROBE_TEST` was failing 3 to 5 of its 8 cases whenever the machine was busy, always at
+    ~1003ms, while passing 8/0 on a quiet machine with identical code. Cause: the shared fixture
+    pinned `timeoutMs` to 1,000, and under load average ~40 spawning the probe script alone exceeded
+    it. These cases classify probe output, not latency, and the timeout path has its own case that
+    passes a 20ms budget explicitly, so the fixture now allows 30s.
+  - Every loop report section opened with
+    `npm warn Unknown env config "manage-package-manager-versions"`, because each stage shells out
+    through npx. `runBinStage` already stripped `npm notice`; the strip moved into `stripNpmChatter`
+    and now covers warnings.
   - Evidence: the probe test passed 8/0 three times in a row at load average ~20, where it had been
     failing; `pnpm run library:loop -- --dry-run` reports now open on the stage's own first line;
     `pnpm run library:test` 212 pass / 0 fail; `pnpm run check` exit 0.

@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process"
+import { stripNpmChatter } from "./stripNpmChatter"
 import type { StageResult } from "./types/StageResult"
 
 export const runBinStage = async (
@@ -24,6 +25,6 @@ export const runBinStage = async (
     })
 
     child.on("close", (code) => {
-      resolve({ name, ok: code === 0, output: output.replaceAll(/^npm notice.*$\n?/gm, "") })
+      resolve({ name, ok: code === 0, output: stripNpmChatter(output) })
     })
   })

@@ -5,6 +5,7 @@ import { findStaleCacheEntries } from "../lib/machine/domains/plugins/findStaleC
 import { read } from "../lib/machine/domains/plugins/read"
 import { readCacheEntries } from "../lib/machine/domains/plugins/readCacheEntries"
 import { resolveInstalledPaths } from "../lib/machine/domains/plugins/resolveInstalledPaths"
+import { toDeclaredPluginsManifest } from "../lib/machine/domains/plugins/toDeclaredPluginsManifest"
 import { toManifest } from "../lib/machine/domains/plugins/toManifest"
 import { formatPluginsCapture } from "../lib/machine/report/formatters/formatPluginsCapture"
 
@@ -29,6 +30,11 @@ export const main = async () => {
         marketplaces: state.marketplaces,
       }),
     },
+  }
+
+  if (process.argv.includes("--manifest")) {
+    console.log(JSON.stringify(toDeclaredPluginsManifest(capture.manifest), null, 2))
+    return
   }
 
   console.log(formatPluginsCapture(capture, process.argv.includes("--json")))

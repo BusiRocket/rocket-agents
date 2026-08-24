@@ -3,7 +3,7 @@
   "claude": {
     "profiles": ["claude-personal", "claude-favish"],
     "defaultMode": "auto",
-    "skipDangerousModePermissionPrompt": false,
+    "skipDangerousModePermissionPrompt": true,
     "remoteControlAtStartup": true,
     "remoteControlExceptionReason": "Explicitly retained for the established remote terminal workflow"
   },

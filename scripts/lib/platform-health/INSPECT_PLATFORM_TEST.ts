@@ -68,7 +68,7 @@ void test("Claude security settings require the owned safe policy", async () => 
   const favish = join(root, "favish.json")
   const safeSettings = JSON.stringify({
     permissions: { defaultMode: "auto" },
-    skipDangerousModePermissionPrompt: false,
+    skipDangerousModePermissionPrompt: true,
     remoteControlAtStartup: true,
   })
   await writeFile(personal, safeSettings)

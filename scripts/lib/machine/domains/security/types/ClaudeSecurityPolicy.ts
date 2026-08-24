@@ -1,7 +1,7 @@
 export interface ClaudeSecurityPolicy {
   profiles: ["claude-personal", "claude-favish"]
   defaultMode: "auto"
-  skipDangerousModePermissionPrompt: false
+  skipDangerousModePermissionPrompt: true
   remoteControlAtStartup: boolean
   remoteControlExceptionReason?: string
 }

@@ -15,7 +15,7 @@ void test("owned Claude settings converge while foreign settings and profile sta
   const policy: ClaudeSecurityPolicy = {
     profiles: ["claude-personal", "claude-favish"],
     defaultMode: "auto",
-    skipDangerousModePermissionPrompt: false,
+    skipDangerousModePermissionPrompt: true,
     remoteControlAtStartup: true,
     remoteControlExceptionReason: "Required by the remote terminal workflow",
   }
@@ -79,7 +79,7 @@ void test("invalid existing JSON is rejected instead of overwritten", async () =
   const policy: ClaudeSecurityPolicy = {
     profiles: ["claude-personal", "claude-favish"],
     defaultMode: "auto",
-    skipDangerousModePermissionPrompt: false,
+    skipDangerousModePermissionPrompt: true,
     remoteControlAtStartup: true,
     remoteControlExceptionReason: "Required by the remote terminal workflow",
   }

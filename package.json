@@ -45,6 +45,8 @@
     "machine:diff": "tsx scripts/bin/run-machine-diff.ts",
     "machine:apply": "tsx scripts/bin/run-machine-apply.ts",
     "machine:rollback": "tsx scripts/bin/run-machine-rollback.ts",
+    "machine:capture:plugins": "tsx scripts/bin/run-machine-capture-plugins.ts",
+    "machine:capture:mcp": "tsx scripts/bin/run-machine-capture-mcp.ts",
     "guidance:sync": "tsx scripts/bin/run-guidance-sync.ts",
     "guidance:doctor": "tsx scripts/bin/run-guidance-doctor.ts",
     "guidance:rollback": "tsx scripts/bin/run-guidance-rollback.ts",

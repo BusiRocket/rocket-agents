@@ -6,6 +6,190 @@
 
 ### 2026-08
 
+- [x] 2026-08-24 - **Machine provisioning:** Services became a diff domain, and the profile selector
+      it was blocking landed with it.
+  - Result: `domains/services/{read,plan,renderServiceUnits,toServicesDomainResult}` compare each
+    declared service against the unit files its init system actually reads (`~/Library/LaunchAgents`
+    on darwin, `~/.config/systemd/user` elsewhere) and report `create`/`update` per file.
+    `machine:diff` now carries the domain, and
+    `profiles/{MACHINE_PROFILES,isMachineProfile,selectors/selectProfileDomains}` compose the
+    domains into `full` (every domain) and `lite` (no scheduled daemons), selected with `--profile`.
+    An unknown profile fails the run instead of silently defaulting.
+  - Evidence: `pnpm run machine:test` 189 pass / 0 fail; `pnpm run check` exit 0;
+    `pnpm run machine:diff` reports `services skipped 0` (no `services.json` in the instance
+    directory yet), `-- --profile lite` omits services, `-- --profile laptop` exits 1 with
+    `unknown profile laptop; expected full or lite`.
+  - Scope: diff only. Writing and reloading units is an apply-side machine mutation and still needs
+    authorization, and removal of undeclared units is deliberately not planned.
+
+- [x] 2026-08-24 - **Machine provisioning:** The mcp capture reader closed the last real gap in the
+      per-domain capture item, on the reference rule decided 2026-08-22.
+  - Result: `pnpm run machine:capture:mcp` reads every target's live servers and emits a manifest
+    document. A concrete `env` or header value is emitted as the `from_env` reference the tracked
+    `machine/mcp.json` already declares for that key; with no declared reference the server is
+    refused and reported by key name, never by value. Codex sub-tables are normalized on the way in,
+    so `env_http_headers` (already an environment binding) captures as a reference, and
+    `startup_timeout_sec`, `required` and `default_tools_approval_mode` are carried rather than
+    silently dropped.
+  - Evidence: `pnpm run machine:test` 189 pass / 0 fail (4 capture tests assert no live value ever
+    reaches the output); live run captured 9 servers and refused 2 (`paperclip`, `node_repl`) across
+    16 named keys, printing key names only.
+
+- [x] 2026-08-24 - **Supply chain and secrets:** The declared dangerous-mode policy and the live
+      machines agree again; the baseline is now `true` by user decision.
+  - Result: user decision 2026-08-24 — `skipDangerousModePermissionPrompt` is the intended default
+    and must be `true`. `machine/security.json`, the `ClaudeSecurityPolicy` literal type, the
+    manifest validation in `collectClaudeSecurityErrors` and the `hasSafeClaudePolicy` health check
+    were flipped together, so the invariant still cannot be represented loosely: a manifest that
+    declares `false` is now rejected.
+  - Evidence: `pnpm run machine:test` 189 pass / 0 fail; `pnpm run check` exit 0;
+    `pnpm run machine:diff` reports `security converged 0` where it previously reported drift on
+    both Claude profiles.
+
+- [x] 2026-08-22 - **Learning loop:** The weekly LaunchAgent was pointing at a directory that no
+      longer holds the code. Repaired before its first run.
+  - Result: `com.cristian.library-loop` ran
+    `cd "$HOME/p/agents-tools" && npx tsx scripts/bin/run-library-loop.ts`. `~/p/agents-tools`
+    survives the rename as an empty directory, so `cd` succeeded and the script was simply absent -
+    the loop would have failed silently at its first scheduled run on 2026-08-23 06:30, and the
+    missing report would have looked like the job never fired. Repointed to `$HOME/p/rocket-agents`
+    and reloaded. A sweep of all 25 user LaunchAgents found no second instance of the stale path.
+  - Evidence: `ls ~/p/agents-tools/scripts/bin/run-library-loop.ts` reported no such file while the
+    same path exists under `rocket-agents`; `plutil -lint` OK after the edit; `launchctl bootout`
+    plus `bootstrap` reloaded it and `launchctl list` shows it; the agent's own command replayed in
+    a login shell resolves the script. Backup of the original plist kept in the session scratchpad.
+
+- [x] 2026-08-22 - **Machine provisioning:** Services rendered from one description, for launchd and
+      systemd.
+  - Result: new `domains/services` describes a service as name, home-relative working directory,
+    command, optional log path, optional schedule and the runAtLoad/keepAlive flags.
+    `parseServicesManifest` rejects any absolute or shell-expanded home path, which is the exact
+    portability defect the backlog recorded (every user-authored LaunchAgent except two hardcodes an
+    absolute home path) - the schema makes it unrepresentable rather than discouraged. Two renderers
+    consume the same description: `renderLaunchAgent` emits a plist using `$HOME` with XML-escaped
+    shell operators, and `renderSystemdService` / `renderSystemdTimer` emit a unit and timer using
+    `%h` and `OnCalendar`. Writing the files is not built: that is a machine mutation.
+  - Evidence: `pnpm run check` exit 0; `pnpm run machine:test` 169 pass / 0 fail (18 new); rendering
+    the library-loop description and comparing with `plistlib` against the live agent returns
+    `rendered == live agent: True`, and `plutil -lint` accepts the rendered plist.
+  - Files: `scripts/lib/machine/domains/services/**` (types, `parseServicesManifest`,
+    `collectServiceErrors`, `collectScheduleErrors`, `isPortableHomePath`, fixtures, two test
+    files), `scripts/lib/machine/renderers/launchd/**`, `scripts/lib/machine/renderers/systemd/**`.
+
+- [x] 2026-08-22 - **Machine provisioning:** Install provenance resolved for `codegraph` and Serena.
+  - Result: neither is opaque - `codegraph` is the global npm package
+    `@colbymchenry/codegraph@1.5.0` (`/opt/homebrew/lib/node_modules`) and Serena is the uv tool
+    `serena-agent@1.7.0` (`~/.local/share/uv/tools`). The runtime sweep missed them because it reads
+    neither `npm ls -g` nor `uv tool list`. That correction is folded into the remaining provenance
+    item, which now names `agy` 1.1.17 and `herdr` 0.8.0 as the only genuinely unrecoverable
+    binaries.
+  - Evidence: `command -v` plus `readlink -f` for each tool; `npm ls -g --depth=0`; `uv tool list`;
+    `file ~/.local/bin/agy ~/.local/bin/herdr` reports bare `Mach-O 64-bit executable arm64`.
+
+- [x] 2026-08-22 - **Machine provisioning:** Realpath defect in the plugin cache hygiene reader,
+      found and fixed the same day it shipped.
+  - Result: `findStaleCacheEntries` compared raw path strings. 13 of 37 installed plugins record
+    their `installPath` through the `~/.claude-favish/plugins` symlink, so every one of their live
+    versions was reported stale. A prune built on that output would have deleted 13 in-use plugins.
+    Both sides are now resolved through `toRealPath` (cache root and install paths), with a
+    regression test that installs through a symlinked directory. Corrected stale count: 50, not 63.
+  - Evidence: `pnpm run machine:test` 139 pass / 0 fail including the new symlink test;
+    `pnpm run check` exit 0.
+  - Files: `scripts/lib/machine/domains/plugins/toRealPath.ts`, `resolveInstalledPaths.ts`,
+    `findStaleCacheEntries.ts`, `readCacheEntries.ts`, `CACHE_TEST.ts`.
+
+- [x] 2026-08-22 - **Machine provisioning:** Plugin cache swept; 2.26 GB reclaimed.
+  - Result: with authorization, 768 orphan `temp_git_*` / `temp_subdir_*.clone` directories and 50
+    unreferenced plugin versions removed from `~/.claude/plugins/cache`. Cache 2.5 GB -> 271 MB.
+    Pre-delete evidence: every target sat directly under the cache and matched the temp naming, none
+    had been touched in four days, no open file handles, all were clones of public remotes with no
+    modified files and no unpushed commits (their only untracked files were Claude Code's own
+    `.orphaned_at` markers), and no file under `~/.claude` referenced any target path. All 50 stale
+    versions carried `.orphaned_at`.
+  - Evidence: guard script reported 0 referenced targets; deletion reported removed 818 / failed 0;
+    `du` 2.5G -> 271M; post-sweep `machine:capture:plugins` reports 37 entries, 0 stale, 0 orphan;
+    all 37 installed plugin directories still present.
+
+- [x] 2026-08-22 - **Machine provisioning:** `statusLine` repointed and `serena` declared.
+  - Result: both Claude profiles (one symlinked `settings.json`) now point `statusLine` at caveman
+    `0d95a81d35a9`, the installed version, instead of the pruned `25d22f864ad6`. Repointing had to
+    happen before the sweep, since the old target was one of the stale directories.
+    `serena@claude-plugins-official` declared `false`, recording the behaviour it already had: its
+    cached copy carries an `.orphaned_at` marker and its MCP server is configured directly in
+    `~/.claude.json`, so the plugin is redundant. Undeclared plugins are now 0 of 37.
+  - Evidence: statusline script executed against a sample payload, exit 0; both settings files parse
+    as JSON; `machine:capture:plugins` reports 19 disabled / 18 enabled / 0 undeclared per profile.
+
+- [x] 2026-08-22 - **Repository hygiene:** Orphaned `agent-health-matrix` worktree removed, 202 MB.
+  - Result: its `.git` pointed at `/Users/cristiandeluxe/p/agents-tools/.git`, which does not
+    exist - `~/p/agents-tools` is an empty directory, so git commands run there resolve to the `~/p`
+    meta repo. Branch `feat/skill-router-reliability` is fully merged (0 commits unique to it), all
+    1040 tracked files in the copy were byte-identical to its tip `dd2cfc1`, and its serena memory
+    was identical to main's. Removed the dead registration with `git worktree prune` and deleted the
+    directory.
+  - Evidence: `git rev-list --left-right --count main...feat/skill-router-reliability` = `49 0`;
+    per-file blob comparison against `dd2cfc1` reported 0 differing and 0 missing;
+    `git worktree list` now lists only the main checkout.
+
+- [x] 2026-08-22 - **Machine provisioning:** Plugins domain gained the assertable half - manifest
+      schema, parser, planner and a `machine:diff` lane.
+  - Result: `parsePluginsManifest` validates a `plugins.json` (version pin, marketplace entries,
+    `name@marketplace` ids, and a boolean per profile so enablement is never implied), reporting all
+    errors sorted rather than one at a time. `plan` diffs the declared manifest against live state
+    into install / remove / pin / enable / disable changes. `machine:diff` now reports a `plugins`
+    domain, skipping cleanly when no `plugins.json` is declared - the manifest carrying real values
+    belongs in the private dotfiles repo. Apply is deliberately not built: it is a machine mutation.
+  - Evidence: `pnpm run check` exit 0; `pnpm run machine:test` 151 pass / 0 fail; live
+    `pnpm run machine:diff` reports `plugins skipped - no plugins.json in the instance directory`.
+  - Files: `scripts/lib/machine/domains/plugins/parsePluginsManifest.ts`,
+    `collectMarketplaceErrors.ts`, `collectDeclaredPluginErrors.ts`, `plan.ts`,
+    `planDeclaredPlugin.ts`, `planEnablement.ts`, `planRemovals.ts`, `PLUGIN_PROFILES.ts`,
+    `toPluginsDomainResult.ts`, `PARSE_MANIFEST_TEST.ts`, `PLAN_TEST.ts`, `DOMAIN_RESULT_TEST.ts`,
+    `scripts/lib/machine/cli/loadPluginsManifest.ts`, `scripts/commands/machineDiff.ts`.
+
+- [x] 2026-08-22 — **Machine provisioning:** Plugin capture reader and manifest schema built
+      (read-only), closing the recording half of the plugin manifest item.
+  - Result: new `scripts/lib/machine/domains/plugins/` reads `known_marketplaces.json`,
+    `installed_plugins.json` and `enabledPlugins` from both Claude profiles into one deterministic
+    manifest (marketplace source, plugin version, scope, commit sha, per-profile enablement). The
+    third enablement state is the point: `enabled | disabled | undeclared`, so an installed plugin
+    missing from `settings.json` is recorded as undeclared rather than silently defaulted to
+    disabled. New command `pnpm run machine:capture:plugins [-- --json]`. Nothing is written to user
+    data.
+  - Result (measured live): 7 marketplaces, 37 installed plugins, 18 enabled / 18 disabled / 1
+    undeclared per profile. The single undeclared entry is `serena@claude-plugins-official`,
+    confirming the open item by measurement rather than by reading.
+  - Evidence: `pnpm run check` exit 0; `pnpm run machine:test` 137 pass / 0 fail (16 new tests);
+    live `pnpm run machine:capture:plugins -- --json`.
+  - Files: `scripts/lib/machine/domains/plugins/**` (types, readers, `toManifest`, cache hygiene,
+    fixtures, `READ_TEST.ts`, `TO_MANIFEST_TEST.ts`, `CACHE_TEST.ts`),
+    `scripts/lib/machine/cli/resolvePluginsPaths.ts`,
+    `scripts/lib/machine/report/formatters/formatPluginsCapture.ts`,
+    `scripts/commands/machineCapturePlugins.ts`, `scripts/bin/run-machine-capture-plugins.ts`,
+    `package.json`.
+
+- [x] 2026-08-22 — **Machine provisioning:** Plugin cache hygiene measured; the premise of the open
+      prune question was wrong.
+  - Result: the 2.5 GB cache is not stale plugin versions. Scoping the walk to known marketplaces
+    gives 87 real cache entries, of which 63 are versions no installed plugin resolves to, totalling
+    **0.03 GB**. The remaining **2.26 GB across 768 orphan directories** is abandoned `temp_git_*` /
+    `temp_subdir_*.clone` scratch dirs left by plugin installs — not versioned plugin state at all.
+    A version-prune step would therefore reclaim ~1% of what the item assumed; orphan-directory
+    cleanup is the item that matters.
+  - Result (prune trap confirmed): `caveman/caveman/25d22f864ad6` is reported stale (no installed
+    plugin resolves to it) yet is the live target of `statusLine` in `~/.claude/settings.json`. Any
+    prune step must read `settings.json` references, not only `installed_plugins.json`.
+  - Evidence: `pnpm run machine:capture:plugins -- --json`, sizes summed over the reported paths in
+    session; `pnpm run check` exit 0.
+  - Files: `scripts/lib/machine/domains/plugins/readCacheEntries.ts`, `findStaleCacheEntries.ts`,
+    `findOrphanCacheDirectories.ts`, `readDirectoryNames.ts`.
+
+- [-] 2026-08-22 — **Supply chain:** pnpm 11 controls in this repository.
+  - Resolution: already satisfied before the item was worked. `pnpm-workspace.yaml` carries
+    `minimumReleaseAge: 1440`, `minimumReleaseAgeStrict: true`,
+    `minimumReleaseAgeIgnoreMissingTime: false` and `blockExoticSubdeps: true`. The item survives in
+    `TODO.md` narrowed to the other `~/p` repositories, which are out of this repository's scope.
+
 - [x] 2026-08-21 - **Apple Notes prompts converted to library skills:** 17 prompt notes from the
       Apple Notes "AI" folder unified into 4 hand-authored skills in
       `rocket-agents-library/skills/`: `jira-ticket-flow` (6 Jira lifecycle notes -> 1 skill with 6

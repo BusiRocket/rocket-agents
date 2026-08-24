@@ -23,8 +23,8 @@ export const collectClaudeSecurityErrors = (raw: unknown, errors: string[]): voi
     errors.push("manifest.claude.profiles must preserve personal and Favish profile boundaries")
   }
   if (policy.defaultMode !== "auto") errors.push("manifest.claude.defaultMode must be auto")
-  if (policy.skipDangerousModePermissionPrompt !== false) {
-    errors.push("manifest.claude.skipDangerousModePermissionPrompt must be false")
+  if (policy.skipDangerousModePermissionPrompt !== true) {
+    errors.push("manifest.claude.skipDangerousModePermissionPrompt must be true")
   }
   if (typeof policy.remoteControlAtStartup !== "boolean") {
     errors.push("manifest.claude.remoteControlAtStartup must be a boolean")

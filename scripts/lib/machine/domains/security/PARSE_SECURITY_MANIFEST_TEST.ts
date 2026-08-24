@@ -20,7 +20,7 @@ void test("remote control requires a documented exception reason", () => {
     claude: {
       profiles: ["claude-personal", "claude-favish"],
       defaultMode: "auto",
-      skipDangerousModePermissionPrompt: false,
+      skipDangerousModePermissionPrompt: true,
       remoteControlAtStartup: true,
     },
     codex: { forcedLoginMethod: "chatgpt" },
@@ -40,7 +40,7 @@ void test("credential-shaped fields and values are rejected without echoing valu
     claude: {
       profiles: ["claude-personal", "claude-favish"],
       defaultMode: "auto",
-      skipDangerousModePermissionPrompt: false,
+      skipDangerousModePermissionPrompt: true,
       remoteControlAtStartup: false,
       apiKey: credential,
     },

@@ -2,7 +2,7 @@
 
 > Consolidated from the accessible Claude, Codex, Cursor, and Antigravity project history plus the
 > `~/p` meta backlog (routed 2026-08-13) and the archived `BusiRocket/agents-skills` backlog. Last
-> reviewed: 2026-08-13. History coverage: Partial — Claude Code transcripts before 2026-07-19 no
+> reviewed: 2026-08-24. History coverage: Partial — Claude Code transcripts before 2026-07-19 no
 > longer exist on disk (repo work starts 2026-02-27), and the 2026-07-19 audit scratchpad reports
 > (`findings.md`, `findings30.md`) were reconstructed from Codex rollouts, not read from disk. Open
 > items from `TODO-skills-audit.md` (append-only audit history) are tracked here; that file is no
@@ -87,13 +87,14 @@
 > Code went from 13 skills offered to 30. Spec and plan:
 > `docs/superpowers/specs/2026-08-18-skill-library-and-learning-loop-design.md`.
 
-- [ ] Check the weekly loop reports (`~/.agents-learning/reports/`, LaunchAgent
-      `com.cristian.library-loop`, Sundays 06:30; agent verified loaded 2026-08-22 via
-      `launchctl list`, no report yet — first run is 2026-08-23) and whether the promoted skills
-      fire. A promotion that does not change invocation counts is a proposal to demote, and that is
-      the first real test of whether any of this works. First scheduled run will also do the first
-      full classification pass (~26 agy batches), so expect it to take a while and check
-      `~/.agents-learning/loop.log` if the report is missing.
+- [!] Check the weekly loop reports (`~/.agents-learning/reports/`, LaunchAgent
+  `com.cristian.library-loop`, Sundays 06:30) and whether the promoted skills fire. A promotion that
+  does not change invocation counts is a proposal to demote, and that is the first real test of
+  whether any of this works. Blocked on the clock: first run is 2026-08-23. Note the agent was
+  pointing at the pre-rename directory and would have failed silently; repaired and reloaded
+  2026-08-22 (see `TODO_LOG.md`), so 2026-08-23 is the first run that can actually produce a report.
+  The first run also does the full classification pass (~26 agy batches), so expect it to take a
+  while and check `~/.agents-learning/loop.log` if the report is missing.
 - [ ] Exercise patch reapplication against a real fork. Implemented and tested for the conflict
       case, never run for real, because nothing is forked yet.
 - [ ] Codex-side usage stays unmeasured. `library:observe-codex` refuses to report it: an anchored
@@ -116,31 +117,43 @@
   decision 2026-08-22: will log in on the mini on demand, when those services are next needed there
   — not a scheduled task. Follow `docs/runbooks/claude-connector-authentication.md`, then verify
   with `pnpm run connectors:doctor -- --json` and `pnpm run agents:doctor -- --json` on the mini.
-- [ ] Plugin manifest: marketplaces plus plugins pinned by version, and the enabled/disabled state,
-      which is the part no current tooling records (18 enabled, 18 disabled today). Reinstalling all
-      36 and leaving them on does not reproduce the machine.
-- [ ] Plugin cache hygiene: 16 plugins keep stale older versions on disk (Figma 5, Amplitude, Sentry
-      and Superpowers 4 each) inside a 2.7 GB cache. Decide whether the apply step prunes versions
-      that no plugin resolves to.
-- [ ] Services: render launchd plists and systemd units from one description. Every user-authored
-      LaunchAgent except two hardcodes an absolute home path.
-- [ ] Profiles: compose domains into named targets (`full` for a primary machine with both Claude
-      profiles and the mempalace daemons, `lite` without daemons or the editable fork).
-- [ ] Capture readers per domain, so the manifests can be regenerated from a live machine rather
-      than hand-edited. Without them the manifests go stale in weeks, which is the failure mode the
-      current rsync mirroring already shows.
-- [ ] Record install provenance for the tools that have none: `agy`, `herdr`, `claude`, `codex`,
-      `cursor-agent` exist only as opaque binaries or app-managed symlinks. `agy` is currently
-      unrecoverable if the disk is lost.
-- [ ] Pin how `codegraph` and Serena are installed. Both run daily as MCP servers but neither
-      appears as a package in the runtime sweep, so no installer can claim completeness yet.
+- [~] Plugin manifest: capture, schema, parser, planner and the `machine:diff` lane are built and
+  verified (2026-08-22, see `TODO_LOG.md`). Remaining: (a) author the private `plugins.json` in
+  `BusiRocket/dotfiles` from `pnpm run machine:capture:plugins -- --json`, which is where the real
+  values belong; (b) build apply, which is a machine mutation and needs authorization.
+- [ ] Plugin cache hygiene: the one-off sweep is done (2026-08-22, 2.5 GB to 271 MB, see
+      `TODO_LOG.md`). What remains is the recurring policy: the orphan directories accumulated at
+      roughly 768 in ten days, so decide whether an apply step prunes them on a schedule. Two
+      constraints the sweep proved: resolve install paths through `realpath` (13 of 37 plugins are
+      recorded through the `~/.claude-favish/plugins` symlink), and resolve `settings.json`
+      references, not only `installed_plugins.json` — `statusLine` pointed at a version that read as
+      stale.
+- [~] Services: schema, both renderers and the diff domain are built and verified (2026-08-22 and
+  2026-08-24, see `TODO_LOG.md`). `machine:diff` compares each declared service against the unit
+  files its init system reads and reports `create`/`update` per file. Remaining: (a) write the real
+  service descriptions, which carry machine values and belong in the private dotfiles repo; (b) an
+  apply step that writes and reloads the units, which is a machine mutation and needs authorization;
+  (c) decide whether apply may remove undeclared units, which the planner does not do today. The 25
+  live LaunchAgents stay hand-written until then.
+- [ ] Profiles: the selector landed 2026-08-24 (`full`, `lite`, `--profile` on `machine:diff`, see
+      `TODO_LOG.md`), so the blocker is gone. What remains is the other half of the original item:
+      the targets are only meaningful on the diff side, since apply still hard-codes `full` and has
+      no plugins or services domain to select. Smallest next step: thread the profile through
+      `machineApply.ts` when those apply domains exist.
+- [ ] Record install provenance for the tools that still have none. Resolved 2026-08-22: `codegraph`
+      is the global npm package `@colbymchenry/codegraph@1.5.0` and Serena is the uv tool
+      `serena-agent@1.7.0`, so the gap was the sweep, not the tools — it must read `npm ls -g` and
+      `uv tool list`, which it does not. `claude` (2.1.239) and `cursor-agent` (2026.08.11-e8db854)
+      are self-updating installers under `~/.local/share`, recoverable by re-running the installer
+      but unpinned. `agy` 1.1.17 and `herdr` 0.8.0 remain the real gap: bare arm64 Mach-O binaries
+      in `~/.local/bin` with no package, no installer and no recoverable source, so both are lost if
+      the disk is. Smallest action: extend the sweep to the two package managers, then archive the
+      `agy` and `herdr` binaries somewhere durable.
 - [ ] `config` apply must merge, never replace: third-party tools (orca, atuin, warp) inject hooks
-      into `settings.json` without asking, and a full rewrite drops them.
-- [ ] `statusLine` in `settings.json` points at caveman `25d22f864ad6` while the installed version
-      is `0d95a81d35a9`. Both directories exist so it works; it is a pin to a stale copy that a
-      cache prune would break.
-- [ ] `serena@claude-plugins-official` is installed but missing from `enabledPlugins`, so its state
-      is defaulted rather than declared. Declare it.
+      into `settings.json` without asking, and a full rewrite drops them. Verified 2026-08-22 that
+      this is a constraint on unbuilt code, not a live defect: there is no `config` domain, and the
+      one settings writer that exists (`domains/security/writeClaudeSettings.ts`) already spreads
+      the existing document. Carry the constraint into the domain when it is built.
 
 ## Supply chain and secrets
 
@@ -159,12 +172,17 @@
 - [ ] `poirocket` was flagged in the 2026-08-13 publish-token keyword sweep but has no checkout
       under `~/p`, so the 2026-08-22 audit could not cover it (the other 15 flagged repos are done,
       see `TODO_LOG.md`). Clone or locate it and check its workflows for long-lived registry tokens.
-- [ ] Adopt pnpm 11 supply-chain controls across `~/p` repos: `minimumReleaseAge: 1440` (24h
-      cooldown defeats the compromised-token window) and `blockExoticSubdeps: true`. Needs Node 22
-      and pnpm 11; check per repo. Source: `~/p/brain/topics/supply-chain-security.md`.
-- [ ] Add `uv export --format requirements.txt` to any CI that adopts `uv`, as the exit ramp now
-      that OpenAI owns it — one line, converts lock-in into a preference. Source:
+- [ ] Adopt pnpm 11 supply-chain controls across the other `~/p` repos: `minimumReleaseAge: 1440`
+      (24h cooldown defeats the compromised-token window) and `blockExoticSubdeps: true`. Needs Node
+      22 and pnpm 11; check per repo. This repository was verified compliant 2026-08-22
+      (`pnpm-workspace.yaml`), so only the cross-project sweep remains and it is out of this
+      repository's scope — file per repo when each is next touched. Source:
       `~/p/brain/topics/supply-chain-security.md`.
+- [!] Add `uv export --format requirements.txt` to any CI that adopts `uv`, as the exit ramp now
+  that OpenAI owns it — one line, converts lock-in into a preference. Blocked by its own
+  precondition: a 2026-08-22 sweep of `~/p/*/.github/workflows` found no workflow using `uv`.
+  Unblock action: apply it in the first workflow that adopts `uv`. Source:
+  `~/p/brain/topics/supply-chain-security.md`.
 
 ## Harness
 
@@ -177,7 +195,27 @@
       no confirmed real finding in the sampled verdicts. Options: keep (subscription absorbs it),
       scope to risky paths only, or disable. Numbers in `TODO_LOG.md` 2026-08-13.
 
+## Repository hygiene
+
+- [ ] Delete the merged branch `feat/skill-router-reliability` once its remote state is checked. Its
+      worktree was removed 2026-08-22 and the branch is fully merged into `main` (0 unique commits),
+      so the ref is the only leftover. Confirm no remote tracks it first.
+
 ## Cross-project
+
+- [ ] `~/p/dotfiles` (filed there 2026-08-22, four LaunchAgent items): plists are copied rather than
+      linked so installed copies drift silently — proven by the `library-loop` agent, which still
+      carried the pre-rename path while the dotfiles copy did not; `sync-all-safe` is drifted now
+      with no obvious authoritative side; `sync-conversations` and `sync-projects` are declared but
+      never installed; and every plist hardcodes an absolute home path that the new
+      `domains/services` schema would reject. Filed, not executed — dotfiles owns launchd.
+
+- [ ] `~/p` meta backlog: `~/p/agents-tools` is an empty leftover directory from the rename to
+      `rocket-agents`, holding only an empty `.serena`. Because it sits inside the `~/p` git repo,
+      any `git` command run there silently resolves to the `~/p` meta repo, which is how it was
+      found (2026-08-22, a `git status` there reported `~/p/TODO.md` as modified). Smallest action:
+      delete the directory from `~/p`. Filed here rather than executed - the target is another
+      repository.
 
 - [ ] `~/p/RocketUpdater` (no TODO.md there yet): commit or discard its untracked `.serena/` state —
       already named in `~/p/osseus/TODO.md`'s `.serena` entry, which can carry it; smallest action

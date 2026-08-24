@@ -6,6 +6,29 @@
 
 ### 2026-08
 
+- [x] 2026-08-24 - **Diagnostics:** The connector doctor was inspecting the wrong profile, and both
+      doctors are green again.
+  - Found by following the context7 decision through: `agents:doctor` reported `mcp failed, 8/11
+    profile connectors healthy` even though `claude mcp list` showed every server connected. Two
+    independent defects.
+  - First, profile bleed. `runClaudeMcpList` set `CLAUDE_CONFIG_DIR` for Favish but merely *omitted*
+    it for personal, inheriting whatever launched it. Run from a Favish session - which is how this
+    repo is usually worked - the personal probe listed Favish's servers and reported them as
+    claude-personal's, so personal-only connectors read as missing. Pinning `~/.claude` is wrong
+    too: that directory carries its own smaller `.claude.json` with a different server list (1 of
+    3 expected servers), while the personal profile is the default `~/.claude.json`. The variable
+    is now explicitly deleted for personal and set for Favish.
+  - Second, the plugin surface. A connector satisfied by an enabled plugin is listed as
+    `plugin:<plugin>:<server>:`, and the matcher only accepted the bare name - so the context7 that
+    had just been enabled and verified working reported as "connector is not listed". Matching is
+    now a predicate that accepts both forms and still rejects another plugin's server and a hosted
+    connector whose name merely contains the match.
+  - Evidence: `pnpm run connectors:doctor` went from 3 failures to 1, and the one left is
+    `zerohedge` on personal, which the manifest marks `optional`. `agents:doctor` reports `ok:
+    true`. `pnpm run connectors:test` 41 pass / 0 fail (7 new cases); `pnpm run check` exit 0.
+  - Files: `scripts/lib/connectors/{toProfileEnv,matchesConnectorLine,runClaudeMcpList,readClaudeConnectorStatus}.ts`
+    plus their tests.
+
 - [x] 2026-08-24 - **Harness:** The security-review fan-out is settled: the expensive layer is off,
       the free and rare ones stay.
   - Identified first: this was never a local hook but `security-guidance@claude-plugins-official`,

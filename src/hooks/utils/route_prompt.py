@@ -118,6 +118,19 @@ ROUTES = [
         r"network tab|cdp\b|proxy capture|playwright|puppeteer)\b",
     ),
     (
+        "loop",
+        "Recurring-check request. Use the /loop skill to schedule the check on "
+        "the asked interval instead of promising periodic updates that never "
+        "fire.",
+        # Added 2026-08-24 from router-audit evidence: five measured prompts ask
+        # for a periodic check ("avisame cada 5m", "report cada 10m") and fired
+        # no lane. Verb + interval noun keeps plain "cada X" mentions silent.
+        r"\b(av[ií]sa\w*|reporta?\w*|tick|pon\w* un check|comprueb\w*|"
+        r"monitoriz\w*|chequea\w*)\b"
+        r".{0,40}\bcada\b ?(\d+ ?(m|min|mins|minutos?|h|horas?)\b|"
+        r"minuto\b|rato\b|poco\b)",
+    ),
+    (
         "stakeholder-recap",
         "Stakeholder-comms context. Load the stakeholder-recap skill. Read the "
         "channel history first, cross-check claims against commits, and do not "

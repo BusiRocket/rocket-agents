@@ -10,6 +10,7 @@ export const LANE_DIRECTIVE_MARKERS: Record<string, string> = {
   debug: "systematic-debugging",
   "environment-ops": "Environment/host work",
   "repo-modernization": "Repo modernization",
+  loop: "/loop",
   plan: "superpowers:brainstorming",
   docs: "brp-docs",
   release: "brp-release",

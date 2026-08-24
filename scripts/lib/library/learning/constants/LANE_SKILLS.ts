@@ -12,5 +12,6 @@ export const LANE_SKILLS: Record<string, readonly string[] | "policy-only"> = {
   docs: ["brp-docs"],
   release: ["brp-release"],
   "environment-ops": "policy-only",
+  loop: "policy-only",
   "repo-modernization": "policy-only",
 }

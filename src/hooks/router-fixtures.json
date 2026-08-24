@@ -3,6 +3,13 @@
   "phraseCount": 107,
   "sourceAssociationCount": 113,
   "routes": {
+    "loop": [
+      "avisame cada 5m de como va empezando por ahora",
+      "report cada 10m",
+      "dame un tick cada 5m para ver el progreso",
+      "vale lo que quiero es que compruebes cada rato y miremos que todo va bien, incluido logs y demás",
+      "vale pon un check cada minuto"
+    ],
     "debug": [
       "en el otro no sale nada ni al apagar el disco",
       "tengo 2 cuentas de claude y lanzaba con comando: claude para mi cuenta claudef para la cuenta de favish pero orca (este terminal) no me deja hacerlo bien, puedes comprobar?",
@@ -115,11 +122,6 @@
       "quiero que pruebes la APP como un usuario real porque por ejemplo no puedo ver un chat antiguo etc entonces prueba la funcionalidad de todo y arregla lo que no funcione, usa el navegador de /orca-cli",
       "Hazlo tienes el navegador de orca",
       "ya lo he posteado yo, docs/superpowers/plans/2026-07-29-dedup-clusters.md",
-      "avisame cada 5m de como va empezando por ahora",
-      "report cada 10m",
-      "dame un tick cada 5m para ver el progreso",
-      "vale lo que quiero es que compruebes cada rato y miremos que todo va bien, incluido logs y demás",
-      "vale pon un check cada minuto",
       "vale quiero que implementes esto para que seamos lo más estrictos posibles",
       "search console lo tienes en el perfil de info@busirocket en chrome lo demás hazlo de la mejor manera, GCP y Redis lo usamos cada dia",
       "sí a ver si eres capaz, trabaja de manera autonoma porque yo no lo he conseguido, resetea el password y crea uno nuevo no uso nic.es para nada que no sea esto",

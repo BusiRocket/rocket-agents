@@ -456,32 +456,32 @@
     {
       "phrase": "avisame cada 5m de como va empezando por ahora",
       "sourceSkills": ["loop"],
-      "intentionalSilence": true,
-      "reason": "No global workflow lane is justified by this measured prompt."
+      "expectedLane": "loop",
+      "reason": "Measured recurring-check request; the loop lane routes it to the /loop skill (added 2026-08-24)."
     },
     {
       "phrase": "report cada 10m",
       "sourceSkills": ["loop"],
-      "intentionalSilence": true,
-      "reason": "No global workflow lane is justified by this measured prompt."
+      "expectedLane": "loop",
+      "reason": "Measured recurring-check request; the loop lane routes it to the /loop skill (added 2026-08-24)."
     },
     {
       "phrase": "dame un tick cada 5m para ver el progreso",
       "sourceSkills": ["loop"],
-      "intentionalSilence": true,
-      "reason": "No global workflow lane is justified by this measured prompt."
+      "expectedLane": "loop",
+      "reason": "Measured recurring-check request; the loop lane routes it to the /loop skill (added 2026-08-24)."
     },
     {
       "phrase": "vale lo que quiero es que compruebes cada rato y miremos que todo va bien, incluido logs y demás",
       "sourceSkills": ["loop"],
-      "intentionalSilence": true,
-      "reason": "This is an acknowledgement or execution approval whose context was already established."
+      "expectedLane": "loop",
+      "reason": "Measured recurring-check request; the loop lane routes it to the /loop skill (added 2026-08-24)."
     },
     {
       "phrase": "vale pon un check cada minuto",
       "sourceSkills": ["loop"],
-      "intentionalSilence": true,
-      "reason": "This is an acknowledgement or execution approval whose context was already established."
+      "expectedLane": "loop",
+      "reason": "Measured recurring-check request; the loop lane routes it to the /loop skill (added 2026-08-24)."
     },
     {
       "phrase": "vale quiero que implementes esto para que seamos lo más estrictos posibles",

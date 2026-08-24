@@ -13,40 +13,6 @@
 > States: `[ ]` pending · `[~]` partial or unverified · `[!]` blocked · `[x]` verified complete ·
 > `[-]` obsolete or superseded. Closed work moves to `TODO_LOG.md`.
 
-## Router and hooks
-
-- [ ] Re-check `orca-cli` routing after another audit window. Decision 2026-08-24: `loop` got its
-      lane (see `TODO_LOG.md`); `claude-in-chrome`, `dataviz`/`artifact-design` and `codex` were
-      declined because their measured phrases are context statements or approvals with no
-      generalizable trigger; `orca-cli` (2 hits, one an approval, but "el navegador de orca" is
-      distinctive) was the only marginal case worth revisiting if it keeps appearing.
-
-## Skills
-
-- [ ] Pilot blind A/B evals on one BRP skill (with-skill vs without-skill, isolated contexts); if
-      pass rates match, the skill adds nothing. Also pressure-test skill wording adversarially
-      (Superpowers method). Needs authorization before running: every arm is a paid model call, and
-      a meaningful sample is many of them. `claude plugin eval` exists as the harness, so the
-      missing piece is a decision on which skill and how many cases, not tooling. Source:
-      `~/p/brain/topics/claude-skills-ecosystem.md`.
-- [ ] Decide whether to build a conversation-only "grill" gate skill for business decisions (offer,
-      positioning, pricing), modeled on Pocock's `grill-me`: refuses to write anything, interviews
-      instead; questions in rounds, with a question that depends on an unanswered one held for a
-      later round; ~46 questions across 4 rounds is an ordinary session; ends when nothing is left
-      to ask; questions needing something to react to are deferred to a mockup step. The rule that
-      makes it work is the user's, not the skill's - "a session with no pushback from you is a
-      session you didn't need". Cost reference: `/grilling` is 345 tokens invoked, because a
-      gate-shaped skill keeps its body on demand. Blocked on a user decision, and if taken it needs
-      a brainstorming session first: the question set is the product, not the wrapper. Source:
-      `~/p/brain/topics/claude-skills-ecosystem.md` (2026-08-19 section).
-- [ ] Candidate BRP rule/hook: require a screen-recording video attached to any PR that changes UI
-      state (steipete's one-line AGENTS.md rule at openclaw; GitHub accepts programmatic video
-      upload - worked example openclaw/openclaw#124013). Fits next to the existing
-      evidence-before-claims posture. Blocked on a user decision rather than on work: a rule here
-      changes the agent contract on every linked client, and this one would make a class of PR
-      impossible to finish without recording a video. Source:
-      `~/p/brain/topics/claude-code-practice.md` (2026-08-19 X sweep section).
-
 ## Skills library cleanup
 
 > Decided 2026-08-17: curate one list and link it to every IDE including Antigravity, rather than
@@ -102,18 +68,12 @@
   decision 2026-08-22: will log in on the mini on demand, when those services are next needed there
   — not a scheduled task. Follow `docs/runbooks/claude-connector-authentication.md`, then verify
   with `pnpm run connectors:doctor -- --json` and `pnpm run agents:doctor -- --json` on the mini.
-- [~] Plugin manifest: capture, schema, parser, planner, the `machine:diff` lane and apply are all
-  built and verified (2026-08-22 and 2026-08-24, see `TODO_LOG.md`). Apply drives the
-  `claude plugin` CLI rather than editing its state files, and reports a version pin as manual work
-  because the CLI cannot install a specific version. Remaining is one command, now that
-  `machine:capture:plugins -- --manifest` emits the declarable shape - the `--json` capture never
-  parsed, because it carries tri-state `enablement` while the manifest wants boolean `enabled`
-  (found and fixed 2026-08-24):
-  `pnpm run machine:capture:plugins -- --manifest > <dotfiles>/machine/plugins.json`. Verified to
-  converge - that file diffed against this machine reports `plugins: converged, 0 changes` across
-  all 37 plugins. Writing it into `BusiRocket/dotfiles` is a write to another repo, and running
-  apply against this machine still needs explicit authorization; until the file exists the plugins
-  domain reports `skipped`.
+- [ ] Plugins apply against this machine is the only step left, and it needs explicit authorization.
+      Everything else is done and verified (2026-08-22 and 2026-08-24, see `TODO_LOG.md`):
+      `machine/plugins.json` declares all 37 plugins and diffs `converged`, so an apply today would
+      be a no-op. The reason to run one is the next change, not this state. Note the one manual case
+      the CLI forces: a version pin is reported, never executed, because `claude plugin install` has
+      no version flag.
 - [~] Plugin cache hygiene: the one-off sweep is done (2026-08-22, 2.5 GB to 271 MB) and the
   recurring policy is decided (2026-08-24): `machine:apply -- --prune-cache` removes cache
   directories belonging to no known marketplace, opt-in rather than automatic. Stale _version_
@@ -124,13 +84,15 @@
   `~/.claude-favish/plugins` symlink) is already honoured by `toRealPath`. The accumulation rate is
   confirmed rather than assumed: `machine:capture:plugins` reported 19 orphan directories on
   2026-08-24, two days after the sweep that took the cache to zero.
-- [~] Services: schema, both renderers, the diff domain and apply are built and verified (2026-08-22
-  and 2026-08-24, see `TODO_LOG.md`). Apply writes each drifted unit and loads it (launchd
-  `bootout`+`bootstrap`, systemd one `daemon-reload` plus `enable --now` on the timer), and the
-  removal question is answered: apply never removes an undeclared unit, so the 25 hand-written
-  LaunchAgents are safe. Remaining: write the real service descriptions, which carry machine values
-  and belong in the private dotfiles repo; until they exist the services domain reports `skipped`.
-  Running apply against this machine still needs explicit authorization.
+- [ ] Services: `machine/services.json` now describes `com.cristian.library-loop`, and the schema
+      grew interval schedules to make that possible - the loop polls on `StartInterval` because a
+      calendar slot the machine sleeps through is never caught up, and the schema had only calendar
+      slots (2026-08-24, see `TODO_LOG.md`). `machine:diff` reports one `update` for it, and that
+      update is cosmetic: `plutil` parses the rendered unit and the installed plist to identical
+      JSON, so the difference is XML escaping of quotes only. Two things remain, both needing
+      authorization: run an apply to canonicalise that one file, and decide whether the other 24
+      hand-written LaunchAgents get described here. Apply never removes an undeclared unit, so
+      leaving them undeclared is safe.
 - [~] Install provenance: the archive half is done (2026-08-24, see `TODO_LOG.md` — `agy` 1.1.19 and
   `herdr` 0.8.0 copied to `~/p/_archivar/handmade-binaries/` with SHA-256 sums; `npm ls -g` and
   `uv tool list` re-confirmed codegraph and serena-agent live in package managers). Remaining:
@@ -181,18 +143,6 @@
       smallest real step is to run it in one frontend when that project is next open, and file the
       result there. Tracked here by the 2026-08-13 routing decision. Source:
       `~/p/brain/topics/web-platform.md`.
-- [ ] Decide the `security-guidance@claude-plugins-official` review layer. Identified 2026-08-24:
-      this is not a local hook but the official plugin enabled in `~/.claude/settings.json`, and it
-      has three layers - regex pattern warnings on edit (free), an LLM diff review on every turn end
-      (the expensive one, Opus 4.7 by default), and an agentic reviewer on `git commit`. Cost is
-      layer 2: ~$2,691/30d list-price equivalent (2,324 sessions, ~77/day) measured 2026-08-13, 1.7%
-      escalation rate, no confirmed real finding in the sampled verdicts. Still running at the same
-      rate - 450 of 756 sessions in the 7 days to 2026-08-24, 17 escalations. The levers are
-      environment variables, so the choice is finer than keep/disable: `ENABLE_STOP_REVIEW=0` drops
-      only layer 2 and keeps patterns plus commit review (recommended), `SECURITY_REVIEW_MODEL`
-      moves it to a cheap model, `ENABLE_CODE_SECURITY_REVIEW=0` drops all LLM review,
-      `SECURITY_GUIDANCE_DISABLE=1` kills the plugin. Needs a user decision; it changes machine
-      configuration. Numbers in `TODO_LOG.md` 2026-08-13.
 
 ## Cross-project
 

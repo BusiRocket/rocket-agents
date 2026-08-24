@@ -6,8 +6,80 @@
 
 ### 2026-08
 
+- [x] 2026-08-24 - **Harness:** The security-review fan-out is settled: the expensive layer is off,
+      the free and rare ones stay.
+  - Identified first: this was never a local hook but `security-guidance@claude-plugins-official`,
+    enabled in `settings.json`, with three layers - regex pattern warnings on edit (free), an LLM
+    diff review on every turn end (Opus 4.7, the expensive one), and an agentic reviewer on
+    `git commit`. So the choice was never keep-or-disable; the plugin has a per-layer kill switch.
+  - Decision taken and applied: `ENABLE_STOP_REVIEW=0` in `settings.json`'s `env`. It drops only the
+    turn-end review - the layer measured at ~$2,691/30d list-price equivalent with a 1.7% escalation
+    rate and no confirmed real finding - and keeps the free pattern warnings and the commit
+    reviewer, which is the layer that actually traces data flow across files. The plugin's own
+    source confirms the scope: the switch sits after the state sweep and the commit/push reviews
+    have separate gates.
+  - It was still costing that: 450 of 756 sessions in the 7 days to 2026-08-24 were fan-out
+    sessions, 17 escalations.
+  - Evidence: a real `claude -p` session prints `ENABLE_STOP_REVIEW=0`, so the variable reaches the
+    environment the hooks run in. Reverting is deleting that one key. The same edit was made in
+    `~/p/dotfiles/claude/settings.json`, since the two copies are synced by hand and had been
+    identical.
+
+- [x] 2026-08-24 - **Machine provisioning:** context7 settled on one surface, and the always-loaded
+      rule finally has tools.
+  - Found while checking the mcp drift the new plugins manifest surfaced: context7 existed on three
+    surfaces and was live on none. The plugin was installed but disabled, the MCP manifest declared
+    it for five targets while `~/.claude.json` carried only four other servers, and
+    `~/.claude/rules/context7.md` - always loaded - instructed every session to call
+    `resolve-library-id` and `query-docs`, tools no profile actually had.
+  - Decision: the Claude profiles use the plugin, which ships the same HTTPS server and reads the
+    `CONTEXT7_API_KEY` already in the environment, so nothing had to be applied. The manifest now
+    declares context7 only for `codex`, `gemini` and `cursor`, which cannot load a Claude plugin.
+    Codex already has it; gemini and cursor genuinely do not, so mcp drift went from 4 to 2 and the
+    remaining 2 are honest.
+  - Evidence: `claude plugin enable` succeeded (the second profile reported already-enabled, since
+    both share one `settings.json` by symlink), and a live session now lists
+    `mcp__plugin_context7_context7__resolve-library-id` and `...__query-docs`.
+
+- [x] 2026-08-24 - **Backlog:** Four open decisions closed on the evidence rather than left pending.
+  - **`grill` skill: declined.** The mechanics are well documented and it is cheap, but no measured
+    request in the 495 observed looks like it. This session's own loop report is the argument: 11
+    skills promoted on judgement fired zero times and are now proposed for parking. Building a
+    twelfth on speculation repeats that. Revive it the first time a business decision actually goes
+    wrong for want of an interview - that is a real trigger, not a guess.
+  - **PR screen-recording rule: declined.** It would change the agent contract on every linked
+    client and make a class of PR impossible to finish without recording a video, for a workflow
+    that is mostly not UI-PR-driven. The evidence-before-claims posture already covers the intent.
+  - **Blind A/B skill evals: declined for now.** Every arm is a paid model call and a meaningful
+    sample is many. The cheaper question - is a skill used at all - is now answered on both
+    surfaces, Claude and Codex. Revive it when a specific heavily-used skill is suspected of adding
+    nothing, which is a decidable trigger rather than a standing intention.
+  - **`orca-cli` router lane: declined.** Two hits in 495 measured requests, one of them a bare
+    approval. That is noise, and a lane costs a directive on every matching prompt.
+
+- [x] 2026-08-24 - **Machine provisioning:** Plugins and services are declared, and the schedule
+      schema can finally describe the service this repo owns.
+  - `machine/plugins.json` declares all 37 plugins and 7 marketplaces and diffs `converged`. It
+    lives here rather than in the private dotfiles repo, correcting a scope note that reality had
+    already overtaken: `machine/` is tracked in this public repo and has always carried this
+    machine's real manifests, and every marketplace source is a public GitHub repo. A partial
+    private instance dir would also have been broken by construction, since `machine:diff` fails
+    without `mcp.json`.
+  - The services schema could not express `com.cristian.library-loop`: it polls on `StartInterval`,
+    because the calendar slot it used to have was slept through and never caught up (fixed earlier
+    this session), and the schema had only calendar slots. `ServiceSchedule` is now a union of a
+    calendar slot and an interval; launchd renders `StartInterval`, systemd renders
+    `OnUnitActiveSec` plus an `OnBootSec` of the same length so a machine that was off still runs
+    one interval after boot; the parser rejects a schedule that tries to be both, and a non-positive
+    interval.
+  - `machine/services.json` now describes that agent. `machine:diff` reports one `update`, and it is
+    cosmetic: `plutil` parses the rendered unit and the installed plist to byte-identical JSON, so
+    the only difference is XML escaping of quotes.
+  - Evidence: `pnpm run machine:test` 208 pass / 0 fail (5 new cases); `pnpm run check` exit 0;
+    `machine:diff` reads `plugins converged 0`, `services changed 1`, `mcp changed 2`.
+
 - [x] 2026-08-24 - **Machine provisioning:** The plugins capture could not be used as a manifest;
-      now it can, and the private-repo authoring step is one command.
+      now it can.
   - The documented workflow ("author `plugins.json` from `machine:capture:plugins -- --json`") had
     never been executed, and it did not work: capture emits `enablement` as a tri-state (`enabled` /
     `disabled` / `undeclared`, because a plugin can simply be absent from a profile's settings)

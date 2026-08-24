@@ -1,15 +1,20 @@
 import { spawn } from "node:child_process"
+import { toProfileEnv } from "./toProfileEnv"
 
+/**
+ * Each profile gets an explicitly built environment. The personal probe used to
+ * simply omit the `CLAUDE_CONFIG_DIR` override, which meant it inherited one
+ * from the launching session: run from a Favish session, the doctor listed
+ * Favish's servers and reported them as claude-personal's, so personal-only
+ * connectors read as missing.
+ */
 export const runClaudeMcpList = (
   profile: "claude-personal" | "claude-favish",
   home: string,
   executable = "claude",
 ): Promise<string> =>
   new Promise((resolve, reject) => {
-    const env = {
-      ...process.env,
-      ...(profile === "claude-favish" ? { CLAUDE_CONFIG_DIR: `${home}/.claude-favish` } : {}),
-    }
+    const env = toProfileEnv(profile, home, process.env)
     const child = spawn(executable, ["mcp", "list"], { env, shell: false })
     let output = ""
     child.stdout.on("data", (chunk: Buffer) => {

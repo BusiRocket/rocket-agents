@@ -1,5 +1,6 @@
 import type { ConnectorDefinition } from "./types/ConnectorDefinition"
 import type { ProfileConnectorResult } from "./types/ProfileConnectorResult"
+import { matchesConnectorLine } from "./matchesConnectorLine"
 import { resolveConnectorBoundary } from "./resolveConnectorBoundary"
 
 export const readClaudeConnectorStatus = (
@@ -10,12 +11,10 @@ export const readClaudeConnectorStatus = (
   definitions
     .filter(({ profiles }) => profiles.includes(profile))
     .map((definition) => {
-      const prefix =
-        definition.probe === "claude-cli-prefix" ? definition.match : `${definition.match}:`
       const lines = output
         .split("\n")
         .map((line) => line.trim())
-        .filter((line) => line.startsWith(prefix))
+        .filter((line) => matchesConnectorLine(line, definition))
       const joined = lines.join("\n")
       const boundary = resolveConnectorBoundary(definition.id)
       if (lines.length === 0) {

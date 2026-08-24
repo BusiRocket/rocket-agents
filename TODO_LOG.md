@@ -6,6 +6,100 @@
 
 ### 2026-08
 
+- [x] 2026-08-24 - **Machine provisioning:** `agy` and `herdr` archived; package-manager provenance
+      re-confirmed live.
+  - `~/p/_archivar/handmade-binaries/` now holds `agy-1.1.19` (178 MB) and `herdr-0.8.0` (18 MB)
+    with `SHA256SUMS` and a README. Notable: `agy` self-updates - the backlog recorded 1.1.17 on
+    2026-08-22 and the live binary is 1.1.19 with a 2026-08-23 mtime - so the archive is a disaster
+    copy, not a pin. `npm ls -g` shows `@colbymchenry/codegraph@1.5.0`; `uv tool list` shows
+    `serena-agent v1.7.0`. The sweep-method extension is dotfiles work, filed in
+    `~/p/dotfiles/TODO.md` (Machine inventory section).
+  - Evidence: `shasum -a 256` output recorded in the archive; command outputs in-session.
+
+- [x] 2026-08-24 - **Repository hygiene:** `feat/agent-health-matrix` and
+      `feat/codex-state-recovery` deleted, local and origin.
+  - Verified this run before deleting: `git rev-list --left-right --count` read 65/0 and 58/0 - zero
+    unique commits on each branch against `main`, both sides, so the deletion is lossless.
+  - Evidence: `git push origin --delete` reported both `[deleted]`; `git branch -a` shows no `feat/`
+    refs remaining.
+
+- [x] 2026-08-24 - **Cross-project:** The three routed pointers are closed.
+  - `~/p/dotfiles`: the `library-loop` plist mirror item and the runtime-inventory sweep extension
+    are now concrete items in `~/p/dotfiles/TODO.md`; the four 2026-08-22 LaunchAgent items were
+    already filed there, so the duplicate pointer here is redundant.
+  - `~/p/agents-tools` empty-directory deletion: already executed and logged in `~/p/TODO.md` (`[x]`
+    2026-08-24, deletion verified, `~/p` at 150 directories) - confirmed gone on disk this session.
+  - `~/p/RocketUpdater` `.serena` pointer stays, per its own closing condition.
+
+- [x] 2026-08-24 - **Learning loop:** First real report read against invocation evidence; the park
+      proposals are endorsed and the promotion experiment has its first verdict.
+  - Verdict: of the skills fanned out on 2026-08-18, eleven never fired and no measured procedure
+    points at them (file-organizer, docx, codex, specs-code-cleanup, orchestrator,
+    google-workspace-cli, jira-expert, team-communications, release-manager, senior-devops,
+    research-summarizer) - the report proposes parking all eleven and that proposal is endorsed;
+    auto-park's grace period handles them without a manual step. Promotions with measured use stay:
+    frontend-design (5 trigger phrases), computer-use (2), orca-cli (2), plus the core lanes (brain
+    8, project-continuation 8, brp-todo-create 6).
+  - The report's top build proposal ("report status on task progress", 52 requests) is the same gap
+    as the existing background-job-watch backlog item, now partly served by the new `loop` router
+    lane; the skill-shaped half stays in the backlog.
+  - Remaining half of the original item: the second, unattended run proving the 6-hourly schedule
+    catches up after sleep - tracked as the narrowed `[~]` item.
+  - Evidence: `~/.agents-learning/reports/2026-08-24-library-loop.md` (495 observed, 486 classified,
+    17 procedures, park list with 0 invocations each).
+
+- [x] 2026-08-24 - **Router and hooks:** Directive adherence measured for the first time: 19 of 19
+      injected directives were followed.
+  - Method: the 495 observed requests in `~/.agents-learning/requests.jsonl` were routed offline
+    through `route_prompt.py` (72 would route, 55 unique), each unique prompt was located in the
+    3,154 on-disk transcripts (48 found), and the injected directive was confirmed by finding the
+    lane's marker text within 8 lines of the user turn. Adherence was judged mechanically: the
+    lane's expected skill name or activity signal (for example `systematic-debugging`,
+    `frontend-design`, `project-continuation`, rule-file edits for agent-config) appearing in the
+    turns before the next user message.
+  - Result: 19 prompts had the directive injected at that turn - debug 6, frontend 5, agent-config
+    3, continuation 4, traffic-client 1 - and all 19 show the expected follow-up signal. Of the
+    rest, 17 were per-session suppression working as designed (the lane had already fired earlier in
+    that session), 5 predate the router or the lane, and 7 prompts were not found on disk.
+  - Caveat: the judgement is keyword-based, not a semantic read of each turn; a directive "followed"
+    here means the expected skill or activity is visible in the response, not that the method was
+    executed well.
+  - Evidence: analysis artifacts in the session scratchpad (`routed.json`, `adherence.json`); counts
+    reproduced in-session 2026-08-24.
+
+- [x] 2026-08-24 - **Learning loop:** The router-audit stage now survives its own trigger learning.
+  - Root cause: `compareRouterExpectationCorpus` treated any difference between the freshly learned
+    `trigger-phrases.json` and the hand-maintained `router-expectations.json` as a fatal error, so
+    every loop run after the first ended `Router audit (FAILED)`. Chosen shape: report the drift,
+    never fail on it - generating expectations from learned phrases was rejected because auditing
+    the router against phrases the router's own pipeline learned would be circular.
+  - Change: `libraryRouterAudit.ts` reports `corpusDrift` in the JSON payload, the text output, and
+    `router-audit.json` (first 10 lines in text mode) instead of exiting 1.
+  - Evidence: `pnpm run library:router-audit -- --dry-run` exits 0 with
+    `corpus drift vs learned phrases: 59` against the real learning dir; `pnpm run check` exit 0.
+  - Files: `scripts/commands/libraryRouterAudit.ts`.
+
+- [x] 2026-08-24 - **Router and hooks:** The `loop` lane exists; the other four candidate lanes were
+      declined on the evidence.
+  - Decision on the 14 unrouted phrases: `loop` (5 hits, all with the distinctive verb + "cada
+    <interval>" shape) earned a lane; `claude-in-chrome` (3) declined because its phrases are
+    account/profile context statements - one is a bare email address - with no generalizable
+    trigger; `dataviz`/`artifact-design` (3) and `codex` (1) declined as approval-shaped phrases
+    that would misroute acknowledgements; `orca-cli` (2, one approval) left as a re-check item.
+  - Change: `loop` tuple in `ROUTES` (verb `avisa/report/tick/check/comprueba/monitoriza/chequea`
+    within 40 chars of `cada <n> m/min/h|minuto|rato|poco`), `loop: "policy-only"` in `LANE_SKILLS`,
+    `/loop` markers in `LANE_MARKERS` and `LANE_DIRECTIVE_MARKERS`, the five phrases moved from
+    `silent` to `routes.loop` in `router-fixtures.json` and to `expectedLane: "loop"` in
+    `router-expectations.json`.
+  - Evidence: router tests 10 pass / 0 fail; audit went 66 correct / 41 silent to 71 correct / 36
+    silent with 0 wrong lanes; `pnpm run check` exit 0 after `pnpm run build && pnpm run hooks:link`
+    (authorized by the user this session); the installed `~/.agents/hooks/utils/route_prompt.py`
+    fires the loop directive on "report cada 10m".
+  - Files: `src/hooks/utils/route_prompt.py`, `src/hooks/router-fixtures.json`,
+    `src/hooks/router-expectations.json`, `scripts/lib/library/learning/constants/LANE_SKILLS.ts`,
+    `scripts/lib/hooks/constants/LANE_MARKERS.ts`,
+    `scripts/lib/library/learning/constants/LANE_DIRECTIVE_MARKERS.ts`.
+
 - [x] 2026-08-24 - **Machines:** Every commit that lived on one machine only is now on GitHub, and
       both `~/p` trees hold the same 26 repositories they were missing.
   - The gate that unblocked it: the user's rule is _no deploy without authorization_, not _no push_.

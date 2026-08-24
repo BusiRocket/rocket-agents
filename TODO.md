@@ -13,18 +13,11 @@
 
 ## Router and hooks
 
-- [ ] Measure directive adherence: when the router injects a directive, was it followed? The Round 2
-      audit closed 2026-08-24 on every other metric (coverage 19.3%, lane precision 66/0, hooks
-      green - see `TODO_LOG.md`) and this is the one it names as the metric that actually matters.
-      No tooling produces it, because it needs transcript reading rather than counting. Smallest
-      step: sample routed prompts from `~/.agents-learning/requests.jsonl`, find each one's
-      transcript and judge whether the following turn obeyed the directive.
-- [ ] Decide the lanes the 2026-08-24 audit proved missing. Fourteen measured phrases route nowhere
-      because no lane covers their skill: `loop` (5: "avisame cada 5m", "report cada 10m", "dame un
-      tick cada 5m", "vale pon un check cada minuto"), `claude-in-chrome` (3), `dataviz` plus
-      `artifact-design` (3), `orca-cli` (2), `codex` (1). The rest of the 41 silent phrases are
-      correctly silent: bare approvals and explicit `/slash` invocations that name the skill
-      already. Adding a lane is one tuple in `ROUTES`; the question is which of the five earn one.
+- [ ] Re-check `orca-cli` routing after another audit window. Decision 2026-08-24: `loop` got its
+      lane (see `TODO_LOG.md`); `claude-in-chrome`, `dataviz`/`artifact-design` and `codex` were
+      declined because their measured phrases are context statements or approvals with no
+      generalizable trigger; `orca-cli` (2 hits, one an approval, but "el navegador de orca" is
+      distinctive) was the only marginal case worth revisiting if it keeps appearing.
 
 ## Skills
 
@@ -95,23 +88,12 @@
 > Code went from 13 skills offered to 30. Spec and plan:
 > `docs/superpowers/specs/2026-08-18-skill-library-and-learning-loop-design.md`.
 
-- [ ] Decide how the loop's router-audit stage survives its own trigger learning. Every run now ends
-      `Router audit (FAILED)` and exits 1: the Triggers stage rewrites
-      `~/.agents-learning/trigger-phrases.json`, `compareRouterExpectationCorpus` then finds phrases
-      that `src/hooks/router-expectations.json` does not declare, and refuses to audit. Nothing in
-      the repository regenerates that manifest - it is hand-maintained - so the failure is permanent
-      and the weekly report will always cry wolf. Two shapes: generate the expectations from the
-      learned phrases, or let the audit report unknown phrases instead of failing on them. Measured
-      2026-08-24 on the first real run.
-- [~] Check the weekly loop reports (`~/.agents-learning/reports/`) and whether the promoted skills
-  fire. A promotion that does not change invocation counts is a proposal to demote, and that is the
-  first real test of whether any of this works. No longer blocked on the clock: the 2026-08-23 run
-  never happened, the three reasons were found and fixed, and the first real run completed
-  2026-08-24 (see `TODO_LOG.md`) - report at
-  `~/.agents-learning/reports/2026-08-24-library-loop.md`, 495 requests observed, 486 classified, 17
-  procedures, 0 parked. What remains is the actual judgement the item asks for: read that report
-  against the invocation counts and decide whether any promoted skill earned its place. The second,
-  unattended run also still has to prove the new 6-hourly schedule catches up after sleep.
+- [~] Verify the second, unattended weekly-loop run: the 6-hourly `--if-due 7` schedule still has to
+  prove it catches up after sleep without a manual kickstart (check `~/.agents-learning/reports/`
+  after 2026-08-31). The judgement half closed 2026-08-24 (see `TODO_LOG.md`): the report's own park
+  proposals were reviewed and endorsed - 11 promoted skills with zero invocations ride the auto-park
+  grace period, and the promotions that fired (frontend-design, computer-use, orca-cli, the core
+  lanes) stay.
 - [ ] Exercise patch reapplication against a real fork. Implemented and tested for the conflict
       case, never run for real, because nothing is forked yet.
 - [ ] Codex-side usage stays unmeasured. `library:observe-codex` refuses to report it: an anchored
@@ -157,15 +139,12 @@
       the targets are only meaningful on the diff side, since apply still hard-codes `full` and has
       no plugins or services domain to select. Smallest next step: thread the profile through
       `machineApply.ts` when those apply domains exist.
-- [ ] Record install provenance for the tools that still have none. Resolved 2026-08-22: `codegraph`
-      is the global npm package `@colbymchenry/codegraph@1.5.0` and Serena is the uv tool
-      `serena-agent@1.7.0`, so the gap was the sweep, not the tools — it must read `npm ls -g` and
-      `uv tool list`, which it does not. `claude` (2.1.239) and `cursor-agent` (2026.08.11-e8db854)
-      are self-updating installers under `~/.local/share`, recoverable by re-running the installer
-      but unpinned. `agy` 1.1.17 and `herdr` 0.8.0 remain the real gap: bare arm64 Mach-O binaries
-      in `~/.local/bin` with no package, no installer and no recoverable source, so both are lost if
-      the disk is. Smallest action: extend the sweep to the two package managers, then archive the
-      `agy` and `herdr` binaries somewhere durable.
+- [~] Install provenance: the archive half is done (2026-08-24, see `TODO_LOG.md` — `agy` 1.1.19 and
+  `herdr` 0.8.0 copied to `~/p/_archivar/handmade-binaries/` with SHA-256 sums; `npm ls -g` and
+  `uv tool list` re-confirmed codegraph and serena-agent live in package managers). Remaining:
+  extend the dotfiles runtime-inventory sweep method to read the two package managers (filed in
+  `~/p/dotfiles/TODO.md`), and note that `agy` self-updates (1.1.17 -> 1.1.19 in two days), so the
+  archive is a disaster copy, not a pin.
 - [ ] `config` apply must merge, never replace: third-party tools (orca, atuin, warp) inject hooks
       into `settings.json` without asking, and a full rewrite drops them. Verified 2026-08-22 that
       this is a constraint on unbuilt code, not a live defect: there is no `config` domain, and the
@@ -200,6 +179,13 @@
 
 ## Harness
 
+- [ ] `RUN_LIVE_PROBE_TEST` flakes under machine load: its live probes run with a ~1s timeout, and
+      with load average ~40 (many concurrent agent sessions) spawn latency alone exceeds it - all
+      failures land at ~1003ms. Observed 2026-08-24: pass 8/0 standalone on a quiet machine, fail
+      3-5 both standalone and inside `pnpm run check` while loaded, with identical code. Smallest
+      fix: raise the test's probe timeout or make it load-aware; until then a red check on a busy
+      machine needs one quiet-machine rerun before it is believed.
+
 - [ ] Dependency sweep for native replacements across the `~/p` frontends: `Intl.*` for formatting,
       `crypto.randomUUID`, `structuredClone`, `URLSearchParams`, `AbortController`. Measured
       elsewhere: audit vulnerabilities 17 -> 5. Fewer deps also shrinks the supply-chain surface.
@@ -209,33 +195,7 @@
       no confirmed real finding in the sampled verdicts. Options: keep (subscription absorbs it),
       scope to risky paths only, or disable. Numbers in `TODO_LOG.md` 2026-08-13.
 
-## Repository hygiene
-
-- [ ] Decide whether `feat/agent-health-matrix` and `feat/codex-state-recovery` follow
-      `feat/skill-router-reliability` out (deleted 2026-08-24). Both are in the identical state: 0
-      unique commits against `main` locally and on `origin`, so deleting them is provably lossless.
-      Left alone because they were never in the backlog.
-
 ## Cross-project
-
-- [ ] `~/p/dotfiles`: mirror the `com.cristian.library-loop` schedule change made on the installed
-      plist 2026-08-24 - `StartCalendarInterval` Sunday 06:30 replaced by `StartInterval` 21600 with
-      `--if-due 7`, because a calendar interval the machine sleeps through is never caught up. This
-      is the copied-not-linked drift already filed there, now with a concrete instance: leaving the
-      dotfiles copy alone means the next bootstrap silently restores the schedule that fails.
-- [ ] `~/p/dotfiles` (filed there 2026-08-22, four LaunchAgent items): plists are copied rather than
-      linked so installed copies drift silently — proven by the `library-loop` agent, which still
-      carried the pre-rename path while the dotfiles copy did not; `sync-all-safe` is drifted now
-      with no obvious authoritative side; `sync-conversations` and `sync-projects` are declared but
-      never installed; and every plist hardcodes an absolute home path that the new
-      `domains/services` schema would reject. Filed, not executed — dotfiles owns launchd.
-
-- [ ] `~/p` meta backlog: `~/p/agents-tools` is an empty leftover directory from the rename to
-      `rocket-agents`, holding only an empty `.serena`. Because it sits inside the `~/p` git repo,
-      any `git` command run there silently resolves to the `~/p` meta repo, which is how it was
-      found (2026-08-22, a `git status` there reported `~/p/TODO.md` as modified). Smallest action:
-      delete the directory from `~/p`. Filed here rather than executed - the target is another
-      repository.
 
 - [ ] `~/p/RocketUpdater` (no TODO.md there yet): commit or discard its untracked `.serena/` state —
       already named in `~/p/osseus/TODO.md`'s `.serena` entry, which can carry it; smallest action

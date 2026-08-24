@@ -6,6 +6,35 @@
 
 ### 2026-08
 
+- [x] 2026-08-24 - **Machine provisioning:** Plugins and services became apply domains, and
+      `--profile` reached the apply side.
+  - Plugins apply drives the `claude plugin` CLI (`install --scope user --yes`, `uninstall`,
+    `enable`/`disable` with `CLAUDE_CONFIG_DIR` pointed at the right profile) instead of editing
+    `installed_plugins.json`, because the CLI owns the cache and marketplace state. Changes run
+    sequentially: the plugin tree is shared between both Claude profiles and is single-writer. A
+    version pin is reported as `manual` and never executed - the CLI has no install-a-version flag.
+  - Services apply writes each drifted unit and loads it: launchd gets `bootout` (tolerated to fail
+    when the job was never loaded) then `bootstrap`; systemd gets one `daemon-reload` for the whole
+    run plus `enable --now` on the timer when a service has one, on the service unit otherwise. It
+    never removes an undeclared unit, which is what keeps the 25 hand-written LaunchAgents safe.
+  - Cache pruning is opt-in behind `machine:apply -- --prune-cache` and removes only directories
+    belonging to no known marketplace; stale version directories stay until capture resolves
+    `settings.json` references.
+  - `--profile` now guards apply the same way it guards diff: an unknown value fails before any
+    mutation, `MACHINE_PROFILES` decides which domains run, and the run report carries the profile.
+    The run snapshot grew to cover `installed_plugins.json`, `known_marketplaces.json` and every
+    declared unit path, so a rollback can restore or remove them.
+  - Both apply paths take an injected `CommandRunner`, so the tests exercise the real code against
+    a recording stub in a fresh temp directory without touching this machine.
+  - Evidence: `pnpm run machine:test` 200 pass / 0 fail (11 new cases); `pnpm run check` exit 0;
+    `pnpm run machine:apply -- --profile nope` exits 1 with `unknown profile nope` before any
+    write; `pnpm run machine:diff -- --profile lite --json` lists exactly the four lite domains.
+  - Files: `scripts/lib/machine/exec/` (runner, types, recording fixture),
+    `domains/plugins/{apply,toPluginCommand,pruneOrphanCacheDirectories,runPluginsApply,toPluginsApplyStatus}.ts`,
+    `domains/services/{apply,collectDriftedUnits,reloadServiceUnit,toReloadCommands,resolveDeclaredUnitPaths,runServicesApply,toServicesApplyStatus}.ts`,
+    `domains/mcp/toMcpApplyDomain.ts`, `domains/capabilities/toCapabilityMessages.ts`,
+    `report/toFailedRunReport.ts`, `scripts/commands/machineApply.ts`.
+
 - [x] 2026-08-24 - **Machine provisioning:** `agy` and `herdr` archived; package-manager provenance
       re-confirmed live.
   - `~/p/_archivar/handmade-binaries/` now holds `agy-1.1.19` (178 MB) and `herdr-0.8.0` (18 MB)

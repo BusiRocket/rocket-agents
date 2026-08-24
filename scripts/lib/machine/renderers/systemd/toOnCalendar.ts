@@ -1,7 +1,7 @@
 import { SYSTEMD_WEEKDAYS } from "./SYSTEMD_WEEKDAYS"
-import type { ServiceSchedule } from "../../domains/services/types/ServiceSchedule"
+import type { CalendarSchedule } from "../../domains/services/types/CalendarSchedule"
 
-export const toOnCalendar = (schedule: ServiceSchedule): string => {
+export const toOnCalendar = (schedule: CalendarSchedule): string => {
   const time = `${String(schedule.hour).padStart(2, "0")}:${String(schedule.minute).padStart(2, "0")}:00`
   const day = schedule.weekday === undefined ? undefined : SYSTEMD_WEEKDAYS[schedule.weekday]
 

@@ -1,6 +1,6 @@
-import type { ServiceSchedule } from "../../domains/services/types/ServiceSchedule"
+import type { CalendarSchedule } from "../../domains/services/types/CalendarSchedule"
 
-export const renderCalendarInterval = (schedule: ServiceSchedule): string[] => {
+export const renderCalendarInterval = (schedule: CalendarSchedule): string[] => {
   const entries: [string, number][] = [
     ...(schedule.weekday === undefined
       ? []

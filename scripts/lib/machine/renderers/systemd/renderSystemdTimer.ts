@@ -1,4 +1,4 @@
-import { toOnCalendar } from "./toOnCalendar"
+import { toTimerSchedule } from "./toTimerSchedule"
 import type { ServiceDefinition } from "../../domains/services/types/ServiceDefinition"
 
 export const renderSystemdTimer = (service: ServiceDefinition): string | undefined => {
@@ -11,7 +11,7 @@ export const renderSystemdTimer = (service: ServiceDefinition): string | undefin
     `Description=${service.name} timer`,
     "",
     "[Timer]",
-    `OnCalendar=${toOnCalendar(service.schedule)}`,
+    ...toTimerSchedule(service.schedule),
     "Persistent=true",
     "",
     "[Install]",

@@ -54,3 +54,51 @@ void test("an unknown top-level key is rejected rather than ignored", () => {
 void test("a non-object manifest is rejected", () => {
   assert.deepEqual(parseServicesManifest([]), { ok: false, errors: ["manifest must be an object"] })
 })
+
+void test("an interval schedule is accepted", () => {
+  const parsed = parseServicesManifest({
+    version: 1,
+    services: [
+      {
+        name: "com.example.poller",
+        workingDirectory: "p/rocket-agents",
+        command: "npx tsx scripts/bin/run-library-loop.ts --if-due 7",
+        schedule: { intervalSeconds: 21_600 },
+      },
+    ],
+  })
+
+  assert.equal(parsed.ok, true)
+})
+
+void test("a schedule that is both an interval and a calendar slot is rejected", () => {
+  const parsed = parseServicesManifest({
+    version: 1,
+    services: [
+      {
+        name: "com.example.confused",
+        workingDirectory: "p/rocket-agents",
+        command: "true",
+        schedule: { intervalSeconds: 60, hour: 6, minute: 30 },
+      },
+    ],
+  })
+
+  assert.equal(parsed.ok, false)
+})
+
+void test("a zero or negative interval is rejected", () => {
+  const parsed = parseServicesManifest({
+    version: 1,
+    services: [
+      {
+        name: "com.example.zero",
+        workingDirectory: "p/rocket-agents",
+        command: "true",
+        schedule: { intervalSeconds: 0 },
+      },
+    ],
+  })
+
+  assert.equal(parsed.ok, false)
+})

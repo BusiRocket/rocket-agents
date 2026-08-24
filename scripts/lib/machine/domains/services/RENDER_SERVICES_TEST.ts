@@ -58,3 +58,22 @@ void test("a daily schedule renders without a weekday", () => {
 void test("a service without a schedule renders no timer at all", () => {
   assert.equal(renderSystemdTimer(createUnscheduledService()), undefined)
 })
+
+void test("an interval schedule renders as StartInterval, not a calendar slot", () => {
+  const rendered = renderLaunchAgent(
+    createServiceDefinition({ schedule: { intervalSeconds: 21_600 } }),
+  )
+
+  assert.match(rendered, /<key>StartInterval<\/key>\n {2}<integer>21600<\/integer>/)
+  assert.equal(rendered.includes("StartCalendarInterval"), false)
+})
+
+void test("an interval timer also fires once after boot, so a machine that was off catches up", () => {
+  const timer = String(
+    renderSystemdTimer(createServiceDefinition({ schedule: { intervalSeconds: 21_600 } })),
+  )
+
+  assert.match(timer, /OnBootSec=21600s/)
+  assert.match(timer, /OnUnitActiveSec=21600s/)
+  assert.equal(timer.includes("OnCalendar"), false)
+})

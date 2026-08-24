@@ -9,6 +9,21 @@ export const collectScheduleErrors = (raw: unknown, at: string, errors: string[]
   }
 
   const schedule = raw as Record<string, unknown>
+
+  if (schedule.intervalSeconds !== undefined) {
+    if (
+      typeof schedule.intervalSeconds !== "number" ||
+      !Number.isInteger(schedule.intervalSeconds) ||
+      schedule.intervalSeconds < 1
+    ) {
+      errors.push(`${at}.schedule.intervalSeconds must be a positive integer`)
+    }
+    if (schedule.hour !== undefined || schedule.minute !== undefined) {
+      errors.push(`${at}.schedule must be an interval or a calendar slot, not both`)
+    }
+    return
+  }
+
   const ranges: [string, number, number][] = [
     ["hour", 0, 23],
     ["minute", 0, 59],

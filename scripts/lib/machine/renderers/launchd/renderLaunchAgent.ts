@@ -1,5 +1,5 @@
 import { escapeXml } from "./escapeXml"
-import { renderCalendarInterval } from "./renderCalendarInterval"
+import { renderSchedule } from "./renderSchedule"
 import { toShellCommand } from "./toShellCommand"
 import type { ServiceDefinition } from "../../domains/services/types/ServiceDefinition"
 
@@ -17,7 +17,7 @@ export const renderLaunchAgent = (service: ServiceDefinition): string =>
     "    <string>-lc</string>",
     `    <string>${escapeXml(toShellCommand(service, "$HOME"))}</string>`,
     "  </array>",
-    ...(service.schedule === undefined ? [] : renderCalendarInterval(service.schedule)),
+    ...(service.schedule === undefined ? [] : renderSchedule(service.schedule)),
     ...(service.runAtLoad === true ? ["  <key>RunAtLoad</key>", "  <true/>"] : []),
     ...(service.keepAlive === true ? ["  <key>KeepAlive</key>", "  <true/>"] : []),
     "</dict>",

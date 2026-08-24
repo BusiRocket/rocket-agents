@@ -6,6 +6,30 @@
 
 ### 2026-08
 
+- [x] 2026-08-24 - **Learning loop:** Codex-side usage is measurable, and the proposals now count it.
+  - The signal was there all along, in the wrong place: Codex rollouts are structured JSONL, and a
+    skill name reaches the file three ways - the injected catalogue (a `developer` message), the
+    agent actually running a command (`custom_tool_call` / `function_call`), and command output
+    that lists directories. The old reader scanned the whole file, so the catalogue drowned the
+    real reads. Counting only invocation payloads separates them.
+  - Measured across all 4,144 rollouts: whole-file scanning gives 316 skills led by a catalogue
+    cluster (17 unrelated skills at exactly 892, 8 more at 911); invocation-only gives 102 skills
+    with a believable power-law tail - brain 55, llm-wiki 31, brp-docs 24, code-reviewer 21.
+  - `looksLikeListingArtifact` had to change with it: it fired on the clean data (a real tail has
+    19 skills read twice) and would have passed the poisoned corpus (modal share 0.14). It now
+    ignores the small-count tail and fires when ten or more skills share one value near the top of
+    the distribution, which is the shape a catalogue actually has.
+  - Two consequences wired up: the weekly loop gained an `Observe codex` stage, so the counts are
+    refreshed rather than written once by hand; and `library:propose` merges `codex-reads.json`
+    into the invocation counts, so a skill this machine only uses from Codex is no longer proposed
+    for parking as idle.
+  - Evidence: `pnpm run library:observe-codex -- --dry-run` reports 4,144 rollouts and 102 skills
+    instead of refusing; `pnpm run library:loop -- --dry-run` runs 8 stages, 0 failed, with the new
+    stage's output in the report; `pnpm run library:test` 209 pass / 0 fail (9 new cases);
+    `pnpm run check` exit 0.
+  - Files: `scripts/lib/library/learning/{toCodexInvocationText,readCodexSkillReadsFromFile,looksLikeListingArtifact,mergeInvocationCounts}.ts`
+    plus their tests, `scripts/commands/{libraryLoop,libraryPropose}.ts`.
+
 - [x] 2026-08-24 - **Machine provisioning:** Plugins and services became apply domains, and
       `--profile` reached the apply side.
   - Plugins apply drives the `claude plugin` CLI (`install --scope user --yes`, `uninstall`,
@@ -24,11 +48,11 @@
     mutation, `MACHINE_PROFILES` decides which domains run, and the run report carries the profile.
     The run snapshot grew to cover `installed_plugins.json`, `known_marketplaces.json` and every
     declared unit path, so a rollback can restore or remove them.
-  - Both apply paths take an injected `CommandRunner`, so the tests exercise the real code against
-    a recording stub in a fresh temp directory without touching this machine.
+  - Both apply paths take an injected `CommandRunner`, so the tests exercise the real code against a
+    recording stub in a fresh temp directory without touching this machine.
   - Evidence: `pnpm run machine:test` 200 pass / 0 fail (11 new cases); `pnpm run check` exit 0;
-    `pnpm run machine:apply -- --profile nope` exits 1 with `unknown profile nope` before any
-    write; `pnpm run machine:diff -- --profile lite --json` lists exactly the four lite domains.
+    `pnpm run machine:apply -- --profile nope` exits 1 with `unknown profile nope` before any write;
+    `pnpm run machine:diff -- --profile lite --json` lists exactly the four lite domains.
   - Files: `scripts/lib/machine/exec/` (runner, types, recording fixture),
     `domains/plugins/{apply,toPluginCommand,pruneOrphanCacheDirectories,runPluginsApply,toPluginsApplyStatus}.ts`,
     `domains/services/{apply,collectDriftedUnits,reloadServiceUnit,toReloadCommands,resolveDeclaredUnitPaths,runServicesApply,toServicesApplyStatus}.ts`,

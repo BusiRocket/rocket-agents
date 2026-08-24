@@ -96,9 +96,9 @@
   lanes) stay.
 - [ ] Exercise patch reapplication against a real fork. Implemented and tested for the conflict
       case, never run for real, because nothing is forked yet.
-- [ ] Codex-side usage stays unmeasured. `library:observe-codex` refuses to report it: an anchored
-      read pattern returns 912, 911 and 913 across unrelated skills, which is a catalogue listing,
-      not use. Either Codex gains a real invocation signal or proposals stay Claude-scoped.
+- [ ] Loop reports carry an `npm warn Unknown env config "manage-package-manager-versions"` line in
+      every stage body, because each stage shells out through npm. Cosmetic, but it is the first
+      line a reader sees under each heading. Smallest action: silence the warning in `runBinStage`.
 - [ ] Decide what to do with the 87 parked entries, now that parking is cheap and reversible. The 16
       Java/Spring bundles are the obvious first pass.
 
@@ -117,27 +117,27 @@
   — not a scheduled task. Follow `docs/runbooks/claude-connector-authentication.md`, then verify
   with `pnpm run connectors:doctor -- --json` and `pnpm run agents:doctor -- --json` on the mini.
 - [~] Plugin manifest: capture, schema, parser, planner, the `machine:diff` lane and apply are all
-  built and verified (2026-08-22 and 2026-08-24, see `TODO_LOG.md`). Apply drives the `claude
-  plugin` CLI rather than editing its state files, and reports a version pin as manual work because
-  the CLI cannot install a specific version. Remaining: author the private `plugins.json` in
+  built and verified (2026-08-22 and 2026-08-24, see `TODO_LOG.md`). Apply drives the
+  `claude plugin` CLI rather than editing its state files, and reports a version pin as manual work
+  because the CLI cannot install a specific version. Remaining: author the private `plugins.json` in
   `BusiRocket/dotfiles` from `pnpm run machine:capture:plugins -- --json`, which is where the real
   values belong; until it exists, the plugins domain reports `skipped`. Running apply against this
   machine still needs explicit authorization.
 - [~] Plugin cache hygiene: the one-off sweep is done (2026-08-22, 2.5 GB to 271 MB) and the
   recurring policy is decided (2026-08-24): `machine:apply -- --prune-cache` removes cache
-  directories belonging to no known marketplace, opt-in rather than automatic. Stale *version*
+  directories belonging to no known marketplace, opt-in rather than automatic. Stale _version_
   entries inside known marketplaces are deliberately still not pruned, because capture does not
   resolve `settings.json` references and a `statusLine` can point into a version that reads as
   stale. Remaining: teach capture to resolve those references, then decide whether version pruning
   can be safe. The `realpath` constraint (13 of 37 plugins are recorded through the
   `~/.claude-favish/plugins` symlink) is already honoured by `toRealPath`.
-- [~] Services: schema, both renderers, the diff domain and apply are built and verified
-  (2026-08-22 and 2026-08-24, see `TODO_LOG.md`). Apply writes each drifted unit and loads it
-  (launchd `bootout`+`bootstrap`, systemd one `daemon-reload` plus `enable --now` on the timer),
-  and the removal question is answered: apply never removes an undeclared unit, so the 25
-  hand-written LaunchAgents are safe. Remaining: write the real service descriptions, which carry
-  machine values and belong in the private dotfiles repo; until they exist the services domain
-  reports `skipped`. Running apply against this machine still needs explicit authorization.
+- [~] Services: schema, both renderers, the diff domain and apply are built and verified (2026-08-22
+  and 2026-08-24, see `TODO_LOG.md`). Apply writes each drifted unit and loads it (launchd
+  `bootout`+`bootstrap`, systemd one `daemon-reload` plus `enable --now` on the timer), and the
+  removal question is answered: apply never removes an undeclared unit, so the 25 hand-written
+  LaunchAgents are safe. Remaining: write the real service descriptions, which carry machine values
+  and belong in the private dotfiles repo; until they exist the services domain reports `skipped`.
+  Running apply against this machine still needs explicit authorization.
 - [~] Install provenance: the archive half is done (2026-08-24, see `TODO_LOG.md` — `agy` 1.1.19 and
   `herdr` 0.8.0 copied to `~/p/_archivar/handmade-binaries/` with SHA-256 sums; `npm ls -g` and
   `uv tool list` re-confirmed codegraph and serena-agent live in package managers). Remaining:

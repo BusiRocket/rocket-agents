@@ -1,9 +1,11 @@
+import { promises as fs } from "node:fs"
 import { homedir } from "node:os"
 import { join } from "node:path"
 import { flagValue } from "../lib/machine/cli/flagValue"
 import { readLoopConfig } from "../lib/library/cli/readLoopConfig"
 import { resolveLearningDir } from "../lib/library/cli/resolveLearningDir"
 import { runBinStage } from "../lib/library/cli/runBinStage"
+import { isLoopDue } from "../lib/library/learning/isLoopDue"
 import { writeLoopReport } from "../lib/library/learning/writeLoopReport"
 import type { StageResult } from "../lib/library/cli/types/StageResult"
 
@@ -17,6 +19,28 @@ export const main = async () => {
     env: process.env,
     home,
   })
+
+  const reportsDir = join(learningDir, "reports")
+  const ifDue = flagValue(process.argv, "--if-due")
+
+  if (ifDue !== undefined) {
+    const intervalDays = Number(ifDue)
+
+    if (!Number.isFinite(intervalDays) || intervalDays <= 0) {
+      console.error(`--if-due expects a positive number of days, got: ${ifDue}`)
+      process.exitCode = 1
+      return
+    }
+
+    const reportNames = await fs.readdir(reportsDir).catch(() => [] as string[])
+
+    if (!isLoopDue(reportNames, intervalDays, new Date())) {
+      console.log(
+        `skipped: a report younger than ${String(intervalDays)} day(s) exists in ${reportsDir}`,
+      )
+      return
+    }
+  }
 
   const config = await readLoopConfig(learningDir)
   const classifyCommand =
@@ -72,7 +96,7 @@ export const main = async () => {
   if (dryRun) {
     console.log(sections.map((section) => `## ${section.title}\n${section.body}`).join("\n\n"))
   } else {
-    const reportPath = await writeLoopReport(join(learningDir, "reports"), date, sections)
+    const reportPath = await writeLoopReport(reportsDir, date, sections)
     console.log(`report: ${reportPath}`)
   }
 

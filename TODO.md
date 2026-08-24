@@ -13,10 +13,18 @@
 
 ## Router and hooks
 
-- [ ] Round 2 audit re-run with the revised metrics: directive adherence (the one that matters),
-      router coverage (baseline 172/1053 = 16%) and hand-measured lane precision. Include the known
-      frontend miss: a plain "check this header on mobile" trigger test (2026-07-19) fired no design
-      skill. Baselines and metric definitions in `TODO-skills-audit.md`.
+- [ ] Measure directive adherence: when the router injects a directive, was it followed? The Round 2
+      audit closed 2026-08-24 on every other metric (coverage 19.3%, lane precision 66/0, hooks
+      green - see `TODO_LOG.md`) and this is the one it names as the metric that actually matters.
+      No tooling produces it, because it needs transcript reading rather than counting. Smallest
+      step: sample routed prompts from `~/.agents-learning/requests.jsonl`, find each one's
+      transcript and judge whether the following turn obeyed the directive.
+- [ ] Decide the lanes the 2026-08-24 audit proved missing. Fourteen measured phrases route nowhere
+      because no lane covers their skill: `loop` (5: "avisame cada 5m", "report cada 10m", "dame un
+      tick cada 5m", "vale pon un check cada minuto"), `claude-in-chrome` (3), `dataviz` plus
+      `artifact-design` (3), `orca-cli` (2), `codex` (1). The rest of the 41 silent phrases are
+      correctly silent: bare approvals and explicit `/slash` invocations that name the skill
+      already. Adding a lane is one tuple in `ROUTES`; the question is which of the five earn one.
 
 ## Skills
 
@@ -87,14 +95,23 @@
 > Code went from 13 skills offered to 30. Spec and plan:
 > `docs/superpowers/specs/2026-08-18-skill-library-and-learning-loop-design.md`.
 
-- [!] Check the weekly loop reports (`~/.agents-learning/reports/`, LaunchAgent
-  `com.cristian.library-loop`, Sundays 06:30) and whether the promoted skills fire. A promotion that
-  does not change invocation counts is a proposal to demote, and that is the first real test of
-  whether any of this works. Blocked on the clock: first run is 2026-08-23. Note the agent was
-  pointing at the pre-rename directory and would have failed silently; repaired and reloaded
-  2026-08-22 (see `TODO_LOG.md`), so 2026-08-23 is the first run that can actually produce a report.
-  The first run also does the full classification pass (~26 agy batches), so expect it to take a
-  while and check `~/.agents-learning/loop.log` if the report is missing.
+- [ ] Decide how the loop's router-audit stage survives its own trigger learning. Every run now ends
+      `Router audit (FAILED)` and exits 1: the Triggers stage rewrites
+      `~/.agents-learning/trigger-phrases.json`, `compareRouterExpectationCorpus` then finds phrases
+      that `src/hooks/router-expectations.json` does not declare, and refuses to audit. Nothing in
+      the repository regenerates that manifest - it is hand-maintained - so the failure is permanent
+      and the weekly report will always cry wolf. Two shapes: generate the expectations from the
+      learned phrases, or let the audit report unknown phrases instead of failing on them. Measured
+      2026-08-24 on the first real run.
+- [~] Check the weekly loop reports (`~/.agents-learning/reports/`) and whether the promoted skills
+  fire. A promotion that does not change invocation counts is a proposal to demote, and that is the
+  first real test of whether any of this works. No longer blocked on the clock: the 2026-08-23 run
+  never happened, the three reasons were found and fixed, and the first real run completed
+  2026-08-24 (see `TODO_LOG.md`) - report at
+  `~/.agents-learning/reports/2026-08-24-library-loop.md`, 495 requests observed, 486 classified, 17
+  procedures, 0 parked. What remains is the actual judgement the item asks for: read that report
+  against the invocation counts and decide whether any promoted skill earned its place. The second,
+  unattended run also still has to prove the new 6-hourly schedule catches up after sleep.
 - [ ] Exercise patch reapplication against a real fork. Implemented and tested for the conflict
       case, never run for real, because nothing is forked yet.
 - [ ] Codex-side usage stays unmeasured. `library:observe-codex` refuses to report it: an anchored
@@ -169,9 +186,6 @@
 - [ ] Install `detect-secrets` as a pre-commit hook and enable GitHub secret scanning on the active
       repos. A leaked AWS key was used 11 minutes after the push in one documented case. Cheap,
       one-time. Source: `~/p/brain/topics/app-security.md`.
-- [ ] `poirocket` was flagged in the 2026-08-13 publish-token keyword sweep but has no checkout
-      under `~/p`, so the 2026-08-22 audit could not cover it (the other 15 flagged repos are done,
-      see `TODO_LOG.md`). Clone or locate it and check its workflows for long-lived registry tokens.
 - [ ] Adopt pnpm 11 supply-chain controls across the other `~/p` repos: `minimumReleaseAge: 1440`
       (24h cooldown defeats the compromised-token window) and `blockExoticSubdeps: true`. Needs Node
       22 and pnpm 11; check per repo. This repository was verified compliant 2026-08-22
@@ -197,12 +211,18 @@
 
 ## Repository hygiene
 
-- [ ] Delete the merged branch `feat/skill-router-reliability` once its remote state is checked. Its
-      worktree was removed 2026-08-22 and the branch is fully merged into `main` (0 unique commits),
-      so the ref is the only leftover. Confirm no remote tracks it first.
+- [ ] Decide whether `feat/agent-health-matrix` and `feat/codex-state-recovery` follow
+      `feat/skill-router-reliability` out (deleted 2026-08-24). Both are in the identical state: 0
+      unique commits against `main` locally and on `origin`, so deleting them is provably lossless.
+      Left alone because they were never in the backlog.
 
 ## Cross-project
 
+- [ ] `~/p/dotfiles`: mirror the `com.cristian.library-loop` schedule change made on the installed
+      plist 2026-08-24 - `StartCalendarInterval` Sunday 06:30 replaced by `StartInterval` 21600 with
+      `--if-due 7`, because a calendar interval the machine sleeps through is never caught up. This
+      is the copied-not-linked drift already filed there, now with a concrete instance: leaving the
+      dotfiles copy alone means the next bootstrap silently restores the schedule that fails.
 - [ ] `~/p/dotfiles` (filed there 2026-08-22, four LaunchAgent items): plists are copied rather than
       linked so installed copies drift silently — proven by the `library-loop` agent, which still
       carried the pre-rename path while the dotfiles copy did not; `sync-all-safe` is drifted now

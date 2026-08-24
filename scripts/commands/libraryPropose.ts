@@ -9,6 +9,7 @@ import { resolveLibraryDir } from "../lib/library/cli/resolveLibraryDir"
 import { formatProposals } from "../lib/library/formatters/formatProposals"
 import { parseProceduresFile } from "../lib/library/learning/parseProceduresFile"
 import { guessCoveringSkill } from "../lib/library/learning/guessCoveringSkill"
+import { mergeInvocationCounts } from "../lib/library/learning/mergeInvocationCounts"
 import { readInvocationCounts } from "../lib/library/learning/readInvocationCounts"
 import { readSkillDescription } from "../lib/library/cli/readSkillDescription"
 import type { SkillCatalogEntry } from "../lib/library/learning/types/SkillCatalogEntry"
@@ -51,7 +52,12 @@ export const main = async () => {
     return
   }
 
-  const invocations = await readInvocationCounts(join(libraryDir, "learning", "invocations.json"))
+  // Codex reads count as usage: without them a skill this machine only uses
+  // from Codex reads as idle and gets proposed for parking.
+  const invocations = mergeInvocationCounts([
+    await readInvocationCounts(join(libraryDir, "learning", "invocations.json")),
+    await readInvocationCounts(join(libraryDir, "learning", "codex-reads.json")),
+  ])
 
   const catalog: SkillCatalogEntry[] = []
   for (const [key, entry] of Object.entries(parsed.manifest.entries)) {

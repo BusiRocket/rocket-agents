@@ -53,6 +53,7 @@ export const main = async () => {
   const results: StageResult[] = []
 
   results.push(await runBinStage("Observe", bin("run-library-observe.ts"), passthrough))
+  results.push(await runBinStage("Observe codex", bin("run-library-observe-codex.ts"), passthrough))
 
   if (dryRun) {
     results.push({

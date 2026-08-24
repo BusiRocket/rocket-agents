@@ -6,28 +6,46 @@
 
 ### 2026-08
 
-- [x] 2026-08-24 - **Learning loop:** Codex-side usage is measurable, and the proposals now count it.
+- [x] 2026-08-24 - **Harness:** Two pieces of noise removed - a load-sensitive test and npm chatter
+      in every loop report.
+  - `RUN_LIVE_PROBE_TEST` was failing 3 to 5 of its 8 cases whenever the machine was busy, always
+    at ~1003ms, while passing 8/0 on a quiet machine with identical code. Cause: the shared fixture
+    pinned `timeoutMs` to 1,000, and under load average ~40 spawning the probe script alone
+    exceeded it. These cases classify probe output, not latency, and the timeout path has its own
+    case that passes a 20ms budget explicitly, so the fixture now allows 30s.
+  - Every loop report section opened with `npm warn Unknown env config
+    "manage-package-manager-versions"`, because each stage shells out through npx. `runBinStage`
+    already stripped `npm notice`; the strip moved into `stripNpmChatter` and now covers warnings.
+  - Evidence: the probe test passed 8/0 three times in a row at load average ~20, where it had been
+    failing; `pnpm run library:loop -- --dry-run` reports now open on the stage's own first line;
+    `pnpm run library:test` 212 pass / 0 fail; `pnpm run check` exit 0.
+  - Files: `scripts/lib/platform-health/fixtures/createLiveProbeDefinition.ts`,
+    `scripts/lib/library/cli/{stripNpmChatter,runBinStage}.ts` plus the new test.
+
+- [x] 2026-08-24 - **Learning loop:** Codex-side usage is measurable, and the proposals now count
+      it.
   - The signal was there all along, in the wrong place: Codex rollouts are structured JSONL, and a
     skill name reaches the file three ways - the injected catalogue (a `developer` message), the
-    agent actually running a command (`custom_tool_call` / `function_call`), and command output
-    that lists directories. The old reader scanned the whole file, so the catalogue drowned the
-    real reads. Counting only invocation payloads separates them.
+    agent actually running a command (`custom_tool_call` / `function_call`), and command output that
+    lists directories. The old reader scanned the whole file, so the catalogue drowned the real
+    reads. Counting only invocation payloads separates them.
   - Measured across all 4,144 rollouts: whole-file scanning gives 316 skills led by a catalogue
     cluster (17 unrelated skills at exactly 892, 8 more at 911); invocation-only gives 102 skills
     with a believable power-law tail - brain 55, llm-wiki 31, brp-docs 24, code-reviewer 21.
-  - `looksLikeListingArtifact` had to change with it: it fired on the clean data (a real tail has
-    19 skills read twice) and would have passed the poisoned corpus (modal share 0.14). It now
-    ignores the small-count tail and fires when ten or more skills share one value near the top of
-    the distribution, which is the shape a catalogue actually has.
+  - `looksLikeListingArtifact` had to change with it: it fired on the clean data (a real tail has 19
+    skills read twice) and would have passed the poisoned corpus (modal share 0.14). It now ignores
+    the small-count tail and fires when ten or more skills share one value near the top of the
+    distribution, which is the shape a catalogue actually has.
   - Two consequences wired up: the weekly loop gained an `Observe codex` stage, so the counts are
-    refreshed rather than written once by hand; and `library:propose` merges `codex-reads.json`
-    into the invocation counts, so a skill this machine only uses from Codex is no longer proposed
-    for parking as idle.
+    refreshed rather than written once by hand; and `library:propose` merges `codex-reads.json` into
+    the invocation counts, so a skill this machine only uses from Codex is no longer proposed for
+    parking as idle.
   - Evidence: `pnpm run library:observe-codex -- --dry-run` reports 4,144 rollouts and 102 skills
     instead of refusing; `pnpm run library:loop -- --dry-run` runs 8 stages, 0 failed, with the new
     stage's output in the report; `pnpm run library:test` 209 pass / 0 fail (9 new cases);
     `pnpm run check` exit 0.
-  - Files: `scripts/lib/library/learning/{toCodexInvocationText,readCodexSkillReadsFromFile,looksLikeListingArtifact,mergeInvocationCounts}.ts`
+  - Files:
+    `scripts/lib/library/learning/{toCodexInvocationText,readCodexSkillReadsFromFile,looksLikeListingArtifact,mergeInvocationCounts}.ts`
     plus their tests, `scripts/commands/{libraryLoop,libraryPropose}.ts`.
 
 - [x] 2026-08-24 - **Machine provisioning:** Plugins and services became apply domains, and

@@ -96,9 +96,6 @@
   lanes) stay.
 - [ ] Exercise patch reapplication against a real fork. Implemented and tested for the conflict
       case, never run for real, because nothing is forked yet.
-- [ ] Loop reports carry an `npm warn Unknown env config "manage-package-manager-versions"` line in
-      every stage body, because each stage shells out through npm. Cosmetic, but it is the first
-      line a reader sees under each heading. Smallest action: silence the warning in `runBinStage`.
 - [ ] Decide what to do with the 87 parked entries, now that parking is cheap and reversible. The 16
       Java/Spring bundles are the obvious first pass.
 
@@ -178,12 +175,6 @@
 
 ## Harness
 
-- [ ] `RUN_LIVE_PROBE_TEST` flakes under machine load: its live probes run with a ~1s timeout, and
-      with load average ~40 (many concurrent agent sessions) spawn latency alone exceeds it - all
-      failures land at ~1003ms. Observed 2026-08-24: pass 8/0 standalone on a quiet machine, fail
-      3-5 both standalone and inside `pnpm run check` while loaded, with identical code. Smallest
-      fix: raise the test's probe timeout or make it load-aware; until then a red check on a busy
-      machine needs one quiet-machine rerun before it is believed.
 
 - [ ] Dependency sweep for native replacements across the `~/p` frontends: `Intl.*` for formatting,
       `crypto.randomUUID`, `structuredClone`, `URLSearchParams`, `AbortController`. Measured

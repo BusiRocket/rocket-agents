@@ -26,10 +26,14 @@
 > unbuilt skill gaps. They are decisions about that repository's contents, and executing them here
 > would edit another repo. What stays below is the part this engine owns.
 
-- [ ] Link the curated list into `~/.claude/skills` and into Antigravity (`~/.gemini/config/skills`,
-      which currently carries only the 7 BRP skills). Claude Code sees 13 of 273 skills today and
-      all 13 are BRP; the rest were never offered to it. This is a machine mutation (`skills:link`)
-      and needs explicit authorization.
+- [ ] Deliver the curated list to Antigravity. Claude is done: it already carries all 42 curated
+      skills natively (verified 2026-08-25, `library:link --target claude` plans 42 with 0 foreign
+      and creates nothing new), so the original framing - "Claude Code sees 13 of 273" - was stale
+      by a week. Antigravity is the real gap and the current tooling cannot fill it: `library:link`
+      symlinks, while Antigravity's registry entry declares `linkStrategy: copy` with
+      `flattenSkills`, and the dedicated `skills:link:antigravity` installs this repo's own
+      `src/skills` rather than the curated library. Smallest next step: teach the Antigravity
+      installer to read the curation manifest, or give `library:link` a copy strategy.
 
 ## Skill library and learning loop
 

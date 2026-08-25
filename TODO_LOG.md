@@ -6,27 +6,63 @@
 
 ### 2026-08
 
+- [x] 2026-08-25 - **Machine provisioning:** `machine:apply` run with authorization; every domain is
+      converged.
+  - Applied on profile `full`, run `2026-08-25T02-55-46-7r8r`: 14 MCP server entries across 5
+    targets, and the one drifted LaunchAgent rewritten. `machine:diff` now reads converged on all
+    five domains, from `mcp changed 2` and `services changed 1` before.
+  - Verified against the machine rather than the report: gemini and cursor gained context7
+    (`codegraph, context7, serena` each) while claude-personal, claude-favish and codex kept their
+    existing servers; the installed plist is now byte-identical to the rendered unit; and the
+    reloaded agent was kickstarted to prove it works - `runs = 1`, `last exit code = 0`, log line
+    `skipped: a report younger than 7 day(s) exists`, with `run interval = 21600 seconds` intact.
+  - `connectors:doctor` and `agents:doctor` both stay green afterwards, with only the optional
+    `zerohedge` unhealthy.
+
+- [x] 2026-08-25 - **Skills library:** Claude's curated list was already complete; the linking tool
+      had a footgun that this run tripped and then fixed.
+  - The backlog item was stale: `library:link --target claude` plans 42 skills, 0 foreign, and
+    creates nothing - Claude already carried the whole curated set natively. The stated "13 of 273"
+    predated the 2026-08-18 fan-out.
+  - The footgun: `--into` defaulted to `~/.claude/skills` for *every* target, while each non-claude
+    target compiles to its own format first. Linking codex, gemini-cli and antigravity in sequence
+    therefore left 42 of Claude's skills pointing at `compiled/codex` output, plus 8 duplicate
+    flattened `superpowers-*` entries. Caught by inspecting the destination rather than trusting
+    the "34 created / 42 created" output, and repaired the same run: a native `--target claude`
+    relink restored the 42, and the 8 duplicates were removed one by one after confirming each was
+    a symlink into `compiled/codex` and that Claude already had those skills from its plugin.
+    Verified back to baseline - 51 entries, 0 pointing at compiled output, 0 broken links, 0 lost
+    against the listing taken before the run.
+  - Fixed so it cannot recur: `resolveLinkDir` gives only claude a default, and any other target
+    without `--into` now fails loudly before compiling anything.
+  - Also removed a phantom curation entry: `core/accounting` was marked adopted with reason
+    "authored here", but no such skill exists in `src/skills` or in git history, and it produced a
+    "has no directory" warning on every link run for every target.
+  - Evidence: `pnpm run check` exit 0; `pnpm run library:test` 215 pass / 0 fail; the guard prints
+    `--into is required for target antigravity` and `--target claude` still plans its 42.
+
 - [x] 2026-08-24 - **Diagnostics:** The connector doctor was inspecting the wrong profile, and both
       doctors are green again.
-  - Found by following the context7 decision through: `agents:doctor` reported `mcp failed, 8/11
-    profile connectors healthy` even though `claude mcp list` showed every server connected. Two
-    independent defects.
-  - First, profile bleed. `runClaudeMcpList` set `CLAUDE_CONFIG_DIR` for Favish but merely *omitted*
+  - Found by following the context7 decision through: `agents:doctor` reported
+    `mcp failed, 8/11 profile connectors healthy` even though `claude mcp list` showed every server
+    connected. Two independent defects.
+  - First, profile bleed. `runClaudeMcpList` set `CLAUDE_CONFIG_DIR` for Favish but merely _omitted_
     it for personal, inheriting whatever launched it. Run from a Favish session - which is how this
     repo is usually worked - the personal probe listed Favish's servers and reported them as
     claude-personal's, so personal-only connectors read as missing. Pinning `~/.claude` is wrong
-    too: that directory carries its own smaller `.claude.json` with a different server list (1 of
-    3 expected servers), while the personal profile is the default `~/.claude.json`. The variable
-    is now explicitly deleted for personal and set for Favish.
+    too: that directory carries its own smaller `.claude.json` with a different server list (1 of 3
+    expected servers), while the personal profile is the default `~/.claude.json`. The variable is
+    now explicitly deleted for personal and set for Favish.
   - Second, the plugin surface. A connector satisfied by an enabled plugin is listed as
     `plugin:<plugin>:<server>:`, and the matcher only accepted the bare name - so the context7 that
     had just been enabled and verified working reported as "connector is not listed". Matching is
     now a predicate that accepts both forms and still rejects another plugin's server and a hosted
     connector whose name merely contains the match.
   - Evidence: `pnpm run connectors:doctor` went from 3 failures to 1, and the one left is
-    `zerohedge` on personal, which the manifest marks `optional`. `agents:doctor` reports `ok:
-    true`. `pnpm run connectors:test` 41 pass / 0 fail (7 new cases); `pnpm run check` exit 0.
-  - Files: `scripts/lib/connectors/{toProfileEnv,matchesConnectorLine,runClaudeMcpList,readClaudeConnectorStatus}.ts`
+    `zerohedge` on personal, which the manifest marks `optional`. `agents:doctor` reports
+    `ok: true`. `pnpm run connectors:test` 41 pass / 0 fail (7 new cases); `pnpm run check` exit 0.
+  - Files:
+    `scripts/lib/connectors/{toProfileEnv,matchesConnectorLine,runClaudeMcpList,readClaudeConnectorStatus}.ts`
     plus their tests.
 
 - [x] 2026-08-24 - **Harness:** The security-review fan-out is settled: the expensive layer is off,

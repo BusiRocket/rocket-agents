@@ -7,10 +7,11 @@ import { compileLibraryTarget } from "../lib/library/compileLibraryTarget"
 import { deduplicatePlannedLinks } from "../lib/library/deduplicatePlannedLinks"
 import { expandPlannedLink } from "../lib/library/expandPlannedLink"
 import { findLinkCollisions } from "../lib/library/findLinkCollisions"
-import { installLink } from "../lib/library/installLink"
+import { installPlannedLinks } from "../lib/library/installPlannedLinks"
 import { isSkillTarget } from "../lib/library/isSkillTarget"
 import { formatLinkReport } from "../lib/library/formatters/formatLinkReport"
 import { planLinks } from "../lib/library/planLinks"
+import { resolveLinkDir } from "../lib/library/resolveLinkDir"
 import { selectFannedOutSkills } from "../lib/library/selectors/selectFannedOutSkills"
 import type { PlannedLink } from "../lib/library/types/PlannedLink"
 import { validateCompiledLibrary } from "../lib/library/validators/validateCompiledLibrary"
@@ -78,27 +79,29 @@ export const main = async () => {
     return
   }
 
-  const linkDir = flagValue(process.argv, "--into") ?? join(home, ".claude", "skills")
-  const created: string[] = []
-  const foreign: string[] = []
+  const linkDir = resolveLinkDir({
+    into: flagValue(process.argv, "--into"),
+    target,
+    home,
+  })
 
-  for (const link of links) {
-    const outcome = await installLink(link, linkDir, dryRun)
-
-    if (outcome.kind === "created") created.push(link.name)
-    if (outcome.kind === "missing") missing.push(outcome.message)
-    if (outcome.kind === "foreign") foreign.push(outcome.message)
+  if (linkDir === undefined) {
+    console.error(`--into is required for target ${target}; only claude has a default destination`)
+    process.exitCode = 1
+    return
   }
+  const installed = await installPlannedLinks({ links, linkDir, dryRun })
+  const allMissing = [...missing, ...installed.missing]
 
   console.log(
     formatLinkReport(
       {
         target,
         planned: links.length + missing.length,
-        linked: created.length,
-        created,
-        missing,
-        foreign,
+        linked: installed.created.length,
+        created: installed.created,
+        missing: allMissing,
+        foreign: installed.foreign,
       },
       asJson,
     ),

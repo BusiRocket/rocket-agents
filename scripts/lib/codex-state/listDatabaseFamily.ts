@@ -1,7 +1,13 @@
-import { access } from "node:fs/promises"
+import { access } from 'node:fs/promises'
 
-export const listDatabaseFamily = async (databasePath: string): Promise<string[]> => {
-  const candidates = [databasePath, `${databasePath}-shm`, `${databasePath}-wal`]
+export const listDatabaseFamily = async (
+  databasePath: string,
+): Promise<string[]> => {
+  const candidates = [
+    databasePath,
+    `${databasePath}-shm`,
+    `${databasePath}-wal`,
+  ]
   const existing = await Promise.all(
     candidates.map(async (path) => {
       try {

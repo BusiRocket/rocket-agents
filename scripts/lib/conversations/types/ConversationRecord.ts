@@ -1,6 +1,6 @@
-import type { ConversationEvent } from "./ConversationEvent"
-import type { ConversationProvenance } from "./ConversationProvenance"
-import type { ConversationSource } from "./ConversationSource"
+import type { ConversationEvent } from './ConversationEvent'
+import type { ConversationProvenance } from './ConversationProvenance'
+import type { ConversationSource } from './ConversationSource'
 
 export interface ConversationRecord {
   schemaVersion: 1

@@ -1,4 +1,4 @@
-import { promises as fs } from "node:fs"
+import { promises as fs } from 'node:fs'
 
 /**
  * Compare expected content with current file content
@@ -8,7 +8,7 @@ import { promises as fs } from "node:fs"
  */
 export async function compareRuleFile(targetPath: string, expected: string) {
   try {
-    const current = await fs.readFile(targetPath, "utf8")
+    const current = await fs.readFile(targetPath, 'utf8')
     return {
       missing: false,
       outdated: current !== expected,

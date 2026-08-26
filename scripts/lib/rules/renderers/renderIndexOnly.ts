@@ -1,10 +1,10 @@
-import { defaultGetRuleRef } from "../resolvers/defaultGetRuleRef"
-import { getOneLineDescription } from "../resolvers/getOneLineDescription"
-import { groupByTopSegment } from "../groupers/groupByTopSegment"
-import { normalizeRel } from "../converters/normalizeRel"
-import { renderRouter } from "./renderRouter"
-import type { RenderIndexOnlyOptions } from "../types/RenderIndexOnlyOptions"
-import type { RuleItem } from "../types/RuleItem"
+import { normalizeRel } from '../converters/normalizeRel'
+import { groupByTopSegment } from '../groupers/groupByTopSegment'
+import { defaultGetRuleRef } from '../resolvers/defaultGetRuleRef'
+import { getOneLineDescription } from '../resolvers/getOneLineDescription'
+import type { RenderIndexOnlyOptions } from '../types/RenderIndexOnlyOptions'
+import type { RuleItem } from '../types/RuleItem'
+import { renderRouter } from './renderRouter'
 
 /**
  * Generic index-only renderer engine. Emits only rule references (path + short description).
@@ -15,28 +15,34 @@ import type { RuleItem } from "../types/RuleItem"
  * @returns {string}
  */
 
-export function renderIndexOnly(bundle: RuleItem[], options: RenderIndexOnlyOptions = {}) {
-  const maxChars = typeof options.maxChars === "number" ? options.maxChars : 15_000
+export function renderIndexOnly(
+  bundle: RuleItem[],
+  options: RenderIndexOnlyOptions = {},
+) {
+  const maxChars =
+    typeof options.maxChars === 'number' ? options.maxChars : 15_000
 
-  const onLimit = options.onLimit === "truncate" ? "truncate" : "error"
+  const onLimit = options.onLimit === 'truncate' ? 'truncate' : 'error'
 
   const includeShortSummary = options.includeShortSummary === true
 
-  const referencePrefix = options.referencePrefix ?? "@rules/"
+  const referencePrefix = options.referencePrefix ?? '@rules/'
 
-  const title = options.title ?? "# Index"
+  const title = options.title ?? '# Index'
 
-  const headerIntro = options.headerIntro ?? ""
+  const headerIntro = options.headerIntro ?? ''
 
-  const embedContent = options.embedContent ?? ""
+  const embedContent = options.embedContent ?? ''
 
   const getRuleRef =
-    typeof options.getRuleRef === "function"
+    typeof options.getRuleRef === 'function'
       ? options.getRuleRef
       : defaultGetRuleRef(referencePrefix)
 
   const getRuleBadges =
-    typeof options.getRuleBadges === "function" ? options.getRuleBadges : () => []
+    typeof options.getRuleBadges === 'function'
+      ? options.getRuleBadges
+      : () => []
   const attempt = (withShortSummary: boolean) => {
     const items = bundle
 
@@ -45,17 +51,19 @@ export function renderIndexOnly(bundle: RuleItem[], options: RenderIndexOnlyOpti
 
         frontmatter: item.frontmatter ?? {},
 
-        content: item.content ?? "",
+        content: item.content ?? '',
       }))
 
-      .filter((i: RuleItem) => i.rel.endsWith(".mdc"))
+      .filter((i: RuleItem) => i.rel.endsWith('.mdc'))
 
       .sort((a: RuleItem, b: RuleItem) => a.rel.localeCompare(b.rel))
 
     const groups = groupByTopSegment(items)
-    const header = [title, "", headerIntro].join("\n").trimEnd()
+    const header = [title, '', headerIntro].join('\n').trimEnd()
 
-    const embedded = embedContent ? `\n\n---\n\n${embedContent.trim()}\n\n---` : ""
+    const embedded = embedContent
+      ? `\n\n---\n\n${embedContent.trim()}\n\n---`
+      : ''
     const router = renderRouter(groups, {
       getRuleRef,
 
@@ -72,12 +80,12 @@ export function renderIndexOnly(bundle: RuleItem[], options: RenderIndexOnlyOpti
     if (downgraded.length <= maxChars) return downgraded
   }
 
-  if (onLimit === "truncate") {
+  if (onLimit === 'truncate') {
     return primary.slice(0, maxChars)
   }
 
   throw new Error(
     `Index exceeded size budget: ${String(primary.length)} > ${String(maxChars)} chars. ` +
-      "Reduce descriptions/summaries or increase maxChars.",
+      'Reduce descriptions/summaries or increase maxChars.',
   )
 }

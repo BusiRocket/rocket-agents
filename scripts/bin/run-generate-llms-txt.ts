@@ -1,3 +1,3 @@
-import { main } from "../commands/generateLlmsTxt"
+import { main } from '../commands/generateLlmsTxt'
 
 main()

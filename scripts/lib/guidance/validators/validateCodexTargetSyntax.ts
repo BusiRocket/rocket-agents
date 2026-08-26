@@ -4,6 +4,6 @@ export const validateCodexTargetSyntax = (document: string): string[] => {
       document,
     )
   )
-    return ["Codex document contains an unresolved Claude import"]
-  return document.includes("\0") ? ["Codex document contains a NUL byte"] : []
+    return ['Codex document contains an unresolved Claude import']
+  return document.includes('\0') ? ['Codex document contains a NUL byte'] : []
 }

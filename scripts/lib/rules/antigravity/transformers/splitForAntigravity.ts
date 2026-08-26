@@ -20,7 +20,7 @@ export function splitForAntigravity(content: string, ruleName: string) {
       // Finalize current part
       parts.push({
         name: `${ruleName}-part${String(partIndex)}`,
-        content: currentPart.join(""),
+        content: currentPart.join(''),
       })
       currentPart = [section]
       currentLength = section.length
@@ -34,7 +34,7 @@ export function splitForAntigravity(content: string, ruleName: string) {
   if (currentPart.length > 0) {
     parts.push({
       name: partIndex > 1 ? `${ruleName}-part${String(partIndex)}` : ruleName,
-      content: currentPart.join(""),
+      content: currentPart.join(''),
     })
   }
 

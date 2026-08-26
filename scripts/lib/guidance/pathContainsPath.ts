@@ -1,6 +1,11 @@
-import { isAbsolute, relative } from "node:path"
+import { isAbsolute, relative } from 'node:path'
 
-export const pathContainsPath = (container: string, candidate: string): boolean => {
+export const pathContainsPath = (
+  container: string,
+  candidate: string,
+): boolean => {
   const remainder = relative(container, candidate)
-  return remainder === "" || (!remainder.startsWith("..") && !isAbsolute(remainder))
+  return (
+    remainder === '' || (!remainder.startsWith('..') && !isAbsolute(remainder))
+  )
 }

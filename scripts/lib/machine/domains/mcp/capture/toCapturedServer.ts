@@ -1,11 +1,11 @@
-import { isApprovalMode } from "./isApprovalMode"
-import { toCapturedTransport } from "./toCapturedTransport"
-import { toCapturedValues } from "./toCapturedValues"
-import type { LiveServer } from "../types/LiveServer"
-import type { McpCaptureRefusal } from "../types/McpCaptureRefusal"
-import type { McpServer } from "../types/McpServer"
-import type { McpTarget } from "../types/McpTarget"
-import type { McpValue } from "../types/McpValue"
+import type { LiveServer } from '../types/LiveServer'
+import type { McpCaptureRefusal } from '../types/McpCaptureRefusal'
+import type { McpServer } from '../types/McpServer'
+import type { McpTarget } from '../types/McpTarget'
+import type { McpValue } from '../types/McpValue'
+import { isApprovalMode } from './isApprovalMode'
+import { toCapturedTransport } from './toCapturedTransport'
+import { toCapturedValues } from './toCapturedValues'
 
 export const toCapturedServer = ({
   name,
@@ -23,18 +23,21 @@ export const toCapturedServer = ({
   const transport = toCapturedTransport(live)
   const env = toCapturedValues({
     server: name,
-    field: "env",
+    field: 'env',
     live: live.env,
     declared: declared?.env,
     refused,
   })
   const headers: Record<string, McpValue> = {
     ...Object.fromEntries(
-      Object.entries(live.headerReferences).map(([key, variable]) => [key, { from_env: variable }]),
+      Object.entries(live.headerReferences).map(([key, variable]) => [
+        key,
+        { from_env: variable },
+      ]),
     ),
     ...toCapturedValues({
       server: name,
-      field: "headers",
+      field: 'headers',
       live: live.headers,
       declared: declared?.headers,
       refused,

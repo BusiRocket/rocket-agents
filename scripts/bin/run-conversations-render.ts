@@ -1,6 +1,6 @@
-import { main } from "../commands/conversationsRender"
+import { main } from '../commands/conversationsRender'
 
 main().catch(() => {
-  console.error("Conversation render failed unexpectedly")
+  console.error('Conversation render failed unexpectedly')
   process.exitCode = 2
 })

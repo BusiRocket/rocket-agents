@@ -1,8 +1,8 @@
-import { renderServiceUnits } from "./renderServiceUnits"
-import type { ServiceChange } from "./types/ServiceChange"
-import type { ServicesManifest } from "./types/ServicesManifest"
-import type { ServicesPlatform } from "./types/ServicesPlatform"
-import type { ServicesState } from "./types/ServicesState"
+import { renderServiceUnits } from './renderServiceUnits'
+import type { ServiceChange } from './types/ServiceChange'
+import type { ServicesManifest } from './types/ServicesManifest'
+import type { ServicesPlatform } from './types/ServicesPlatform'
+import type { ServicesState } from './types/ServicesState'
 
 export const plan = ({
   manifest,
@@ -23,7 +23,8 @@ export const plan = ({
 
       return [
         {
-          operation: current === undefined ? ("create" as const) : ("update" as const),
+          operation:
+            current === undefined ? ('create' as const) : ('update' as const),
           name: service.name,
           file: unit.file,
         },

@@ -1,4 +1,4 @@
-import { access } from "node:fs/promises"
+import { access } from 'node:fs/promises'
 
 export const shouldRemoveGuidanceStateDir = async (
   stateDir: string,
@@ -9,7 +9,7 @@ export const shouldRemoveGuidanceStateDir = async (
     await access(stateDir)
     return false
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return true
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return true
     throw error
   }
 }

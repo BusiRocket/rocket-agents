@@ -1,64 +1,71 @@
-import assert from "node:assert/strict"
-import { readFile } from "node:fs/promises"
-import test from "node:test"
-import { parseConnectorManifest } from "./parseConnectorManifest"
+import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
+import test from 'node:test'
+import { parseConnectorManifest } from './parseConnectorManifest'
 
-void test("the tracked connector manifest is valid and profile explicit", async () => {
-  const raw = JSON.parse(await readFile("machine/connectors.json", "utf8")) as unknown
+void test('the tracked connector manifest is valid and profile explicit', async () => {
+  const raw = JSON.parse(
+    await readFile('machine/connectors.json', 'utf8'),
+  ) as unknown
   const parsed = parseConnectorManifest(raw)
   assert.equal(parsed.ok, true)
-  assert.deepEqual(parsed.manifest.connectors.find(({ id }) => id === "openseo")?.profiles, [
-    "claude-personal",
-  ])
   assert.deepEqual(
-    parsed.manifest.connectors.find(({ id }) => id === "mempalace"),
+    parsed.manifest.connectors.find(({ id }) => id === 'openseo')?.profiles,
+    ['claude-personal'],
+  )
+  assert.deepEqual(
+    parsed.manifest.connectors.find(({ id }) => id === 'mempalace'),
     {
-      id: "mempalace",
-      match: "mempalace",
-      profiles: ["codex"],
-      ownership: "machine",
-      probe: "native-cli",
-      criticality: "required",
+      id: 'mempalace',
+      match: 'mempalace',
+      profiles: ['codex'],
+      ownership: 'machine',
+      probe: 'native-cli',
+      criticality: 'required',
     },
   )
 })
 
-void test("credential fields, literals, and token query parameters are rejected", () => {
+void test('credential fields, literals, and token query parameters are rejected', () => {
   const parsed = parseConnectorManifest({
     version: 1,
     connectors: [
       {
-        id: "unsafe",
-        match: "unsafe",
-        profiles: ["claude-personal"],
-        ownership: "account",
-        probe: "http-mcp",
-        criticality: "required",
-        endpoint: "https://example.test/mcp?token=hidden",
-        headers: { Authorization: "Bearer hidden" },
-        cookie: "session=hidden",
+        id: 'unsafe',
+        match: 'unsafe',
+        profiles: ['claude-personal'],
+        ownership: 'account',
+        probe: 'http-mcp',
+        criticality: 'required',
+        endpoint: 'https://example.test/mcp?token=hidden',
+        headers: { Authorization: 'Bearer hidden' },
+        cookie: 'session=hidden',
       },
     ],
   })
   assert.equal(parsed.ok, false)
-  assert.ok(parsed.errors.some((error) => error.includes("credential-shaped field")))
-  assert.ok(parsed.errors.some((error) => error.includes("credential query parameter")))
+  assert.ok(
+    parsed.errors.some((error) => error.includes('credential-shaped field')),
+  )
+  assert.ok(
+    parsed.errors.some((error) => error.includes('credential query parameter')),
+  )
 })
 
-void test("unknown profiles and missing probe policy are rejected", () => {
+void test('unknown profiles and missing probe policy are rejected', () => {
   const parsed = parseConnectorManifest({
     version: 1,
     connectors: [
       {
-        id: "unknown",
-        match: "unknown",
-        profiles: ["other"],
-        ownership: "account",
-        criticality: "optional",
+        id: 'unknown',
+        match: 'unknown',
+        profiles: ['other'],
+        ownership: 'account',
+        criticality: 'optional',
       },
     ],
   })
   assert.equal(parsed.ok, false)
-  assert.ok(parsed.errors.some((error) => error.includes("profiles")))
-  assert.ok(parsed.errors.some((error) => error.includes("probe")))
+  assert.ok(parsed.errors.some((error) => error.includes('profiles')))
+  assert.ok(parsed.errors.some((error) => error.includes('probe')))
 })

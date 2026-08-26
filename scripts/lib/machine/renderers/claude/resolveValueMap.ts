@@ -1,7 +1,7 @@
-import { isSecretReference } from "../../secrets/isSecretReference"
-import { resolveReference } from "../../secrets/resolveReference"
-import type { McpValue } from "../../domains/mcp/types/McpValue"
-import type { ResolvedMap } from "./types/ResolvedMap"
+import type { McpValue } from '../../domains/mcp/types/McpValue'
+import { isSecretReference } from '../../secrets/isSecretReference'
+import { resolveReference } from '../../secrets/resolveReference'
+import type { ResolvedMap } from './types/ResolvedMap'
 
 export const resolveValueMap = (
   source: Record<string, McpValue>,

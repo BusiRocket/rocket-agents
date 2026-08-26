@@ -1,9 +1,9 @@
-import type { RuleItem } from "../types/RuleItem"
-import { convertToAntigravityMentions } from "../antigravity/transformers/convertToAntigravityMentions"
-import { detectUmbrellaType } from "../antigravity/transformers/detectUmbrellaType"
-import { generateAntigravityHeader } from "../antigravity/transformers/generateAntigravityHeader"
-import { getAntigravityActivation } from "../antigravity/transformers/getAntigravityActivation"
-import { splitForAntigravity } from "../antigravity/transformers/splitForAntigravity"
+import { convertToAntigravityMentions } from '../antigravity/transformers/convertToAntigravityMentions'
+import { detectUmbrellaType } from '../antigravity/transformers/detectUmbrellaType'
+import { generateAntigravityHeader } from '../antigravity/transformers/generateAntigravityHeader'
+import { getAntigravityActivation } from '../antigravity/transformers/getAntigravityActivation'
+import { splitForAntigravity } from '../antigravity/transformers/splitForAntigravity'
+import type { RuleItem } from '../types/RuleItem'
 
 /**
  * Main conversion function
@@ -17,10 +17,10 @@ export function toAntigravityRule(parsed: RuleItem, rulePath: string) {
 
   const header = generateAntigravityHeader(parsed.frontmatter, activation)
 
-  const content = convertToAntigravityMentions(parsed.content ?? "", rulePath)
+  const content = convertToAntigravityMentions(parsed.content ?? '', rulePath)
   const umbrellaInfo = detectUmbrellaType(parsed, rulePath)
   const fullContent = header + content
-  const ruleName = rulePath.replace(/\.mdc$/, "").replace(/\//g, "-")
+  const ruleName = rulePath.replace(/\.mdc$/, '').replace(/\//g, '-')
   const parts = splitForAntigravity(fullContent, ruleName)
 
   return parts.map((part) => ({

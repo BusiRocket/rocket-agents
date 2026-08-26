@@ -3,7 +3,7 @@ export interface IdeRegistryEntry {
   rootDir: string | undefined
   detectPaths?: string[]
   skillsDir?: string
-  linkStrategy?: "symlink" | "copy"
+  linkStrategy?: 'symlink' | 'copy'
   flattenSkills?: boolean
-  skillsBundle?: "claude" | "portable"
+  skillsBundle?: 'claude' | 'portable'
 }

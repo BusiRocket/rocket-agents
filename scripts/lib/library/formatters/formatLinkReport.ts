@@ -1,4 +1,4 @@
-import type { LinkReport } from "../types/LinkReport"
+import type { LinkReport } from '../types/LinkReport'
 
 export const formatLinkReport = (report: LinkReport, asJson: boolean) => {
   if (asJson) {
@@ -12,5 +12,5 @@ export const formatLinkReport = (report: LinkReport, asJson: boolean) => {
     ...report.created.map((name) => `  + ${name}`),
     ...report.missing.map((line) => `  ! ${line}`),
     ...report.foreign.map((line) => `  ~ ${line}`),
-  ].join("\n")
+  ].join('\n')
 }

@@ -1,6 +1,6 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
-import { pathExists } from "../../link/operations/pathExists"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { pathExists } from '../../link/operations/pathExists'
 
 export const copyAgentsIntoPluginRoot = async ({
   srcAgentsDir,
@@ -19,7 +19,7 @@ export const copyAgentsIntoPluginRoot = async ({
   const copied: string[] = []
 
   for (const entry of entries) {
-    if (!entry.isFile() || !entry.name.endsWith(".md")) continue
+    if (!entry.isFile() || !entry.name.endsWith('.md')) continue
     const srcPath = path.join(srcAgentsDir, entry.name)
     const destPath = path.join(pluginAgentsDir, entry.name)
     await fs.copyFile(srcPath, destPath)

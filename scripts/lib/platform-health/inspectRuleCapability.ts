@@ -1,11 +1,16 @@
-import { promises as fs } from "node:fs"
-import type { CapabilityHealth } from "./types/CapabilityHealth"
+import { promises as fs } from 'node:fs'
+import type { CapabilityHealth } from './types/CapabilityHealth'
 
 export const inspectRuleCapability = async (
   paths: string[] | undefined,
 ): Promise<CapabilityHealth> => {
   if (paths === undefined) {
-    return { capability: "rules", status: "unsupported", summary: "no rules adapter", findings: [] }
+    return {
+      capability: 'rules',
+      status: 'unsupported',
+      summary: 'no rules adapter',
+      findings: [],
+    }
   }
 
   const missing: string[] = []
@@ -18,8 +23,8 @@ export const inspectRuleCapability = async (
   }
 
   return {
-    capability: "rules",
-    status: missing.length === 0 ? "healthy" : "failed",
+    capability: 'rules',
+    status: missing.length === 0 ? 'healthy' : 'failed',
     summary: `${String(paths.length - missing.length)} of ${String(paths.length)} rule targets readable`,
     findings: missing,
   }

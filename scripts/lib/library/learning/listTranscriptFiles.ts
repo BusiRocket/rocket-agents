@@ -1,5 +1,5 @@
-import { promises as fs } from "node:fs"
-import { join } from "node:path"
+import { promises as fs } from 'node:fs'
+import { join } from 'node:path'
 
 export const listTranscriptFiles = async (root: string) => {
   const files: string[] = []
@@ -21,7 +21,7 @@ export const listTranscriptFiles = async (root: string) => {
     }
 
     for (const name of inner) {
-      if (name.endsWith(".jsonl")) {
+      if (name.endsWith('.jsonl')) {
         files.push(join(dir, name))
       }
     }

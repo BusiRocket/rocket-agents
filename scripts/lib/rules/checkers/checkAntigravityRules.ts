@@ -1,7 +1,7 @@
-import path from "node:path"
-import { compareRuleFile } from "../helpers/processors/compareRuleFile"
-import { processSourceFile } from "../helpers/processors/processSourceFile"
-import { toAntigravityRule } from "../converters/toAntigravityRule"
+import path from 'node:path'
+import { toAntigravityRule } from '../converters/toAntigravityRule'
+import { compareRuleFile } from '../helpers/processors/compareRuleFile'
+import { processSourceFile } from '../helpers/processors/processSourceFile'
 
 /**
  * Check if Antigravity rules are in sync
@@ -16,7 +16,7 @@ export async function checkAntigravityRules(
   targetDir: string,
 ) {
   const errors = []
-  const workflowsDir = path.join(path.dirname(targetDir), "workflows")
+  const workflowsDir = path.join(path.dirname(targetDir), 'workflows')
   for (const file of sourceFiles) {
     const { parsed, relativePath } = await processSourceFile(file, sourceDir)
     const converted = toAntigravityRule(
@@ -38,7 +38,10 @@ export async function checkAntigravityRules(
         ? path.join(workflowsDir, `${part.name}.md`)
         : path.join(targetDir, `${part.name}.md`)
 
-      const { missing, outdated } = await compareRuleFile(targetPath, part.content)
+      const { missing, outdated } = await compareRuleFile(
+        targetPath,
+        part.content,
+      )
       if (missing) errors.push(`Missing Antigravity rule: ${targetPath}`)
       else if (outdated) errors.push(`Outdated Antigravity rule: ${targetPath}`)
     }

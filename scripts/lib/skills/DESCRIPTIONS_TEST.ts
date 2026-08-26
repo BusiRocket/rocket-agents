@@ -1,11 +1,11 @@
-import assert from "node:assert/strict"
-import test from "node:test"
-import { descriptionBoundaryErrors } from "../../validators/descriptionBoundaryErrors"
-import { descriptionTriggerPositionError } from "../../validators/descriptionTriggerPositionError"
-import { descriptionSpecificityWarning } from "../../validators/descriptionSpecificityWarning"
-import { frontmatterDescriptionErrors } from "../../validators/frontmatterDescriptionErrors"
-import { collectSkillFrontmatter } from "./collectSkillFrontmatter"
-import { extractDescription } from "./extractDescription"
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { descriptionBoundaryErrors } from '../../validators/descriptionBoundaryErrors'
+import { descriptionSpecificityWarning } from '../../validators/descriptionSpecificityWarning'
+import { descriptionTriggerPositionError } from '../../validators/descriptionTriggerPositionError'
+import { frontmatterDescriptionErrors } from '../../validators/frontmatterDescriptionErrors'
+import { collectSkillFrontmatter } from './collectSkillFrontmatter'
+import { extractDescription } from './extractDescription'
 
 /**
  * Runs the description validators that existed in this repo but had no callers,
@@ -13,21 +13,25 @@ import { extractDescription } from "./extractDescription"
  * fails the build instead of shipping silently.
  */
 
-void test("every skill description parses", () => {
+void test('every skill description parses', () => {
   const failures = collectSkillFrontmatter().flatMap(({ name, frontmatter }) =>
-    frontmatterDescriptionErrors(frontmatter).map((error) => `${name}: ${error}`),
+    frontmatterDescriptionErrors(frontmatter).map(
+      (error) => `${name}: ${error}`,
+    ),
   )
-  assert.deepEqual(failures, [], failures.join("\n"))
+  assert.deepEqual(failures, [], failures.join('\n'))
 })
 
-void test("every skill description has activation boundaries", () => {
+void test('every skill description has activation boundaries', () => {
   const failures = collectSkillFrontmatter().flatMap(({ name, frontmatter }) =>
-    descriptionBoundaryErrors(extractDescription(frontmatter)).map((error) => `${name}: ${error}`),
+    descriptionBoundaryErrors(extractDescription(frontmatter)).map(
+      (error) => `${name}: ${error}`,
+    ),
   )
-  assert.deepEqual(failures, [], failures.join("\n"))
+  assert.deepEqual(failures, [], failures.join('\n'))
 })
 
-void test("every skill description opens its activation boundary early", () => {
+void test('every skill description opens its activation boundary early', () => {
   const failures = collectSkillFrontmatter()
     .map(({ name, frontmatter }) => ({
       name,
@@ -35,10 +39,10 @@ void test("every skill description opens its activation boundary early", () => {
     }))
     .filter(({ error }) => error !== null)
     .map(({ name, error }) => `${name}: ${String(error)}`)
-  assert.deepEqual(failures, [], failures.join("\n"))
+  assert.deepEqual(failures, [], failures.join('\n'))
 })
 
-void test("every skill description is specific enough to activate", () => {
+void test('every skill description is specific enough to activate', () => {
   const failures = collectSkillFrontmatter()
     .map(({ name, frontmatter }) => ({
       name,
@@ -46,5 +50,5 @@ void test("every skill description is specific enough to activate", () => {
     }))
     .filter(({ warning }) => warning !== null)
     .map(({ name, warning }) => `${name}: ${String(warning)}`)
-  assert.deepEqual(failures, [], failures.join("\n"))
+  assert.deepEqual(failures, [], failures.join('\n'))
 })

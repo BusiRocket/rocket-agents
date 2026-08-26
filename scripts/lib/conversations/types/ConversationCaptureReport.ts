@@ -1,5 +1,5 @@
-import type { ConversationRecord } from "./ConversationRecord"
-import type { ConversationSourceStatus } from "./ConversationSourceStatus"
+import type { ConversationRecord } from './ConversationRecord'
+import type { ConversationSourceStatus } from './ConversationSourceStatus'
 
 export interface ConversationCaptureReport {
   ok: boolean

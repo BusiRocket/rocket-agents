@@ -1,4 +1,4 @@
-import type { SessionFinding } from "./SessionFinding"
+import type { SessionFinding } from './SessionFinding'
 
 export interface SessionQuarantineOptions {
   codexDir: string

@@ -1,9 +1,9 @@
-import type { RuleItem } from "./RuleItem"
+import type { RuleItem } from './RuleItem'
 
 export interface RenderIndexOnlyOptions {
   format?: string
   maxChars?: number
-  onLimit?: "truncate" | "error"
+  onLimit?: 'truncate' | 'error'
   includeShortSummary?: boolean
   referencePrefix?: string
   title?: string

@@ -1,6 +1,6 @@
-import { rm } from "node:fs/promises"
-import { findOrphanCacheDirectories } from "./findOrphanCacheDirectories"
-import type { PluginMarketplaceEntry } from "./types/PluginMarketplaceEntry"
+import { rm } from 'node:fs/promises'
+import { findOrphanCacheDirectories } from './findOrphanCacheDirectories'
+import type { PluginMarketplaceEntry } from './types/PluginMarketplaceEntry'
 
 /**
  * Removes cache directories that belong to no known marketplace. Stale version

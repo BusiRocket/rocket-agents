@@ -1,5 +1,5 @@
-import type { CalendarSchedule } from "./CalendarSchedule"
-import type { IntervalSchedule } from "./IntervalSchedule"
+import type { CalendarSchedule } from './CalendarSchedule'
+import type { IntervalSchedule } from './IntervalSchedule'
 
 /**
  * Either a calendar slot or a polling interval. The interval form exists

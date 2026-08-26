@@ -1,6 +1,6 @@
-import { MACHINE_PROFILES } from "../MACHINE_PROFILES"
-import type { MachineProfile } from "../types/MachineProfile"
-import type { DomainResult } from "../../types/DomainResult"
+import type { DomainResult } from '../../types/DomainResult'
+import { MACHINE_PROFILES } from '../MACHINE_PROFILES'
+import type { MachineProfile } from '../types/MachineProfile'
 
 export const selectProfileDomains = ({
   profile,

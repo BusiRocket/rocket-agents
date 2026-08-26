@@ -1,3 +1,3 @@
-import { main } from "../commands/validators/validateUninstall"
+import { main } from '../commands/validators/validateUninstall'
 
 main()

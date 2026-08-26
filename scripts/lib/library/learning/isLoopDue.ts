@@ -1,7 +1,11 @@
 // StartCalendarInterval does not catch up a run the machine slept through: the
 // 2026-08-23 06:30 run never fired and left no report. The schedule is therefore
 // a frequent poll, and this decides whether the window is actually due.
-export const isLoopDue = (reportNames: string[], intervalDays: number, now: Date) => {
+export const isLoopDue = (
+  reportNames: string[],
+  intervalDays: number,
+  now: Date,
+) => {
   const cutoff = now.getTime() - intervalDays * 24 * 60 * 60 * 1000
 
   return !reportNames.some((name) => {

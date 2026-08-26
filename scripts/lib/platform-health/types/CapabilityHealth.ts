@@ -1,5 +1,5 @@
-import type { PlatformCapability } from "./PlatformCapability"
-import type { CapabilityStatus } from "./CapabilityStatus"
+import type { CapabilityStatus } from './CapabilityStatus'
+import type { PlatformCapability } from './PlatformCapability'
 
 export interface CapabilityHealth {
   capability: PlatformCapability

@@ -1,25 +1,27 @@
-import { promises as fs } from "node:fs"
-import { join } from "node:path"
-import type { CapabilityHealth } from "./types/CapabilityHealth"
+import { promises as fs } from 'node:fs'
+import { join } from 'node:path'
+import type { CapabilityHealth } from './types/CapabilityHealth'
 
 export const inspectSkillCapability = async (
   skillsDir: string | undefined,
 ): Promise<CapabilityHealth> => {
   if (skillsDir === undefined) {
     return {
-      capability: "skills",
-      status: "unsupported",
-      summary: "no skills adapter",
+      capability: 'skills',
+      status: 'unsupported',
+      summary: 'no skills adapter',
       findings: [],
     }
   }
 
-  const entries = await fs.readdir(skillsDir, { withFileTypes: true }).catch(() => undefined)
+  const entries = await fs
+    .readdir(skillsDir, { withFileTypes: true })
+    .catch(() => undefined)
   if (entries === undefined) {
     return {
-      capability: "skills",
-      status: "failed",
-      summary: "skills directory is missing",
+      capability: 'skills',
+      status: 'failed',
+      summary: 'skills directory is missing',
       findings: [skillsDir],
     }
   }
@@ -40,15 +42,15 @@ export const inspectSkillCapability = async (
     }
 
     const skillReadable = await fs
-      .access(join(entryPath, "SKILL.md"))
+      .access(join(entryPath, 'SKILL.md'))
       .then(() => true)
       .catch(() => false)
     if (skillReadable) readable++
   }
 
   return {
-    capability: "skills",
-    status: broken.length === 0 ? "healthy" : "degraded",
+    capability: 'skills',
+    status: broken.length === 0 ? 'healthy' : 'degraded',
     summary: `${String(readable)} readable skills, ${String(broken.length)} broken links`,
     findings: broken,
   }

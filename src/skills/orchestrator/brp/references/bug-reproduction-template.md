@@ -1,7 +1,7 @@
 # Bug Reproduction Template
 
-Use this template before applying a fix when the bug report is incomplete or the failure is not yet
-pinned down.
+Use this template before applying a fix when the bug report is incomplete or the
+failure is not yet pinned down.
 
 ## Reproduction Contract
 

@@ -1,27 +1,31 @@
-import { constants } from "node:fs"
-import { chmod, copyFile, mkdir, stat, writeFile } from "node:fs/promises"
-import { dirname, join, relative } from "node:path"
-import { CODEX_DATABASES } from "./constants/CODEX_DATABASES"
-import { hashFile } from "./hashFile"
-import { listDatabaseFamily } from "./listDatabaseFamily"
-import type { CodexSnapshotOptions } from "./types/CodexSnapshotOptions"
-import type { CodexSnapshotResult } from "./types/CodexSnapshotResult"
-import type { SnapshotManifestEntry } from "./types/SnapshotManifestEntry"
+import { constants } from 'node:fs'
+import { chmod, copyFile, mkdir, stat, writeFile } from 'node:fs/promises'
+import { dirname, join, relative } from 'node:path'
+import { CODEX_DATABASES } from './constants/CODEX_DATABASES'
+import { hashFile } from './hashFile'
+import { listDatabaseFamily } from './listDatabaseFamily'
+import type { CodexSnapshotOptions } from './types/CodexSnapshotOptions'
+import type { CodexSnapshotResult } from './types/CodexSnapshotResult'
+import type { SnapshotManifestEntry } from './types/SnapshotManifestEntry'
 
 export const createCodexSnapshot = async (
   options: CodexSnapshotOptions,
 ): Promise<CodexSnapshotResult> => {
   const snapshotDir = join(options.backupsDir, options.runId)
-  const filesDir = join(snapshotDir, "files")
+  const filesDir = join(snapshotDir, 'files')
   await mkdir(options.backupsDir, { recursive: true, mode: 0o700 })
   await mkdir(snapshotDir, { mode: 0o700 })
   await mkdir(filesDir, { mode: 0o700 })
 
   const databaseNames = options.databaseNames ?? CODEX_DATABASES
   const families = await Promise.all(
-    databaseNames.map((name) => listDatabaseFamily(join(options.codexDir, name))),
+    databaseNames.map((name) =>
+      listDatabaseFamily(join(options.codexDir, name)),
+    ),
   )
-  const sourcePaths = families.flat().toSorted((left, right) => left.localeCompare(right))
+  const sourcePaths = families
+    .flat()
+    .toSorted((left, right) => left.localeCompare(right))
   const entries: SnapshotManifestEntry[] = []
 
   for (const sourcePath of sourcePaths) {
@@ -52,11 +56,15 @@ export const createCodexSnapshot = async (
     })
   }
 
-  const manifest = { version: 1 as const, createdAt: new Date().toISOString(), entries }
-  const manifestPath = join(snapshotDir, "manifest.json")
+  const manifest = {
+    version: 1 as const,
+    createdAt: new Date().toISOString(),
+    entries,
+  }
+  const manifestPath = join(snapshotDir, 'manifest.json')
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, {
-    encoding: "utf8",
-    flag: "wx",
+    encoding: 'utf8',
+    flag: 'wx',
     mode: 0o600,
   })
   await chmod(manifestPath, 0o400)

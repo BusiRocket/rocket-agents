@@ -4,5 +4,5 @@ export interface RouterOutcome {
   lane?: string
   expectedLane?: string
   intentionalSilence?: true
-  verdict: "correct-lane" | "wrong-lane" | "no-lane"
+  verdict: 'correct-lane' | 'wrong-lane' | 'no-lane'
 }

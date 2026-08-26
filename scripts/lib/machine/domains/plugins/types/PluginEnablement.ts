@@ -1,1 +1,1 @@
-export type PluginEnablement = "enabled" | "disabled" | "undeclared"
+export type PluginEnablement = 'enabled' | 'disabled' | 'undeclared'

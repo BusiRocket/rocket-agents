@@ -1,20 +1,25 @@
 # Codex State Recovery Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development
-> (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use
+> **For agentic workers:** REQUIRED SUB-SKILL: Use
+> superpowers:subagent-driven-development (recommended) or
+> superpowers:executing-plans to implement this plan task-by-task. Steps use
 > checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Restore Codex state integrity, quarantine malformed sessions, bound session storage, and
-make the intended ChatGPT authentication method deterministic without deleting recoverable data.
+**Goal:** Restore Codex state integrity, quarantine malformed sessions, bound
+session storage, and make the intended ChatGPT authentication method
+deterministic without deleting recoverable data.
 
-**Architecture:** A dedicated `codex-state` slice performs read-only inspection by default. Apply
-mode refuses to run while Codex is active, creates a checksummed snapshot, moves corrupt artifacts
-to quarantine, and verifies the result. Session archival uses a manifest and reversible moves.
+**Architecture:** A dedicated `codex-state` slice performs read-only inspection
+by default. Apply mode refuses to run while Codex is active, creates a
+checksummed snapshot, moves corrupt artifacts to quarantine, and verifies the
+result. Session archival uses a manifest and reversible moves.
 
-**Tech Stack:** TypeScript on Node (ESM), `node:test`, the installed `sqlite3` CLI, SHA-256 from
-`node:crypto`, native file operations, Codex CLI read-only diagnostics.
+**Tech Stack:** TypeScript on Node (ESM), `node:test`, the installed `sqlite3`
+CLI, SHA-256 from `node:crypto`, native file operations, Codex CLI read-only
+diagnostics.
 
-**Spec:** `docs/superpowers/specs/2026-08-18-agent-platform-reliability-design.md`
+**Spec:**
+`docs/superpowers/specs/2026-08-18-agent-platform-reliability-design.md`
 
 ## Global Constraints
 
@@ -42,24 +47,27 @@ to quarantine, and verifies the result. Session archival uses a manifest and rev
 - Test: `scripts/lib/codex-state/RUN_SQLITE_INTEGRITY_CHECK_TEST.ts`
 - Test: `scripts/lib/codex-state/READ_ROLLOUT_HEADER_TEST.ts`
 
-`CODEX_DATABASES` contains `memories_1.sqlite`, `state_5.sqlite`, `logs_2.sqlite`, and
-`goals_1.sqlite`. Missing optional databases are reported, not created.
+`CODEX_DATABASES` contains `memories_1.sqlite`, `state_5.sqlite`,
+`logs_2.sqlite`, and `goals_1.sqlite`. Missing optional databases are reported,
+not created.
 
 ```ts
 export interface DatabaseIntegrity {
   path: string
-  status: "ok" | "corrupt" | "missing" | "unreadable"
+  status: 'ok' | 'corrupt' | 'missing' | 'unreadable'
   summary: string
 }
 ```
 
-- [ ] Write a SQLite test that creates a valid database and a plain-text corrupt file in a temp
-      directory.
-- [ ] Write rollout-header fixtures for a valid `session_meta` header, malformed JSON, and a JSONL
-      file whose first usable record is not `session_meta`.
+- [ ] Write a SQLite test that creates a valid database and a plain-text corrupt
+      file in a temp directory.
+- [ ] Write rollout-header fixtures for a valid `session_meta` header, malformed
+      JSON, and a JSONL file whose first usable record is not `session_meta`.
 - [ ] Run both tests and confirm they fail before implementation.
-- [ ] Implement `sqlite3 <path> "PRAGMA integrity_check;"` with `spawn` and no shell.
-- [ ] Implement a bounded header reader that stops after 64 KiB and never returns rollout content.
+- [ ] Implement `sqlite3 <path> "PRAGMA integrity_check;"` with `spawn` and no
+      shell.
+- [ ] Implement a bounded header reader that stops after 64 KiB and never
+      returns rollout content.
 - [ ] Compose database, session count, byte size, and malformed-header findings.
 - [ ] Run
       `npx tsx --test scripts/lib/codex-state/RUN_SQLITE_INTEGRITY_CHECK_TEST.ts scripts/lib/codex-state/READ_ROLLOUT_HEADER_TEST.ts`.
@@ -86,15 +94,17 @@ git push origin HEAD
 - Create: `scripts/lib/codex-state/verifyCodexSnapshot.ts`
 - Test: `scripts/lib/codex-state/CODEX_SNAPSHOT_TEST.ts`
 
-The snapshot includes each selected database plus existing `-wal` and `-shm` sidecars. The manifest
-records relative path, byte count, SHA-256, and original mode. Snapshot creation fails closed if any
-selected file changes size while it is copied.
+The snapshot includes each selected database plus existing `-wal` and `-shm`
+sidecars. The manifest records relative path, byte count, SHA-256, and original
+mode. Snapshot creation fails closed if any selected file changes size while it
+is copied.
 
-- [ ] Write a temp-directory test that snapshots a database family and verifies every hash.
+- [ ] Write a temp-directory test that snapshots a database family and verifies
+      every hash.
 - [ ] Add a negative test that mutates a source between stat and verification.
 - [ ] Run the test and confirm it fails before implementation.
-- [ ] Implement snapshot creation under `~/.codex/backups/state-recovery/<run-id>/` with mode
-      `0700`.
+- [ ] Implement snapshot creation under
+      `~/.codex/backups/state-recovery/<run-id>/` with mode `0700`.
 - [ ] Implement independent manifest verification.
 - [ ] Run `npx tsx --test scripts/lib/codex-state/CODEX_SNAPSHOT_TEST.ts`.
 - [ ] Run `pnpm run format && pnpm run lint:fix`.
@@ -120,20 +130,24 @@ git push origin HEAD
 - Test: `scripts/lib/codex-state/QUARANTINE_FILE_TEST.ts`
 - Test: `scripts/lib/codex-state/REBUILD_DERIVED_DATABASE_TEST.ts`
 
-`memories_1.sqlite` is treated as derived state only after the snapshot verifies. Repair moves the
-database family to `<snapshot>/quarantine/` and lets the next Codex start create a fresh database.
-The two currently known malformed rollouts are selected by parsed findings, never hard-coded paths:
+`memories_1.sqlite` is treated as derived state only after the snapshot
+verifies. Repair moves the database family to `<snapshot>/quarantine/` and lets
+the next Codex start create a fresh database. The two currently known malformed
+rollouts are selected by parsed findings, never hard-coded paths:
 
 - `019f9b3e-3d5c-7d20-bf73-c1159eb02607`
 - `019f9b3e-6dd8-7073-9a72-77d17b155d93`
 
-- [ ] Write tests proving a foreign healthy database is untouched and corrupt sidecars move with the
-      selected database.
-- [ ] Write tests proving malformed sessions move and valid sessions remain in place.
-- [ ] Implement active-process and lock checks. Return a blocked result instead of killing a
-      process.
-- [ ] Implement same-filesystem rename with copy-and-verify fallback for cross-device moves.
-- [ ] Write a quarantine manifest containing original and destination relative paths and hashes.
+- [ ] Write tests proving a foreign healthy database is untouched and corrupt
+      sidecars move with the selected database.
+- [ ] Write tests proving malformed sessions move and valid sessions remain in
+      place.
+- [ ] Implement active-process and lock checks. Return a blocked result instead
+      of killing a process.
+- [ ] Implement same-filesystem rename with copy-and-verify fallback for
+      cross-device moves.
+- [ ] Write a quarantine manifest containing original and destination relative
+      paths and hashes.
 - [ ] Run both tests.
 - [ ] Run `pnpm run format && pnpm run lint:fix`.
 - [ ] Commit and push:
@@ -158,16 +172,19 @@ git push origin HEAD
 - Test: `scripts/lib/codex-state/SESSION_ARCHIVE_TEST.ts`
 - Modify: `scripts/commands/libraryObserveCodex.ts`
 
-Policy defaults to sessions older than 90 days and never archives the current calendar month. The
-archive lives outside `~/.codex/sessions` at `~/.codex/session-archive/<run-id>/`, preserving the
-`YYYY/MM/DD` layout. Empty source directories may remain.
+Policy defaults to sessions older than 90 days and never archives the current
+calendar month. The archive lives outside `~/.codex/sessions` at
+`~/.codex/session-archive/<run-id>/`, preserving the `YYYY/MM/DD` layout. Empty
+source directories may remain.
 
-- [ ] Write boundary tests for exactly 90 days, current month, malformed timestamps, and a restore
-      collision.
-- [ ] Implement a dry-run plan with count and bytes, then checksummed reversible moves.
+- [ ] Write boundary tests for exactly 90 days, current month, malformed
+      timestamps, and a restore collision.
+- [ ] Implement a dry-run plan with count and bytes, then checksummed reversible
+      moves.
 - [ ] Add repeatable restore that refuses to overwrite an existing session.
-- [ ] Extend `libraryObserveCodex` with repeatable `--sessions` flags so archived history can be
-      observed explicitly without returning it to the active Codex directory.
+- [ ] Extend `libraryObserveCodex` with repeatable `--sessions` flags so
+      archived history can be observed explicitly without returning it to the
+      active Codex directory.
 - [ ] Run
       `npx tsx --test scripts/lib/codex-state/SESSION_ARCHIVE_TEST.ts scripts/lib/library/learning/READ_CODEX_SKILL_READS_TEST.ts`.
 - [ ] Run `pnpm run format && pnpm run lint:fix`.
@@ -192,8 +209,8 @@ git push origin HEAD
 - Modify: `scripts/lib/platform-health/constants/LIVE_PROBES.ts`
 
 **Prerequisite:** Complete Task 1 of
-`docs/superpowers/plans/2026-08-18-platform-parity-and-security.md` before this task. That task
-creates and validates `machine/security.json`.
+`docs/superpowers/plans/2026-08-18-platform-parity-and-security.md` before this
+task. That task creates and validates `machine/security.json`.
 
 The managed setting is:
 
@@ -201,15 +218,19 @@ The managed setting is:
 forced_login_method = "chatgpt"
 ```
 
-This setting controls Codex authentication while allowing `OPENAI_API_KEY` to remain available to
-unrelated tools. Never print, parse, or modify `auth.json`.
+This setting controls Codex authentication while allowing `OPENAI_API_KEY` to
+remain available to unrelated tools. Never print, parse, or modify `auth.json`.
 
-- [ ] Write TOML-preservation tests for insertion, replacement, duplicate rejection, comments, and
-      unrelated tables.
-- [ ] Implement a top-level scalar edit using the existing conservative Codex TOML strategy.
-- [ ] Parse `codex login status` into `chatgpt`, `api`, or `signed-out` without retaining output.
-- [ ] Run `npx tsx --test scripts/lib/codex-state/ENSURE_FORCED_LOGIN_METHOD_TEST.ts`.
-- [ ] Verify the key against the current official Codex configuration reference before applying.
+- [ ] Write TOML-preservation tests for insertion, replacement, duplicate
+      rejection, comments, and unrelated tables.
+- [ ] Implement a top-level scalar edit using the existing conservative Codex
+      TOML strategy.
+- [ ] Parse `codex login status` into `chatgpt`, `api`, or `signed-out` without
+      retaining output.
+- [ ] Run
+      `npx tsx --test scripts/lib/codex-state/ENSURE_FORCED_LOGIN_METHOD_TEST.ts`.
+- [ ] Verify the key against the current official Codex configuration reference
+      before applying.
 - [ ] Run `pnpm run format && pnpm run lint:fix`.
 - [ ] Commit and push:
 
@@ -248,18 +269,21 @@ Add scripts:
 }
 ```
 
-- [ ] Implement commands with JSON output, `--apply`, `--retention-days`, and explicit restore
-      `--run` flags.
-- [ ] Print the snapshot path and exact restore command after every applied mutation.
-- [ ] Run `pnpm run codex:doctor -- --json` and preserve the pre-repair report outside git.
-- [ ] Stop all Codex clients before the apply step. If a process remains active, let the command
-      refuse the mutation; do not kill it.
+- [ ] Implement commands with JSON output, `--apply`, `--retention-days`, and
+      explicit restore `--run` flags.
+- [ ] Print the snapshot path and exact restore command after every applied
+      mutation.
+- [ ] Run `pnpm run codex:doctor -- --json` and preserve the pre-repair report
+      outside git.
+- [ ] Stop all Codex clients before the apply step. If a process remains active,
+      let the command refuse the mutation; do not kill it.
 - [ ] Run `pnpm run codex:repair -- --apply`.
 - [ ] Start Codex once to recreate derived state, stop it, then run
       `pnpm run codex:doctor -- --json`.
 - [ ] Run `pnpm run codex:archive` and review count and bytes before running
       `pnpm run codex:archive -- --apply`.
-- [ ] Verify the archive manifest and run the restore command with `--dry-run` against the new run.
+- [ ] Verify the archive manifest and run the restore command with `--dry-run`
+      against the new run.
 - [ ] Run `codex login status` and confirm ChatGPT is active.
 - [ ] Document actual before/after counts and snapshot paths without secrets.
 - [ ] Run `pnpm run check:all && git diff --check`.
@@ -283,5 +307,6 @@ pnpm run agents:doctor -- --json
 git status --short --branch
 ```
 
-Expected: all SQLite databases report `ok`; no malformed session remains under active sessions;
-archive and quarantine manifests verify; login reports ChatGPT; the repository is clean and synced.
+Expected: all SQLite databases report `ok`; no malformed session remains under
+active sessions; archive and quarantine manifests verify; login reports ChatGPT;
+the repository is clean and synced.

@@ -1,5 +1,5 @@
-import type { DatabaseIntegrity } from "./DatabaseIntegrity"
-import type { SessionFinding } from "./SessionFinding"
+import type { DatabaseIntegrity } from './DatabaseIntegrity'
+import type { SessionFinding } from './SessionFinding'
 
 export interface CodexStateReport {
   codexDir: string

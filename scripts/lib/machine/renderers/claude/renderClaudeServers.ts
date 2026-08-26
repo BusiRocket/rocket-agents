@@ -1,7 +1,7 @@
-import { renderValueMapForTarget } from "./renderValueMapForTarget"
-import { toStringArgs } from "./toStringArgs"
-import type { McpManifest } from "../../domains/mcp/types/McpManifest"
-import type { McpTarget } from "../../domains/mcp/types/McpTarget"
+import type { McpManifest } from '../../domains/mcp/types/McpManifest'
+import type { McpTarget } from '../../domains/mcp/types/McpTarget'
+import { renderValueMapForTarget } from './renderValueMapForTarget'
+import { toStringArgs } from './toStringArgs'
 
 export const renderClaudeServers = (
   manifest: McpManifest,
@@ -25,14 +25,19 @@ export const renderClaudeServers = (
       continue
     }
 
-    if (server.transport === "stdio") {
-      const args = toStringArgs(server.args, server.target_overrides?.[target]?.args_append ?? [])
+    if (server.transport === 'stdio') {
+      const args = toStringArgs(
+        server.args,
+        server.target_overrides?.[target]?.args_append ?? [],
+      )
 
       servers[name] = {
-        type: "stdio",
+        type: 'stdio',
         command: server.command,
         ...(args.length > 0 ? { args } : {}),
-        ...(Object.keys(envMap.values).length > 0 ? { env: envMap.values } : {}),
+        ...(Object.keys(envMap.values).length > 0
+          ? { env: envMap.values }
+          : {}),
       }
       continue
     }
@@ -40,7 +45,9 @@ export const renderClaudeServers = (
     servers[name] = {
       type: server.transport,
       url: server.url,
-      ...(Object.keys(headerMap.values).length > 0 ? { headers: headerMap.values } : {}),
+      ...(Object.keys(headerMap.values).length > 0
+        ? { headers: headerMap.values }
+        : {}),
     }
   }
 

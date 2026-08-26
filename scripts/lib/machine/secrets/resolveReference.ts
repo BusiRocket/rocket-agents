@@ -1,5 +1,5 @@
-import type { SecretReference } from "./SecretReference"
-import type { ResolvedReference } from "./types/ResolvedReference"
+import type { SecretReference } from './SecretReference'
+import type { ResolvedReference } from './types/ResolvedReference'
 
 export const resolveReference = (
   reference: SecretReference,

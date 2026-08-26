@@ -6,7 +6,8 @@ export const classifySkill = ({
   hasOpenAiYaml,
   hasLegacy,
 }: Record<string, unknown>) => {
-  if (!hasSkillMd || !hasFrontmatter || !hasName || !hasDescription) return "blocked"
-  if (hasOpenAiYaml && !hasLegacy) return "auto-migrable"
-  return "manual-migration"
+  if (!hasSkillMd || !hasFrontmatter || !hasName || !hasDescription)
+    return 'blocked'
+  if (hasOpenAiYaml && !hasLegacy) return 'auto-migrable'
+  return 'manual-migration'
 }

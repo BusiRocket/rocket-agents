@@ -1,6 +1,6 @@
-import { main } from "../commands/connectorDoctor"
+import { main } from '../commands/connectorDoctor'
 
 main().catch(() => {
-  console.error("connector doctor failed unexpectedly")
+  console.error('connector doctor failed unexpectedly')
   process.exitCode = 2
 })

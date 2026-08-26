@@ -1,22 +1,22 @@
-import { promises as fs } from "node:fs"
-import { homedir } from "node:os"
-import { join } from "node:path"
-import { flagValue } from "../lib/machine/cli/flagValue"
-import { listAuthoredBundles } from "../lib/library/cli/listAuthoredBundles"
-import { listSkillBundles } from "../lib/library/cli/listSkillBundles"
-import { readSkillLock } from "../lib/library/cli/readSkillLock"
-import { resolveLibraryDir } from "../lib/library/cli/resolveLibraryDir"
-import { formatSeedReport } from "../lib/library/formatters/formatSeedReport"
-import { listRulePaths } from "../lib/library/cli/listRulePaths"
-import { mergeSeedIntoManifest } from "../lib/library/mergeSeedIntoManifest"
-import { readCurationManifest } from "../lib/library/cli/readCurationManifest"
-import { seedManifestFromLock } from "../lib/library/seedManifestFromLock"
-import { seedRuleEntries } from "../lib/library/seedRuleEntries"
+import { promises as fs } from 'node:fs'
+import { homedir } from 'node:os'
+import { join } from 'node:path'
+import { listAuthoredBundles } from '../lib/library/cli/listAuthoredBundles'
+import { listRulePaths } from '../lib/library/cli/listRulePaths'
+import { listSkillBundles } from '../lib/library/cli/listSkillBundles'
+import { readCurationManifest } from '../lib/library/cli/readCurationManifest'
+import { readSkillLock } from '../lib/library/cli/readSkillLock'
+import { resolveLibraryDir } from '../lib/library/cli/resolveLibraryDir'
+import { formatSeedReport } from '../lib/library/formatters/formatSeedReport'
+import { mergeSeedIntoManifest } from '../lib/library/mergeSeedIntoManifest'
+import { seedManifestFromLock } from '../lib/library/seedManifestFromLock'
+import { seedRuleEntries } from '../lib/library/seedRuleEntries'
+import { flagValue } from '../lib/machine/cli/flagValue'
 
 export const main = async () => {
-  const asJson = process.argv.includes("--json")
-  const dryRun = process.argv.includes("--dry-run")
-  const flag = flagValue(process.argv, "--library")
+  const asJson = process.argv.includes('--json')
+  const dryRun = process.argv.includes('--dry-run')
+  const flag = flagValue(process.argv, '--library')
 
   const libraryDir = resolveLibraryDir({
     ...(flag === undefined ? {} : { flag }),
@@ -38,8 +38,9 @@ export const main = async () => {
     await listSkillBundles(libraryDir),
   )
 
-  const rulesRoot = flagValue(process.argv, "--rules") ?? join(process.cwd(), "src/rules")
-  const rules = seedRuleEntries(await listRulePaths(rulesRoot), "rocket-agents")
+  const rulesRoot =
+    flagValue(process.argv, '--rules') ?? join(process.cwd(), 'src/rules')
+  const rules = seedRuleEntries(await listRulePaths(rulesRoot), 'rocket-agents')
   const seeded = { ...skills, entries: { ...skills.entries, ...rules } }
   const current = await readCurationManifest(libraryDir)
   const merged = current.ok
@@ -48,7 +49,7 @@ export const main = async () => {
 
   if (!dryRun) {
     await fs.writeFile(
-      join(libraryDir, "curation.json"),
+      join(libraryDir, 'curation.json'),
       `${JSON.stringify(merged.manifest, null, 2)}\n`,
     )
   }

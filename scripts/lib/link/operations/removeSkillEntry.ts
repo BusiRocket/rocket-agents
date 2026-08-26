@@ -1,4 +1,4 @@
-import { promises as fs } from "node:fs"
+import { promises as fs } from 'node:fs'
 
 export const removeSkillEntry = async (fullPath: string): Promise<void> => {
   const stat = await fs.lstat(fullPath)

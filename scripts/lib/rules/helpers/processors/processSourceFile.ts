@@ -1,6 +1,6 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
-import { parseMdc } from "../../parsers/parseMdc"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { parseMdc } from '../../parsers/parseMdc'
 
 /**
  * Process a single source file: read, parse, and get relative path
@@ -9,7 +9,7 @@ import { parseMdc } from "../../parsers/parseMdc"
  * @returns {Promise<{content: string, parsed: object, relativePath: string}>}
  */
 export async function processSourceFile(file: string, sourceDir: string) {
-  const content = await fs.readFile(file, "utf8")
+  const content = await fs.readFile(file, 'utf8')
   const parsed = parseMdc(content)
   const relativePath = path.relative(sourceDir, file)
 

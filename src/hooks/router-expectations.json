@@ -197,13 +197,19 @@
     },
     {
       "phrase": "nada, me parece bien, empieza con ello y dejalo todo listo para que lo aplique a vexa",
-      "sourceSkills": ["superpowers:writing-plans", "superpowers:subagent-driven-development"],
+      "sourceSkills": [
+        "superpowers:writing-plans",
+        "superpowers:subagent-driven-development"
+      ],
       "intentionalSilence": true,
       "reason": "This is an acknowledgement or execution approval whose context was already established."
     },
     {
       "phrase": "sí todo estricto y empieza ya, que dejemos todo listo y podamos empezar a usarlo en repos ya",
-      "sourceSkills": ["superpowers:writing-plans", "superpowers:subagent-driven-development"],
+      "sourceSkills": [
+        "superpowers:writing-plans",
+        "superpowers:subagent-driven-development"
+      ],
       "intentionalSilence": true,
       "reason": "No global workflow lane is justified by this measured prompt."
     },
@@ -221,7 +227,10 @@
     },
     {
       "phrase": "adelante con todo, tienes permiso para crear y hacer todo",
-      "sourceSkills": ["superpowers:writing-plans", "superpowers:subagent-driven-development"],
+      "sourceSkills": [
+        "superpowers:writing-plans",
+        "superpowers:subagent-driven-development"
+      ],
       "intentionalSilence": true,
       "reason": "This is an acknowledgement or execution approval whose context was already established."
     },
@@ -245,7 +254,10 @@
     },
     {
       "phrase": "sí, haz lo que mejor veas, prefiero ir gastando lo de codex que no lo uso para nada",
-      "sourceSkills": ["superpowers:writing-plans", "superpowers:subagent-driven-development"],
+      "sourceSkills": [
+        "superpowers:writing-plans",
+        "superpowers:subagent-driven-development"
+      ],
       "intentionalSilence": true,
       "reason": "No global workflow lane is justified by this measured prompt."
     },

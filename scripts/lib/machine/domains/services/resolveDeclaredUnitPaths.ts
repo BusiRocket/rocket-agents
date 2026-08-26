@@ -1,7 +1,7 @@
-import { join } from "node:path"
-import { renderServiceUnits } from "./renderServiceUnits"
-import type { ServicesManifestParseResult } from "./types/ServicesManifestParseResult"
-import type { ServicesPaths } from "./types/ServicesPaths"
+import { join } from 'node:path'
+import { renderServiceUnits } from './renderServiceUnits'
+import type { ServicesManifestParseResult } from './types/ServicesManifestParseResult'
+import type { ServicesPaths } from './types/ServicesPaths'
 
 /**
  * Every unit file an apply could write, so the run snapshot can restore them.

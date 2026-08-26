@@ -1,5 +1,7 @@
-import { renderClaudeValueMap } from "./renderClaudeValueMap"
-import type { McpValue } from "../../domains/mcp/types/McpValue"
+import type { McpValue } from '../../domains/mcp/types/McpValue'
+import { renderClaudeValueMap } from './renderClaudeValueMap'
 
-export const renderValueMapForTarget = (source: Record<string, McpValue>, env: NodeJS.ProcessEnv) =>
-  renderClaudeValueMap(source, env)
+export const renderValueMapForTarget = (
+  source: Record<string, McpValue>,
+  env: NodeJS.ProcessEnv,
+) => renderClaudeValueMap(source, env)

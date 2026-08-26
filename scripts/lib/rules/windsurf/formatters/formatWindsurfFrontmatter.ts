@@ -1,4 +1,4 @@
-import type { RuleFrontmatter } from "../../types/RuleFrontmatter"
+import type { RuleFrontmatter } from '../../types/RuleFrontmatter'
 
 /**
  * Convert to Windsurf rule frontmatter format
@@ -6,7 +6,7 @@ import type { RuleFrontmatter } from "../../types/RuleFrontmatter"
  * @returns {string} - Formatted frontmatter for Windsurf
  */
 export function formatWindsurfFrontmatter(frontmatter: RuleFrontmatter) {
-  const lines = ["---"]
+  const lines = ['---']
   if (frontmatter.description) {
     lines.push(`description: "${frontmatter.description as string}"`)
   }
@@ -23,9 +23,9 @@ export function formatWindsurfFrontmatter(frontmatter: RuleFrontmatter) {
     lines.push(`priority: ${frontmatter.priority as string}`)
   } else {
     // Default priority based on alwaysApply
-    lines.push(`priority: ${frontmatter.alwaysApply ? "high" : "medium"}`)
+    lines.push(`priority: ${frontmatter.alwaysApply ? 'high' : 'medium'}`)
   }
 
-  lines.push("---")
-  return lines.join("\n")
+  lines.push('---')
+  return lines.join('\n')
 }

@@ -1,7 +1,7 @@
-import { buildMcpInitializeRequest } from "./buildMcpInitializeRequest"
-import { classifyHttpProbe } from "./classifyHttpProbe"
-import { readBoundedResponseText } from "./readBoundedResponseText"
-import type { HttpProbeResult } from "./types/HttpProbeResult"
+import { buildMcpInitializeRequest } from './buildMcpInitializeRequest'
+import { classifyHttpProbe } from './classifyHttpProbe'
+import { readBoundedResponseText } from './readBoundedResponseText'
+import type { HttpProbeResult } from './types/HttpProbeResult'
 
 export const probeHttpMcp = async (
   endpoint: string,
@@ -10,10 +10,10 @@ export const probeHttpMcp = async (
   const startedAt = performance.now()
   try {
     const response = await fetch(endpoint, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        accept: "application/json, text/event-stream",
-        "content-type": "application/json",
+        accept: 'application/json, text/event-stream',
+        'content-type': 'application/json',
       },
       body: JSON.stringify(buildMcpInitializeRequest()),
       signal: AbortSignal.timeout(timeoutMs),
@@ -21,16 +21,19 @@ export const probeHttpMcp = async (
     return classifyHttpProbe({
       httpCode: response.status,
       body: await readBoundedResponseText(response, 65_536),
-      retryAfter: response.headers.get("retry-after"),
+      retryAfter: response.headers.get('retry-after'),
       durationMs: Math.round(performance.now() - startedAt),
     })
   } catch (error) {
-    const timedOut = error instanceof DOMException && error.name === "TimeoutError"
+    const timedOut =
+      error instanceof DOMException && error.name === 'TimeoutError'
     return {
-      status: "failed",
-      boundary: "network",
+      status: 'failed',
+      boundary: 'network',
       durationMs: Math.round(performance.now() - startedAt),
-      summary: timedOut ? "connector request timed out" : "connector request failed",
+      summary: timedOut
+        ? 'connector request timed out'
+        : 'connector request failed',
     }
   }
 }

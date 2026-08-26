@@ -1,10 +1,12 @@
-import { DatabaseSync } from "node:sqlite"
-import { appendOpenCodeSqliteRow } from "./appendOpenCodeSqliteRow"
-import { openCodeDocumentsFromConversations } from "./openCodeDocumentsFromConversations"
-import type { ConversationArtifact } from "./types/ConversationArtifact"
-import type { OpenCodeConversation } from "./types/OpenCodeConversation"
+import { DatabaseSync } from 'node:sqlite'
+import { appendOpenCodeSqliteRow } from './appendOpenCodeSqliteRow'
+import { openCodeDocumentsFromConversations } from './openCodeDocumentsFromConversations'
+import type { ConversationArtifact } from './types/ConversationArtifact'
+import type { OpenCodeConversation } from './types/OpenCodeConversation'
 
-export const readOpenCodeSqliteConversationDocuments = (artifact: ConversationArtifact) => {
+export const readOpenCodeSqliteConversationDocuments = (
+  artifact: ConversationArtifact,
+) => {
   const conversations = new Map<string, OpenCodeConversation>()
   const database = new DatabaseSync(artifact.path, { readOnly: true })
   try {
@@ -27,7 +29,8 @@ export const readOpenCodeSqliteConversationDocuments = (artifact: ConversationAr
       LEFT JOIN part AS p ON p.message_id = m.id
       ORDER BY s.time_created, m.time_created, p.time_created, p.rowid
     `)
-    for (const row of statement.iterate()) appendOpenCodeSqliteRow(conversations, row)
+    for (const row of statement.iterate())
+      appendOpenCodeSqliteRow(conversations, row)
     return openCodeDocumentsFromConversations(artifact, conversations)
   } finally {
     database.close()

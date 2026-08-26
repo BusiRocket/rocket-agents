@@ -1,4 +1,4 @@
-import { realpath } from "node:fs/promises"
+import { realpath } from 'node:fs/promises'
 
 export const toRealPath = async (path: string): Promise<string> => {
   try {

@@ -1,7 +1,7 @@
-import { groupByCategoryAndSubcategory } from "../groupers/groupByCategoryAndSubcategory"
-import { normalizeLineEndings } from "../converters/normalizeLineEndings"
-import { normalizeRel } from "../converters/normalizeRel"
-import { renderGrouped } from "./renderGrouped"
+import { normalizeLineEndings } from '../converters/normalizeLineEndings'
+import { normalizeRel } from '../converters/normalizeRel'
+import { groupByCategoryAndSubcategory } from '../groupers/groupByCategoryAndSubcategory'
+import { renderGrouped } from './renderGrouped'
 
 /**
  * ALL_RULES.md renderer.
@@ -11,7 +11,7 @@ import { renderGrouped } from "./renderGrouped"
  * @returns {string}
  */
 
-import type { RuleItem } from "../types/RuleItem"
+import type { RuleItem } from '../types/RuleItem'
 
 export function renderAllRules(bundle: RuleItem[]) {
   const items = bundle
@@ -19,19 +19,19 @@ export function renderAllRules(bundle: RuleItem[]) {
     .map((item) => ({
       rel: normalizeRel(item.rel),
 
-      content: normalizeLineEndings(item.content ?? ""),
+      content: normalizeLineEndings(item.content ?? ''),
     }))
 
-    .filter((i) => i.rel.endsWith(".mdc"))
+    .filter((i) => i.rel.endsWith('.mdc'))
 
     .sort((a, b) => a.rel.localeCompare(b.rel))
   const grouped = groupByCategoryAndSubcategory(items)
   const header = [
-    "# ALL_RULES.md",
-    "",
-    "This file contains the full text of every rule, grouped by category and subcategory.",
-    "",
-  ].join("\n")
+    '# ALL_RULES.md',
+    '',
+    'This file contains the full text of every rule, grouped by category and subcategory.',
+    '',
+  ].join('\n')
   const body = renderGrouped(grouped)
   return `${header}${body}`
 }

@@ -13,6 +13,8 @@ Choose the smallest test layer that proves the behavior with confidence.
 ## Selection Rules
 
 - Prefer the lowest layer that covers the risk.
-- Add one higher-layer test only when it catches integration failure modes the lower layer misses.
+- Add one higher-layer test only when it catches integration failure modes the
+  lower layer misses.
 - Avoid duplicate assertions across layers unless they guard different risks.
-- If only manual verification is possible, make the steps executable and precise.
+- If only manual verification is possible, make the steps executable and
+  precise.

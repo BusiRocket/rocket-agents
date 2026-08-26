@@ -1,4 +1,4 @@
-import type { QuarantineEntry } from "./QuarantineEntry"
+import type { QuarantineEntry } from './QuarantineEntry'
 
 export interface QuarantineManifest {
   version: 1

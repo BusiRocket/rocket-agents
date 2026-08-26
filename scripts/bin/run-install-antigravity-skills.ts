@@ -1,4 +1,4 @@
-import { installAntigravitySkills } from "../commands/installAntigravitySkills"
+import { installAntigravitySkills } from '../commands/installAntigravitySkills'
 
 installAntigravitySkills().catch((err: unknown) => {
   console.error(err)

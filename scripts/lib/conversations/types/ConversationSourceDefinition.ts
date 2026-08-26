@@ -1,5 +1,5 @@
-import type { ConversationSource } from "./ConversationSource"
-import type { ConversationStorageKind } from "./ConversationStorageKind"
+import type { ConversationSource } from './ConversationSource'
+import type { ConversationStorageKind } from './ConversationStorageKind'
 
 export interface ConversationSourceDefinition {
   id: ConversationSource

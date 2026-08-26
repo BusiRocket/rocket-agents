@@ -1,11 +1,11 @@
-import { unquoteTomlString } from "./unquoteTomlString"
+import { unquoteTomlString } from './unquoteTomlString'
 
 export const parseTomlArray = (raw: string) => {
   const inner = raw.trim().slice(1, -1).trim()
 
-  if (inner === "") {
+  if (inner === '') {
     return []
   }
 
-  return inner.split(",").map((element) => unquoteTomlString(element))
+  return inner.split(',').map((element) => unquoteTomlString(element))
 }

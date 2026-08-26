@@ -1,5 +1,5 @@
-import type { PluginsApplyResult } from "./types/PluginsApplyResult"
-import type { MachineStatus } from "../../types/MachineStatus"
+import type { MachineStatus } from '../../types/MachineStatus'
+import type { PluginsApplyResult } from './types/PluginsApplyResult'
 
 export const toPluginsApplyStatus = ({
   result,
@@ -9,8 +9,8 @@ export const toPluginsApplyStatus = ({
   pruned: number
 }): MachineStatus => {
   if (result.failed.length > 0) {
-    return "failed"
+    return 'failed'
   }
 
-  return result.applied.length + pruned === 0 ? "converged" : "changed"
+  return result.applied.length + pruned === 0 ? 'converged' : 'changed'
 }

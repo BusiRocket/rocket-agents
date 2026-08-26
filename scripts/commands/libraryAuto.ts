@@ -1,24 +1,25 @@
-import { promises as fs } from "node:fs"
-import { homedir } from "node:os"
-import { join } from "node:path"
-import { flagValue } from "../lib/machine/cli/flagValue"
-import { applyTransition } from "../lib/library/applyTransition"
-import { buildSkillKeyIndex } from "../lib/library/buildSkillKeyIndex"
-import { listSkillPaths } from "../lib/library/cli/listSkillPaths"
-import { readCurationManifest } from "../lib/library/cli/readCurationManifest"
-import { resolveLibraryDir } from "../lib/library/cli/resolveLibraryDir"
-import { writeCurationManifest } from "../lib/library/cli/writeCurationManifest"
-import { readInvocationCounts } from "../lib/library/learning/readInvocationCounts"
-import { remapInvocations } from "../lib/library/learning/remapInvocations"
-import { selectIdleEntries } from "../lib/library/selectors/selectIdleEntries"
-import type { CurationManifest } from "../lib/library/types/CurationManifest"
+import { promises as fs } from 'node:fs'
+import { homedir } from 'node:os'
+import { join } from 'node:path'
+import { applyTransition } from '../lib/library/applyTransition'
+import { buildSkillKeyIndex } from '../lib/library/buildSkillKeyIndex'
+import { listSkillPaths } from '../lib/library/cli/listSkillPaths'
+import { readCurationManifest } from '../lib/library/cli/readCurationManifest'
+import { resolveLibraryDir } from '../lib/library/cli/resolveLibraryDir'
+import { writeCurationManifest } from '../lib/library/cli/writeCurationManifest'
+import { readInvocationCounts } from '../lib/library/learning/readInvocationCounts'
+import { remapInvocations } from '../lib/library/learning/remapInvocations'
+import { selectIdleEntries } from '../lib/library/selectors/selectIdleEntries'
+import type { CurationManifest } from '../lib/library/types/CurationManifest'
+import { flagValue } from '../lib/machine/cli/flagValue'
 
 export const main = async () => {
   const home = homedir()
-  const dryRun = process.argv.includes("--dry-run")
-  const target = flagValue(process.argv, "--target") ?? "claude"
-  const today = flagValue(process.argv, "--date") ?? new Date().toISOString().slice(0, 10)
-  const libraryFlag = flagValue(process.argv, "--library")
+  const dryRun = process.argv.includes('--dry-run')
+  const target = flagValue(process.argv, '--target') ?? 'claude'
+  const today =
+    flagValue(process.argv, '--date') ?? new Date().toISOString().slice(0, 10)
+  const libraryFlag = flagValue(process.argv, '--library')
 
   const libraryDir = resolveLibraryDir({
     ...(libraryFlag === undefined ? {} : { flag: libraryFlag }),
@@ -29,7 +30,7 @@ export const main = async () => {
   const parsed = await readCurationManifest(libraryDir)
 
   if (!parsed.ok) {
-    console.error(parsed.errors.join("\n"))
+    console.error(parsed.errors.join('\n'))
     process.exitCode = 1
     return
   }
@@ -39,7 +40,9 @@ export const main = async () => {
     await listSkillPaths(libraryDir),
   )
   const counts = remapInvocations(
-    await readInvocationCounts(join(libraryDir, "learning", "invocations.json")),
+    await readInvocationCounts(
+      join(libraryDir, 'learning', 'invocations.json'),
+    ),
     keyIndex,
   )
 
@@ -47,9 +50,9 @@ export const main = async () => {
     manifest: parsed.manifest,
     invocations: counts,
     target,
-    authoredSource: "rocket-agents",
+    authoredSource: 'rocket-agents',
     today,
-    idleDays: Number(flagValue(process.argv, "--idle-days") ?? "30"),
+    idleDays: Number(flagValue(process.argv, '--idle-days') ?? '30'),
   })
   const applied: string[] = []
   const refused: string[] = []
@@ -59,8 +62,10 @@ export const main = async () => {
     const result = applyTransition(
       manifest,
       name,
-      "parked",
-      { reason: `no invocation measured while adopted, parked automatically on ${today}` },
+      'parked',
+      {
+        reason: `no invocation measured while adopted, parked automatically on ${today}`,
+      },
       today,
     )
 
@@ -74,21 +79,21 @@ export const main = async () => {
 
   if (!dryRun && applied.length > 0) {
     await writeCurationManifest(libraryDir, manifest)
-    await fs.mkdir(join(libraryDir, "learning"), { recursive: true })
+    await fs.mkdir(join(libraryDir, 'learning'), { recursive: true })
     const logLines = applied.map((name) => `${today} parked ${name}`)
     await fs.appendFile(
-      join(libraryDir, "learning", "auto-actions.log"),
-      `${logLines.join("\n")}\n`,
+      join(libraryDir, 'learning', 'auto-actions.log'),
+      `${logLines.join('\n')}\n`,
     )
   }
 
-  const verb = dryRun ? "would park" : "parked"
+  const verb = dryRun ? 'would park' : 'parked'
 
   console.log(
     [
       `${verb}: ${String(applied.length)}`,
       ...applied.map((name) => `  - ${name}`),
       ...refused.map((line) => `  ! ${line}`),
-    ].join("\n"),
+    ].join('\n'),
   )
 }

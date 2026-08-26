@@ -1,7 +1,11 @@
-import { CURATION_STATES } from "./constants/CURATION_STATES"
+import { CURATION_STATES } from './constants/CURATION_STATES'
 
-export const collectEntryErrors = (name: string, entry: unknown, errors: string[]) => {
-  if (typeof entry !== "object" || entry === null) {
+export const collectEntryErrors = (
+  name: string,
+  entry: unknown,
+  errors: string[],
+) => {
+  if (typeof entry !== 'object' || entry === null) {
     errors.push(`${name}: entry must be an object`)
     return
   }
@@ -9,25 +13,28 @@ export const collectEntryErrors = (name: string, entry: unknown, errors: string[
   const record = entry as Record<string, unknown>
   const state = record.state
 
-  if (typeof state !== "string" || !(CURATION_STATES as readonly string[]).includes(state)) {
+  if (
+    typeof state !== 'string' ||
+    !(CURATION_STATES as readonly string[]).includes(state)
+  ) {
     errors.push(`${name}: unknown state ${String(state)}`)
     return
   }
 
-  if (state === "forked") {
-    if (typeof record.patch !== "string") {
+  if (state === 'forked') {
+    if (typeof record.patch !== 'string') {
       errors.push(`${name}: forked entries need a patch`)
     }
-    if (typeof record.upstreamHash !== "string") {
+    if (typeof record.upstreamHash !== 'string') {
       errors.push(`${name}: forked entries need an upstreamHash`)
     }
   }
 
-  if (state === "extracted" && typeof record.extractedInto !== "string") {
+  if (state === 'extracted' && typeof record.extractedInto !== 'string') {
     errors.push(`${name}: extracted entries need extractedInto`)
   }
 
-  if (state === "parked" && typeof record.reason !== "string") {
+  if (state === 'parked' && typeof record.reason !== 'string') {
     errors.push(`${name}: parked entries need a reason`)
   }
 }

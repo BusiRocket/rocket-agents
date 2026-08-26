@@ -14,19 +14,19 @@ export const toCodexInvocationText = (line: string): string | undefined => {
     return undefined
   }
 
-  if (typeof parsed !== "object" || parsed === null) {
+  if (typeof parsed !== 'object' || parsed === null) {
     return undefined
   }
 
   const record = parsed as { type?: unknown; payload?: unknown }
 
-  if (record.type !== "response_item" || typeof record.payload !== "object") {
+  if (record.type !== 'response_item' || typeof record.payload !== 'object') {
     return undefined
   }
 
   const payload = record.payload as { type?: unknown }
 
-  if (payload.type !== "custom_tool_call" && payload.type !== "function_call") {
+  if (payload.type !== 'custom_tool_call' && payload.type !== 'function_call') {
     return undefined
   }
 

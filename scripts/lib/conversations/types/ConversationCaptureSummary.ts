@@ -1,4 +1,4 @@
-import type { ConversationSourceStatus } from "./ConversationSourceStatus"
+import type { ConversationSourceStatus } from './ConversationSourceStatus'
 
 export interface ConversationCaptureSummary {
   ok: boolean

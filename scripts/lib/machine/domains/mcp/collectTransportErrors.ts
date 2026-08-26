@@ -5,8 +5,8 @@ export const collectTransportErrors = (
 ) => {
   const transport = server.transport
 
-  if (transport === "stdio") {
-    if (typeof server.command !== "string") {
+  if (transport === 'stdio') {
+    if (typeof server.command !== 'string') {
       errors.push(`${name}: stdio transport needs a command`)
     }
     if (server.url !== undefined) {
@@ -15,8 +15,8 @@ export const collectTransportErrors = (
     return
   }
 
-  if (transport === "http" || transport === "sse") {
-    if (typeof server.url !== "string") {
+  if (transport === 'http' || transport === 'sse') {
+    if (typeof server.url !== 'string') {
       errors.push(`${name}: ${transport} transport needs a url`)
     }
     if (server.command !== undefined) {

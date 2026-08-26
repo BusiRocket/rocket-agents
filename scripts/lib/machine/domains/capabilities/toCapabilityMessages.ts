@@ -1,5 +1,5 @@
-import type { applyCapabilityLinks } from "./applyCapabilityLinks"
-import type { CapabilityTarget } from "./types/CapabilityTarget"
+import type { applyCapabilityLinks } from './applyCapabilityLinks'
+import type { CapabilityTarget } from './types/CapabilityTarget'
 
 /**
  * One line per capability target: why it was skipped, or how many paths moved.
@@ -12,11 +12,13 @@ export const toCapabilityMessages = (
   }[],
 ): string[] =>
   results.flatMap(({ target, result }) => {
-    if (result.status !== "supported") {
+    if (result.status !== 'supported') {
       return [`skipped ${target.id}: ${result.status}`]
     }
 
     const changed = result.linked + result.copied
 
-    return changed === 0 ? [] : [`updated ${String(changed)} paths for ${target.id}`]
+    return changed === 0
+      ? []
+      : [`updated ${String(changed)} paths for ${target.id}`]
   })

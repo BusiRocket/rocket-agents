@@ -1,13 +1,16 @@
-import type { CurationEntry } from "./types/CurationEntry"
+import type { CurationEntry } from './types/CurationEntry'
 
-export const seedRuleEntries = (rulePaths: string[], authoredSource: string) => {
+export const seedRuleEntries = (
+  rulePaths: string[],
+  authoredSource: string,
+) => {
   const entries: Record<string, CurationEntry> = {}
 
   for (const path of rulePaths) {
     entries[`rules/${path}`] = {
-      state: "adopted",
+      state: 'adopted',
       source: authoredSource,
-      reason: "authored here",
+      reason: 'authored here',
     }
   }
 

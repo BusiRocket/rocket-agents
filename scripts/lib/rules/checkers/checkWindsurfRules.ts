@@ -1,7 +1,7 @@
-import path from "node:path"
-import { compareRuleFile } from "../helpers/processors/compareRuleFile"
-import { processSourceFile } from "../helpers/processors/processSourceFile"
-import { toWindsurfRule } from "../converters/toWindsurfRule"
+import path from 'node:path'
+import { toWindsurfRule } from '../converters/toWindsurfRule'
+import { compareRuleFile } from '../helpers/processors/compareRuleFile'
+import { processSourceFile } from '../helpers/processors/processSourceFile'
 
 /**
  * Check if Windsurf rules are in sync
@@ -19,7 +19,10 @@ export async function checkWindsurfRules(
   for (const file of sourceFiles) {
     const { parsed, relativePath } = await processSourceFile(file, sourceDir)
     const expected = toWindsurfRule(parsed, relativePath)
-    const targetPath = path.join(targetDir, relativePath.replace(/\.mdc$/, ".md"))
+    const targetPath = path.join(
+      targetDir,
+      relativePath.replace(/\.mdc$/, '.md'),
+    )
 
     const { missing, outdated } = await compareRuleFile(targetPath, expected)
     if (missing) errors.push(`Missing Windsurf rule: ${targetPath}`)

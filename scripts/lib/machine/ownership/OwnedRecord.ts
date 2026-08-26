@@ -1,3 +1,3 @@
 export type OwnedRecord = Partial<
-  Record<"mcp" | "security" | "capabilities", Record<string, string[]>>
+  Record<'mcp' | 'security' | 'capabilities', Record<string, string[]>>
 >

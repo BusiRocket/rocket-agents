@@ -1,42 +1,42 @@
-import assert from "node:assert/strict"
-import test from "node:test"
-import { readProfileConnectorStatus } from "./readProfileConnectorStatus"
-import type { ConnectorDefinition } from "./types/ConnectorDefinition"
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { readProfileConnectorStatus } from './readProfileConnectorStatus'
+import type { ConnectorDefinition } from './types/ConnectorDefinition'
 
-void test("profile inspection dispatches Codex doctor output to the Codex parser", () => {
+void test('profile inspection dispatches Codex doctor output to the Codex parser', () => {
   const definitions: ConnectorDefinition[] = [
     {
-      id: "mempalace",
-      match: "mempalace",
-      profiles: ["codex"],
-      ownership: "machine",
-      probe: "native-cli",
-      criticality: "required",
+      id: 'mempalace',
+      match: 'mempalace',
+      profiles: ['codex'],
+      ownership: 'machine',
+      probe: 'native-cli',
+      criticality: 'required',
     },
     {
-      id: "claude-only",
-      match: "claude-only",
-      profiles: ["claude-personal"],
-      ownership: "machine",
-      probe: "native-cli",
-      criticality: "required",
+      id: 'claude-only',
+      match: 'claude-only',
+      profiles: ['claude-personal'],
+      ownership: 'machine',
+      probe: 'native-cli',
+      criticality: 'required',
     },
   ]
 
   assert.deepEqual(
     readProfileConnectorStatus(
-      JSON.stringify([{ name: "mempalace", enabled: true }]),
-      "codex",
+      JSON.stringify([{ name: 'mempalace', enabled: true }]),
+      'codex',
       definitions,
     ),
     [
       {
-        id: "mempalace",
-        profile: "codex",
-        status: "healthy",
-        criticality: "required",
-        boundary: "client",
-        summary: "server enabled",
+        id: 'mempalace',
+        profile: 'codex',
+        status: 'healthy',
+        criticality: 'required',
+        boundary: 'client',
+        summary: 'server enabled',
       },
     ],
   )

@@ -1,23 +1,23 @@
-import assert from "node:assert/strict"
-import test from "node:test"
-import { buildReconciliationPrompt } from "./buildReconciliationPrompt"
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { buildReconciliationPrompt } from './buildReconciliationPrompt'
 
-void test("the agent prompt requires live evidence and verbatim invariants", () => {
+void test('the agent prompt requires live evidence and verbatim invariants', () => {
   const prompt = buildReconciliationPrompt(
     {
       version: 1,
-      requiredInvariants: ["Required invariant."],
+      requiredInvariants: ['Required invariant.'],
       officialDocumentationOrigins: {
-        claude: ["https://code.claude.com"],
-        codex: ["https://developers.openai.com"],
+        claude: ['https://code.claude.com'],
+        codex: ['https://developers.openai.com'],
       },
       maxOutputBytes: 20_000,
-      agentCommand: ["/usr/bin/true"],
+      agentCommand: ['/usr/bin/true'],
       timeoutMs: 120_000,
     },
     {
-      hashes: { "canonical/shared.md": "a".repeat(64) },
-      values: { "canonical/shared.md": "Required invariant.\n" },
+      hashes: { 'canonical/shared.md': 'a'.repeat(64) },
+      values: { 'canonical/shared.md': 'Required invariant.\n' },
     },
   )
 

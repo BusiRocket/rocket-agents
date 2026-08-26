@@ -1,10 +1,10 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
-import { copySkillToTargetWithTransform } from "../lib/link/operations/copySkillToTargetWithTransform"
-import { rewriteAntigravityRuleRefs } from "../lib/link/operations/rewriteAntigravityRuleRefs"
-import { listSkillDirs } from "../lib/link/operations/listSkillDirs"
-import { ANTIGRAVITY_SKILLS_DIR } from "../lib/link/constants/ANTIGRAVITY_SKILLS_DIR"
-import { SRC_SKILLS_DIR } from "../constants/SRC_SKILLS_DIR"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { SRC_SKILLS_DIR } from '../constants/SRC_SKILLS_DIR'
+import { ANTIGRAVITY_SKILLS_DIR } from '../lib/link/constants/ANTIGRAVITY_SKILLS_DIR'
+import { copySkillToTargetWithTransform } from '../lib/link/operations/copySkillToTargetWithTransform'
+import { listSkillDirs } from '../lib/link/operations/listSkillDirs'
+import { rewriteAntigravityRuleRefs } from '../lib/link/operations/rewriteAntigravityRuleRefs'
 
 export const installAntigravitySkills = async (): Promise<void> => {
   await fs.mkdir(ANTIGRAVITY_SKILLS_DIR, { recursive: true })

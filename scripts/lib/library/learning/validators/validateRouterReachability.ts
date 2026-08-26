@@ -1,8 +1,8 @@
-import { readCurationManifest } from "../../cli/readCurationManifest"
-import type { SkillTarget } from "../../types/SkillTarget"
-import { LANE_SKILLS } from "../constants/LANE_SKILLS"
-import { loadSkillAliases } from "../loadSkillAliases"
-import { validateLaneSkills } from "./validateLaneSkills"
+import { readCurationManifest } from '../../cli/readCurationManifest'
+import type { SkillTarget } from '../../types/SkillTarget'
+import { LANE_SKILLS } from '../constants/LANE_SKILLS'
+import { loadSkillAliases } from '../loadSkillAliases'
+import { validateLaneSkills } from './validateLaneSkills'
 
 export const validateRouterReachability = async (
   libraryDir: string,

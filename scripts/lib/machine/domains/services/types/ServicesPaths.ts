@@ -1,4 +1,4 @@
-import type { ServicesPlatform } from "./ServicesPlatform"
+import type { ServicesPlatform } from './ServicesPlatform'
 
 export interface ServicesPaths {
   platform: ServicesPlatform

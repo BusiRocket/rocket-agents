@@ -1,5 +1,5 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 /**
  * Copy a local file to a global directory (create dir if needed).
@@ -26,8 +26,8 @@ export async function copyFileToGlobal(
     )
   }
 
-  const content = await fs.readFile(localPath, "utf8")
+  const content = await fs.readFile(localPath, 'utf8')
   const globalPath = path.join(globalDir, globalFileName)
-  await fs.writeFile(globalPath, content, "utf8")
+  await fs.writeFile(globalPath, content, 'utf8')
   return { globalPath }
 }

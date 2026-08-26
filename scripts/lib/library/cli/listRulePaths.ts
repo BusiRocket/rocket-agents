@@ -1,5 +1,5 @@
-import { promises as fs } from "node:fs"
-import { join, relative } from "node:path"
+import { promises as fs } from 'node:fs'
+import { join, relative } from 'node:path'
 
 export const listRulePaths = async (rulesRoot: string) => {
   const paths: string[] = []
@@ -24,7 +24,7 @@ export const listRulePaths = async (rulesRoot: string) => {
         continue
       }
 
-      if (entry.name.endsWith(".mdc") || entry.name.endsWith(".md")) {
+      if (entry.name.endsWith('.mdc') || entry.name.endsWith('.md')) {
         paths.push(relative(rulesRoot, path))
       }
     }

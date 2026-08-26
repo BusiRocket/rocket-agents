@@ -1,14 +1,17 @@
-import { resolveValueMap } from "../claude/resolveValueMap"
-import type { McpManifest } from "../../domains/mcp/types/McpManifest"
-import { renderCodexServer } from "./renderCodexServer"
+import type { McpManifest } from '../../domains/mcp/types/McpManifest'
+import { resolveValueMap } from '../claude/resolveValueMap'
+import { renderCodexServer } from './renderCodexServer'
 
-export const renderCodexServers = (manifest: McpManifest, env: NodeJS.ProcessEnv) => {
+export const renderCodexServers = (
+  manifest: McpManifest,
+  env: NodeJS.ProcessEnv,
+) => {
   const blocks: string[] = []
   const missing: string[] = []
   const names: string[] = []
 
   for (const [name, server] of Object.entries(manifest.servers)) {
-    if (!server.targets.includes("codex")) {
+    if (!server.targets.includes('codex')) {
       continue
     }
 
@@ -22,5 +25,5 @@ export const renderCodexServers = (manifest: McpManifest, env: NodeJS.ProcessEnv
     names.push(name)
   }
 
-  return { toml: blocks.join("\n\n"), missing, names }
+  return { toml: blocks.join('\n\n'), missing, names }
 }

@@ -1,7 +1,7 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
-import { pathExists } from "./pathExists"
-import { removeSkillEntry } from "./removeSkillEntry"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { pathExists } from './pathExists'
+import { removeSkillEntry } from './removeSkillEntry'
 
 // Repo skills live under namespace subdirectories of the canonical dir
 // (e.g. core/brp-docs). Root-level prefix cleanup never reaches them, so a
@@ -14,7 +14,7 @@ export const removeStaleNamespaceEntries = async (
 ): Promise<string[]> => {
   const current = new Set(skillNames)
   const namespaces = new Set(
-    skillNames.map((name) => path.dirname(name)).filter((dir) => dir !== "."),
+    skillNames.map((name) => path.dirname(name)).filter((dir) => dir !== '.'),
   )
   const removed: string[] = []
 

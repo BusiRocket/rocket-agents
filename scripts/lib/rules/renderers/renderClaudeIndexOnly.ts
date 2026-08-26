@@ -1,8 +1,8 @@
-import type { RuleItem } from "../types/RuleItem"
-import type { RenderClaudeOptions } from "../types/RenderClaudeOptions"
-import { CLAUDE_HEADER_INTRO } from "../constants/CLAUDE_HEADER_INTRO"
-import { ATOMIC_FILE_RULE_SLIM } from "../constants/ATOMIC_FILE_RULE_SLIM"
-import { renderIndexOnly } from "./renderIndexOnly"
+import { ATOMIC_FILE_RULE_SLIM } from '../constants/ATOMIC_FILE_RULE_SLIM'
+import { CLAUDE_HEADER_INTRO } from '../constants/CLAUDE_HEADER_INTRO'
+import type { RenderClaudeOptions } from '../types/RenderClaudeOptions'
+import type { RuleItem } from '../types/RuleItem'
+import { renderIndexOnly } from './renderIndexOnly'
 
 /**
  * Index-only bootstrap renderer for CLAUDE.md.
@@ -18,19 +18,23 @@ import { renderIndexOnly } from "./renderIndexOnly"
  * @returns {string}
  */
 
-export function renderClaudeIndexOnly(bundle: RuleItem[], options: RenderClaudeOptions = {}) {
-  const maxChars = typeof options.maxChars === "number" ? options.maxChars : 15_000
+export function renderClaudeIndexOnly(
+  bundle: RuleItem[],
+  options: RenderClaudeOptions = {},
+) {
+  const maxChars =
+    typeof options.maxChars === 'number' ? options.maxChars : 15_000
 
   return renderIndexOnly(bundle, {
-    format: "claude",
-    title: "# CLAUDE.md",
+    format: 'claude',
+    title: '# CLAUDE.md',
     headerIntro: CLAUDE_HEADER_INTRO,
 
     embedContent: ATOMIC_FILE_RULE_SLIM,
 
     maxChars,
     includeShortSummary: options.includeShortSummary === true,
-    referencePrefix: "@rules/",
-    onLimit: "error",
+    referencePrefix: '@rules/',
+    onLimit: 'error',
   })
 }

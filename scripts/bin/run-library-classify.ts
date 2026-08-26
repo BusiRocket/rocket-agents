@@ -1,4 +1,4 @@
-import { main } from "../commands/libraryClassify"
+import { main } from '../commands/libraryClassify'
 
 main().catch((error: unknown) => {
   console.error(error)

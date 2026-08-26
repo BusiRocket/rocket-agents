@@ -1,6 +1,6 @@
-import type { PluginChange } from "./types/PluginChange"
-import type { PluginsManifestDocument } from "./types/PluginsManifestDocument"
-import type { PluginsState } from "./types/PluginsState"
+import type { PluginChange } from './types/PluginChange'
+import type { PluginsManifestDocument } from './types/PluginsManifestDocument'
+import type { PluginsState } from './types/PluginsState'
 
 export const planRemovals = ({
   manifest,
@@ -13,5 +13,9 @@ export const planRemovals = ({
 
   return state.installed
     .filter((plugin) => !declared.has(plugin.id))
-    .map((plugin) => ({ operation: "remove" as const, id: plugin.id, detail: plugin.version }))
+    .map((plugin) => ({
+      operation: 'remove' as const,
+      id: plugin.id,
+      detail: plugin.version,
+    }))
 }

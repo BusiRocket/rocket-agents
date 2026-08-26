@@ -1,9 +1,12 @@
-import type { PluginEnablement } from "./types/PluginEnablement"
+import type { PluginEnablement } from './types/PluginEnablement'
 
-export const toEnablement = (declared: Record<string, boolean>, id: string): PluginEnablement => {
+export const toEnablement = (
+  declared: Record<string, boolean>,
+  id: string,
+): PluginEnablement => {
   if (!(id in declared)) {
-    return "undeclared"
+    return 'undeclared'
   }
 
-  return declared[id] === true ? "enabled" : "disabled"
+  return declared[id] === true ? 'enabled' : 'disabled'
 }

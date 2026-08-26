@@ -1,4 +1,4 @@
-import type { SkillReport } from "./SkillReport"
+import type { SkillReport } from './SkillReport'
 
 export interface Report {
   generatedAt: string

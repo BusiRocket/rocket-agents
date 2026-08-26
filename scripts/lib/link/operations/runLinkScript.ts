@@ -1,4 +1,4 @@
-import { linkManyWithBackup } from "./linkManyWithBackup"
+import { linkManyWithBackup } from './linkManyWithBackup'
 
 /**
  * Run a link script: link sources to targets with backup, log results, then print success message.
@@ -12,7 +12,7 @@ export async function runLinkScript(
 ) {
   const results = await linkManyWithBackup(links)
   for (const result of results) {
-    if (result.status === "unchanged") {
+    if (result.status === 'unchanged') {
       console.log(`= ${result.target} already linked to ${result.source}`)
       continue
     }

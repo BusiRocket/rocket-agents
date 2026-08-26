@@ -1,7 +1,11 @@
-import { join } from "node:path"
-import type { ResolveLearningDirOptions } from "./types/ResolveLearningDirOptions"
+import { join } from 'node:path'
+import type { ResolveLearningDirOptions } from './types/ResolveLearningDirOptions'
 
-export const resolveLearningDir = ({ flag, env, home }: ResolveLearningDirOptions) => {
+export const resolveLearningDir = ({
+  flag,
+  env,
+  home,
+}: ResolveLearningDirOptions) => {
   if (flag) {
     return flag
   }
@@ -11,5 +15,5 @@ export const resolveLearningDir = ({ flag, env, home }: ResolveLearningDirOption
     return fromEnv
   }
 
-  return join(home, ".agents-learning")
+  return join(home, '.agents-learning')
 }

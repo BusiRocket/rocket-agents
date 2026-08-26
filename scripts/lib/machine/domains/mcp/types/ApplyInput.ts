@@ -1,5 +1,5 @@
-import type { McpManifest } from "./McpManifest"
-import type { McpTarget } from "./McpTarget"
+import type { McpManifest } from './McpManifest'
+import type { McpTarget } from './McpTarget'
 
 export interface ApplyInput {
   manifest: McpManifest

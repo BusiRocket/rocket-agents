@@ -1,31 +1,10 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@busirocket/tsconfig/node.json",
   "compilerOptions": {
-    "target": "ES2024",
-    "lib": ["ES2024"],
-
-    "strict": true,
-    "noEmit": true,
-    "incremental": true,
-
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-
-    "skipLibCheck": true,
-
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitOverride": true,
-    "useUnknownInCatchVariables": true,
-
     "paths": {
       "@/*": ["./*"]
-    },
-    "types": ["node"]
+    }
   },
   "include": ["scripts/**/*"],
   "exclude": ["node_modules", "dist"]

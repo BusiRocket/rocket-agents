@@ -1,7 +1,8 @@
 # BRP Workflow Protocol (Non-Negotiable)
 
-Every coding task — regardless of stack, IDE, or complexity — follows this deterministic 6-step
-protocol. Steps may be lightweight for trivial tasks but **must never be skipped**.
+Every coding task — regardless of stack, IDE, or complexity — follows this
+deterministic 6-step protocol. Steps may be lightweight for trivial tasks but
+**must never be skipped**.
 
 ## Protocol Steps
 

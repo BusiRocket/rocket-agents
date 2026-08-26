@@ -1,6 +1,6 @@
-import { skillNameTokens } from "../skillNameTokens"
-import { tokenizeTriggerPhrase } from "../tokenizeTriggerPhrase"
-import type { RecurringTriggerSplit } from "../types/RecurringTriggerSplit"
+import { skillNameTokens } from '../skillNameTokens'
+import { tokenizeTriggerPhrase } from '../tokenizeTriggerPhrase'
+import type { RecurringTriggerSplit } from '../types/RecurringTriggerSplit'
 
 export const selectRecurringTriggers = (
   phrases: Record<string, string[]>,
@@ -10,7 +10,10 @@ export const selectRecurringTriggers = (
 
   for (const [skill, list] of Object.entries(phrases)) {
     const nameTokens = skillNameTokens(skill)
-    const tokenized = list.map((phrase) => ({ phrase, tokens: tokenizeTriggerPhrase(phrase) }))
+    const tokenized = list.map((phrase) => ({
+      phrase,
+      tokens: tokenizeTriggerPhrase(phrase),
+    }))
 
     const seenIn: Record<string, number> = {}
     for (const { tokens } of tokenized) {

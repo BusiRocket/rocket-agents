@@ -1,11 +1,16 @@
-import { constants, promises as fs } from "node:fs"
-import type { CapabilityHealth } from "./types/CapabilityHealth"
+import { constants, promises as fs } from 'node:fs'
+import type { CapabilityHealth } from './types/CapabilityHealth'
 
 export const inspectHookCapability = async (
   paths: string[] | undefined,
 ): Promise<CapabilityHealth> => {
   if (paths === undefined) {
-    return { capability: "hooks", status: "unsupported", summary: "no hooks adapter", findings: [] }
+    return {
+      capability: 'hooks',
+      status: 'unsupported',
+      summary: 'no hooks adapter',
+      findings: [],
+    }
   }
 
   const unavailable: string[] = []
@@ -18,8 +23,8 @@ export const inspectHookCapability = async (
   }
 
   return {
-    capability: "hooks",
-    status: unavailable.length === 0 ? "healthy" : "failed",
+    capability: 'hooks',
+    status: unavailable.length === 0 ? 'healthy' : 'failed',
     summary: `${String(paths.length - unavailable.length)} of ${String(paths.length)} hooks executable`,
     findings: unavailable,
   }

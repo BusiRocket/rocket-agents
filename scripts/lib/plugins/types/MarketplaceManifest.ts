@@ -1,4 +1,4 @@
-import type { MarketplaceEntry } from "./MarketplaceEntry"
+import type { MarketplaceEntry } from './MarketplaceEntry'
 
 export interface MarketplaceManifest {
   name: string

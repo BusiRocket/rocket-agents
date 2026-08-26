@@ -1,3 +1,3 @@
-import { main } from "../commands/checkVersion"
+import { main } from '../commands/checkVersion'
 
 main()

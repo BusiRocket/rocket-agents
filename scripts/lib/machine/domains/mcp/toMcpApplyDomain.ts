@@ -1,4 +1,4 @@
-import type { DomainResult } from "../../types/DomainResult"
+import type { DomainResult } from '../../types/DomainResult'
 
 /**
  * An unresolved secret reference is not a failure: the run wrote what it could
@@ -15,17 +15,19 @@ export const toMcpApplyDomain = ({
 }): DomainResult => {
   if (missing.length > 0) {
     return {
-      domain: "mcp",
-      status: "needs-secret",
+      domain: 'mcp',
+      status: 'needs-secret',
       changes: written,
-      messages: [`unresolved secret references: ${missing.join(", ")}`],
+      messages: [`unresolved secret references: ${missing.join(', ')}`],
     }
   }
 
   return {
-    domain: "mcp",
-    status: "changed",
+    domain: 'mcp',
+    status: 'changed',
     changes: written,
-    messages: [`wrote ${String(written)} server entries across ${String(targets)} targets`],
+    messages: [
+      `wrote ${String(written)} server entries across ${String(targets)} targets`,
+    ],
   }
 }

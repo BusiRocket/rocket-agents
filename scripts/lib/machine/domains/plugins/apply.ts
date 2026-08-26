@@ -1,8 +1,8 @@
-import { toPluginCommand } from "./toPluginCommand"
-import type { PluginChange } from "./types/PluginChange"
-import type { PluginsApplyResult } from "./types/PluginsApplyResult"
-import type { PluginsPaths } from "./types/PluginsPaths"
-import type { CommandRunner } from "../../exec/types/CommandRunner"
+import type { CommandRunner } from '../../exec/types/CommandRunner'
+import { toPluginCommand } from './toPluginCommand'
+import type { PluginChange } from './types/PluginChange'
+import type { PluginsApplyResult } from './types/PluginsApplyResult'
+import type { PluginsPaths } from './types/PluginsPaths'
 
 /**
  * Changes run sequentially: the plugin tree is shared between profiles and is

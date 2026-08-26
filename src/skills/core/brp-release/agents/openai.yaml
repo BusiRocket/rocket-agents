@@ -4,7 +4,7 @@ interface:
   default_prompt:
     Collect commits since the last tag, choose the semver bump, update version and changelog, gate
     on a full check, then tag the release.
-  brand_color: "#6D28D9"
+  brand_color: '#6D28D9'
 policy:
   allow_implicit_invocation: true
 busirocket:

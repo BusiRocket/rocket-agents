@@ -1,12 +1,12 @@
-import assert from "node:assert/strict"
-import { join } from "node:path"
-import test from "node:test"
-import { LANE_SKILLS } from "../library/learning/constants/LANE_SKILLS"
-import { loadRouterExpectations } from "./loadRouterExpectations"
+import assert from 'node:assert/strict'
+import { join } from 'node:path'
+import test from 'node:test'
+import { LANE_SKILLS } from '../library/learning/constants/LANE_SKILLS'
+import { loadRouterExpectations } from './loadRouterExpectations'
 
-void test("every measured phrase appears once with an explicit routing decision", async () => {
+void test('every measured phrase appears once with an explicit routing decision', async () => {
   const manifest = await loadRouterExpectations(
-    join(process.cwd(), "src", "hooks", "router-expectations.json"),
+    join(process.cwd(), 'src', 'hooks', 'router-expectations.json'),
   )
   const phrases = manifest.expectations.map((expectation) => expectation.phrase)
   const associationCount = manifest.expectations.reduce(

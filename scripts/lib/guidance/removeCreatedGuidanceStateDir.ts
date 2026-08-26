@@ -1,4 +1,4 @@
-import { rmdir } from "node:fs/promises"
+import { rmdir } from 'node:fs/promises'
 
 export const removeCreatedGuidanceStateDir = async (
   stateDir: string,

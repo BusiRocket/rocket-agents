@@ -1,7 +1,7 @@
-import { parseCodexMcpListEntries } from "./parseCodexMcpListEntries"
-import { readCodexConnectorResult } from "./readCodexConnectorResult"
-import type { ConnectorDefinition } from "./types/ConnectorDefinition"
-import type { ProfileConnectorResult } from "./types/ProfileConnectorResult"
+import { parseCodexMcpListEntries } from './parseCodexMcpListEntries'
+import { readCodexConnectorResult } from './readCodexConnectorResult'
+import type { ConnectorDefinition } from './types/ConnectorDefinition'
+import type { ProfileConnectorResult } from './types/ProfileConnectorResult'
 
 export const readCodexConnectorStatus = (
   output: string,
@@ -9,6 +9,6 @@ export const readCodexConnectorStatus = (
 ): ProfileConnectorResult[] => {
   const entries = parseCodexMcpListEntries(output)
   return definitions
-    .filter(({ profiles }) => profiles.includes("codex"))
+    .filter(({ profiles }) => profiles.includes('codex'))
     .map((definition) => readCodexConnectorResult(definition, entries))
 }

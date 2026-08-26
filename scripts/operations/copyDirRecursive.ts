@@ -1,5 +1,5 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 export const copyDirRecursive = async (src: string, dest: string) => {
   await fs.mkdir(dest, { recursive: true })

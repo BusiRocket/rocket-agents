@@ -1,5 +1,8 @@
-export const readBoundedResponseText = async (response: Response, maxBytes: number) => {
-  if (response.body === null) return ""
+export const readBoundedResponseText = async (
+  response: Response,
+  maxBytes: number,
+) => {
+  if (response.body === null) return ''
   const reader = response.body.getReader()
   const chunks: Uint8Array[] = []
   let size = 0

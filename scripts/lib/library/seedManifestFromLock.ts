@@ -1,8 +1,8 @@
-import { seedEntryFromLock } from "./seedEntryFromLock"
-import { seedEntryWithoutLock } from "./seedEntryWithoutLock"
-import type { CurationEntry } from "./types/CurationEntry"
-import type { CurationManifest } from "./types/CurationManifest"
-import type { LockEntry } from "./types/LockEntry"
+import { seedEntryFromLock } from './seedEntryFromLock'
+import { seedEntryWithoutLock } from './seedEntryWithoutLock'
+import type { CurationEntry } from './types/CurationEntry'
+import type { CurationManifest } from './types/CurationManifest'
+import type { LockEntry } from './types/LockEntry'
 
 export const seedManifestFromLock = (
   lock: Record<string, LockEntry>,

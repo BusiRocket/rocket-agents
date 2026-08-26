@@ -4,7 +4,7 @@ interface:
   default_prompt:
     Read the channel history, cross-check progress claims against commits and deploys, and draft a
     stakeholder recap that follows the communication norms without restating what was sent.
-  brand_color: "#4338CA"
+  brand_color: '#4338CA'
 policy:
   allow_implicit_invocation: true
 busirocket:

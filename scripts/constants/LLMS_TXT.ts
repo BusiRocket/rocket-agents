@@ -1,4 +1,4 @@
-import { join } from "node:path"
-import { ROOT } from "./ROOT"
+import { join } from 'node:path'
+import { ROOT } from './ROOT'
 
-export const LLMS_TXT = join(ROOT, "llms.txt")
+export const LLMS_TXT = join(ROOT, 'llms.txt')

@@ -8,13 +8,13 @@
  * list.
  */
 export const toProfileEnv = (
-  profile: "claude-personal" | "claude-favish",
+  profile: 'claude-personal' | 'claude-favish',
   home: string,
   base: NodeJS.ProcessEnv,
 ): NodeJS.ProcessEnv => {
   const env = { ...base }
 
-  if (profile === "claude-favish") {
+  if (profile === 'claude-favish') {
     env.CLAUDE_CONFIG_DIR = `${home}/.claude-favish`
     return env
   }

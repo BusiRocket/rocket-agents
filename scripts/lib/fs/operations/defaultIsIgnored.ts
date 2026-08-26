@@ -1,1 +1,1 @@
-export const defaultIsIgnored = (entryName: string) => entryName === ".DS_Store"
+export const defaultIsIgnored = (entryName: string) => entryName === '.DS_Store'

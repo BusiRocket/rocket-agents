@@ -1,5 +1,5 @@
-import { isPlatformCapability } from "./isPlatformCapability"
-import { collectPlatformProbeErrors } from "./collectPlatformProbeErrors"
+import { collectPlatformProbeErrors } from './collectPlatformProbeErrors'
+import { isPlatformCapability } from './isPlatformCapability'
 
 export const collectPlatformDefinitionErrors = (
   raw: unknown,
@@ -7,7 +7,7 @@ export const collectPlatformDefinitionErrors = (
   registryIds: Set<string>,
   errors: string[],
 ): string | undefined => {
-  if (typeof raw !== "object" || raw === null) {
+  if (typeof raw !== 'object' || raw === null) {
     errors.push(`platforms[${String(index)}] must be an object`)
     return undefined
   }
@@ -15,12 +15,15 @@ export const collectPlatformDefinitionErrors = (
   const platform = raw as Record<string, unknown>
   const registryId = platform.registryId
 
-  if (typeof registryId !== "string" || registryId.length === 0) {
-    errors.push(`platforms[${String(index)}].registryId must be a non-empty string`)
+  if (typeof registryId !== 'string' || registryId.length === 0) {
+    errors.push(
+      `platforms[${String(index)}].registryId must be a non-empty string`,
+    )
     return undefined
   }
 
-  if (!registryIds.has(registryId)) errors.push(`${registryId}: unknown registry id`)
+  if (!registryIds.has(registryId))
+    errors.push(`${registryId}: unknown registry id`)
 
   const capabilities = platform.capabilities
   if (!Array.isArray(capabilities)) {

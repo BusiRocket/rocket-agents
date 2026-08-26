@@ -5,10 +5,10 @@
  * @returns {object} - { isWorkflow: boolean, content: string }
  */
 
-import type { RuleItem } from "../../types/RuleItem"
+import type { RuleItem } from '../../types/RuleItem'
 
 export function detectUmbrellaType(parsed: RuleItem, _rulePath: string) {
-  const content = parsed.content ?? ""
+  const content = parsed.content ?? ''
 
   const hasSequentialSteps = /(?:step|first|then|next|finally)/i.test(content)
 

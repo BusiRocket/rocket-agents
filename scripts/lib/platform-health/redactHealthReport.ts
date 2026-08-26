@@ -1,7 +1,10 @@
-import { redactHealthText } from "./redactHealthText"
-import type { PlatformHealth } from "./types/PlatformHealth"
+import { redactHealthText } from './redactHealthText'
+import type { PlatformHealth } from './types/PlatformHealth'
 
-export const redactHealthReport = (report: PlatformHealth[], home: string): PlatformHealth[] =>
+export const redactHealthReport = (
+  report: PlatformHealth[],
+  home: string,
+): PlatformHealth[] =>
   report.map((platform) => ({
     ...platform,
     probes: platform.probes.map((probe) => ({
@@ -14,6 +17,8 @@ export const redactHealthReport = (report: PlatformHealth[], home: string): Plat
     capabilities: platform.capabilities.map((capability) => ({
       ...capability,
       summary: redactHealthText(capability.summary, home),
-      findings: capability.findings.map((finding) => redactHealthText(finding, home)),
+      findings: capability.findings.map((finding) =>
+        redactHealthText(finding, home),
+      ),
     })),
   }))

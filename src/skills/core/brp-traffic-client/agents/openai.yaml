@@ -4,7 +4,7 @@ interface:
   default_prompt:
     Derive the protocol from the capture, then build the smallest reliable client for the target
     operation and report what was verified versus inferred.
-  brand_color: "#0F766E"
+  brand_color: '#0F766E'
 policy:
   allow_implicit_invocation: true
 busirocket:

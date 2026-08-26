@@ -1,12 +1,12 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
-import { pathExists } from "./pathExists"
-import { removeSkillEntry } from "./removeSkillEntry"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { pathExists } from './pathExists'
+import { removeSkillEntry } from './removeSkillEntry'
 
 export const cleanGlobalPrefix = async (targetDir: string, prefix: string) => {
   // An empty prefix would match every entry and wipe foreign skills
   // installed by other tools into the same directory.
-  if (prefix === "") {
+  if (prefix === '') {
     return []
   }
 
@@ -35,7 +35,7 @@ export const cleanGlobalPrefix = async (targetDir: string, prefix: string) => {
   } catch (error: unknown) {
     const err = error as { code?: string } | null
 
-    if (err?.code === "ENOENT" || err?.code === "ENOTDIR") {
+    if (err?.code === 'ENOENT' || err?.code === 'ENOTDIR') {
       return []
     }
     throw error

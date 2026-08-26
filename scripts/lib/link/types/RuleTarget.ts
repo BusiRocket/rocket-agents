@@ -1,4 +1,4 @@
-import type { IdeRegistryEntry } from "./IdeRegistryEntry"
+import type { IdeRegistryEntry } from './IdeRegistryEntry'
 
 export interface RuleTarget {
   ide: IdeRegistryEntry
@@ -8,7 +8,7 @@ export interface RuleTarget {
   }
   links: {
     target: string
-    method: "copy" | "symlink"
+    method: 'copy' | 'symlink'
     source: string
   }[]
 }

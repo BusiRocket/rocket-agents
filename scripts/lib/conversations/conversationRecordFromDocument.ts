@@ -1,13 +1,13 @@
-import { CONVERSATION_SCHEMA_VERSION } from "./constants/CONVERSATION_SCHEMA_VERSION"
-import { conversationEventFromRecord } from "./conversationEventFromRecord"
-import { conversationSourceId } from "./conversationSourceId"
-import { conversationTitle } from "./conversationTitle"
-import { conversationWorkspace } from "./conversationWorkspace"
-import { hashText } from "./hashText"
-import { recordsFromConversationDocument } from "./recordsFromConversationDocument"
-import type { ConversationDocument } from "./types/ConversationDocument"
-import type { ConversationEvent } from "./types/ConversationEvent"
-import type { ConversationRecord } from "./types/ConversationRecord"
+import { CONVERSATION_SCHEMA_VERSION } from './constants/CONVERSATION_SCHEMA_VERSION'
+import { conversationEventFromRecord } from './conversationEventFromRecord'
+import { conversationSourceId } from './conversationSourceId'
+import { conversationTitle } from './conversationTitle'
+import { conversationWorkspace } from './conversationWorkspace'
+import { hashText } from './hashText'
+import { recordsFromConversationDocument } from './recordsFromConversationDocument'
+import type { ConversationDocument } from './types/ConversationDocument'
+import type { ConversationEvent } from './types/ConversationEvent'
+import type { ConversationRecord } from './types/ConversationRecord'
 
 export const conversationRecordFromDocument = (
   document: ConversationDocument,
@@ -28,7 +28,9 @@ export const conversationRecordFromDocument = (
     event.timestamp === undefined ? [] : [event.timestamp],
   )
   const workspace = conversationWorkspace(records)
-  const sortedTimestamps = timestamps.toSorted((left, right) => left.localeCompare(right))
+  const sortedTimestamps = timestamps.toSorted((left, right) =>
+    left.localeCompare(right),
+  )
   const startedAt = sortedTimestamps.at(0)
   const updatedAt = sortedTimestamps.at(-1)
 
@@ -44,7 +46,9 @@ export const conversationRecordFromDocument = (
       relativePath: document.relativePath,
       redactions,
     },
-    ...(startedAt === undefined || updatedAt === undefined ? {} : { startedAt, updatedAt }),
+    ...(startedAt === undefined || updatedAt === undefined
+      ? {}
+      : { startedAt, updatedAt }),
     ...(workspace === undefined ? {} : { workspace }),
   }
 }

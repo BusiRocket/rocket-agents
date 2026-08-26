@@ -1,5 +1,5 @@
-import type { ConversationRecord } from "./types/ConversationRecord"
-import type { MergedConversationRecords } from "./types/MergedConversationRecords"
+import type { ConversationRecord } from './types/ConversationRecord'
+import type { MergedConversationRecords } from './types/MergedConversationRecords'
 
 export const mergeConversationRecords = (
   existing: ConversationRecord[],
@@ -13,7 +13,10 @@ export const mergeConversationRecords = (
   for (const record of incoming) {
     const current = merged.get(record.id)
     if (current === undefined) added++
-    else if (current.provenance.contentSha256 === record.provenance.contentSha256) duplicates++
+    else if (
+      current.provenance.contentSha256 === record.provenance.contentSha256
+    )
+      duplicates++
     else updated++
     merged.set(record.id, record)
   }

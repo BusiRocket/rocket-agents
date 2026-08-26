@@ -4,7 +4,7 @@ interface:
   default_prompt:
     Detect the task intent, choose the right BRP workflow, and hand off with the minimum rules and
     context needed for style-faithful execution.
-  brand_color: "#0F766E"
+  brand_color: '#0F766E'
 policy:
   allow_implicit_invocation: true
 busirocket:

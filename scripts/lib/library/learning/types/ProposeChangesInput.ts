@@ -1,5 +1,5 @@
-import type { CurationManifest } from "../../types/CurationManifest"
-import type { Procedure } from "./Procedure"
+import type { CurationManifest } from '../../types/CurationManifest'
+import type { Procedure } from './Procedure'
 
 export interface ProposeChangesInput {
   procedures: Procedure[]

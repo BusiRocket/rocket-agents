@@ -1,4 +1,4 @@
 export const renderStartInterval = (intervalSeconds: number): string[] => [
-  "  <key>StartInterval</key>",
+  '  <key>StartInterval</key>',
   `  <integer>${String(intervalSeconds)}</integer>`,
 ]

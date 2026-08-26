@@ -1,9 +1,11 @@
-import { Project } from "ts-morph"
+import { Project } from 'ts-morph'
 
 export const main = () => {
-  const project = new Project({ tsConfigFilePath: "tsconfig.json" })
+  const project = new Project({ tsConfigFilePath: 'tsconfig.json' })
 
-  const sourceFiles = project.getSourceFiles().filter((f) => f.getFilePath().includes("scripts/"))
+  const sourceFiles = project
+    .getSourceFiles()
+    .filter((f) => f.getFilePath().includes('scripts/'))
 
   for (const sourceFile of sourceFiles) {
     // We will use brute force ts-morph to split everything.

@@ -1,8 +1,10 @@
-import { inspectSecurityCredentialNode } from "./inspectSecurityCredentialNode"
+import { inspectSecurityCredentialNode } from './inspectSecurityCredentialNode'
 
 export const findSecurityCredentialLiterals = (raw: unknown): string[] => {
   const findings: string[] = []
-  const pending: { path: string; value: unknown }[] = [{ path: "manifest", value: raw }]
+  const pending: { path: string; value: unknown }[] = [
+    { path: 'manifest', value: raw },
+  ]
   while (pending.length > 0) {
     const current = pending.pop()
     if (current === undefined) continue

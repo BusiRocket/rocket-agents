@@ -1,4 +1,7 @@
-import type { ApprovalMode } from "../types/ApprovalMode"
+import type { ApprovalMode } from '../types/ApprovalMode'
 
 export const isApprovalMode = (value: unknown): value is ApprovalMode =>
-  value === "auto" || value === "prompt" || value === "writes" || value === "approve"
+  value === 'auto' ||
+  value === 'prompt' ||
+  value === 'writes' ||
+  value === 'approve'

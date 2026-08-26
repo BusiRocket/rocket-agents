@@ -1,35 +1,40 @@
-import assert from "node:assert/strict"
-import { access, readFile } from "node:fs/promises"
-import { homedir } from "node:os"
-import { basename, join } from "node:path"
-import test from "node:test"
-import { compilePortableSkillContents } from "../library/compilePortableSkillContents"
-import { listSkillDirs } from "./loaders/listSkillDirs"
-import { classifySkillPortability } from "./classifySkillPortability"
+import assert from 'node:assert/strict'
+import { access, readFile } from 'node:fs/promises'
+import { homedir } from 'node:os'
+import { basename, join } from 'node:path'
+import test from 'node:test'
+import { compilePortableSkillContents } from '../library/compilePortableSkillContents'
+import { classifySkillPortability } from './classifySkillPortability'
+import { listSkillDirs } from './loaders/listSkillDirs'
 
-void test("portable repository and managed library views contain no invalid target skills", async () => {
-  const sourceDirs = await listSkillDirs(join(process.cwd(), "src", "skills"))
+void test('portable repository and managed library views contain no invalid target skills', async () => {
+  const sourceDirs = await listSkillDirs(join(process.cwd(), 'src', 'skills'))
   assert.equal(sourceDirs.length > 0, true)
   for (const sourceDir of sourceDirs) {
-    const sourcePath = join(sourceDir, "SKILL.md")
+    const sourcePath = join(sourceDir, 'SKILL.md')
     const compiled = compilePortableSkillContents(
-      await readFile(sourcePath, "utf8"),
+      await readFile(sourcePath, 'utf8'),
       basename(sourceDir),
     )
-    assert.equal(classifySkillPortability(sourcePath, compiled).kind, "portable", sourcePath)
+    assert.equal(
+      classifySkillPortability(sourcePath, compiled).kind,
+      'portable',
+      sourcePath,
+    )
   }
 
-  for (const target of ["codex", "gemini-cli"]) {
-    const root = join(homedir(), ".agents", "compiled", target, "skills")
+  for (const target of ['codex', 'gemini-cli']) {
+    const root = join(homedir(), '.agents', 'compiled', target, 'skills')
     const exists = await access(root)
       .then(() => true)
       .catch(() => false)
     if (!exists) continue
     for (const skillDir of await listSkillDirs(root)) {
-      const skillPath = join(skillDir, "SKILL.md")
+      const skillPath = join(skillDir, 'SKILL.md')
       assert.equal(
-        classifySkillPortability(skillPath, await readFile(skillPath, "utf8")).kind,
-        "portable",
+        classifySkillPortability(skillPath, await readFile(skillPath, 'utf8'))
+          .kind,
+        'portable',
         skillPath,
       )
     }

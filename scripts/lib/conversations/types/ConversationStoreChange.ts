@@ -1,1 +1,1 @@
-export type ConversationStoreChange = "added" | "duplicate" | "updated"
+export type ConversationStoreChange = 'added' | 'duplicate' | 'updated'

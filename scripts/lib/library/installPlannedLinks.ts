@@ -1,5 +1,5 @@
-import { installLink } from "./installLink"
-import type { PlannedLink } from "./types/PlannedLink"
+import { installLink } from './installLink'
+import type { PlannedLink } from './types/PlannedLink'
 
 export const installPlannedLinks = async ({
   links,
@@ -17,9 +17,9 @@ export const installPlannedLinks = async ({
   for (const link of links) {
     const outcome = await installLink(link, linkDir, dryRun)
 
-    if (outcome.kind === "created") created.push(link.name)
-    if (outcome.kind === "missing") missing.push(outcome.message)
-    if (outcome.kind === "foreign") foreign.push(outcome.message)
+    if (outcome.kind === 'created') created.push(link.name)
+    if (outcome.kind === 'missing') missing.push(outcome.message)
+    if (outcome.kind === 'foreign') foreign.push(outcome.message)
   }
 
   return { created, missing, foreign }

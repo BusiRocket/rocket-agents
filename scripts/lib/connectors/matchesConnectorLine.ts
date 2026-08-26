@@ -1,4 +1,4 @@
-import type { ConnectorDefinition } from "./types/ConnectorDefinition"
+import type { ConnectorDefinition } from './types/ConnectorDefinition'
 
 /**
  * Whether one `claude mcp list` line belongs to this connector. A server can
@@ -7,8 +7,11 @@ import type { ConnectorDefinition } from "./types/ConnectorDefinition"
  * connector, so matching only the bare name reports a working plugin-provided
  * server as missing.
  */
-export const matchesConnectorLine = (line: string, definition: ConnectorDefinition): boolean => {
-  if (definition.probe === "claude-cli-prefix") {
+export const matchesConnectorLine = (
+  line: string,
+  definition: ConnectorDefinition,
+): boolean => {
+  if (definition.probe === 'claude-cli-prefix') {
     return line.startsWith(definition.match)
   }
 
@@ -16,7 +19,7 @@ export const matchesConnectorLine = (line: string, definition: ConnectorDefiniti
     return true
   }
 
-  const segments = line.split(":")
+  const segments = line.split(':')
 
-  return segments[0] === "plugin" && segments[2] === definition.match
+  return segments[0] === 'plugin' && segments[2] === definition.match
 }

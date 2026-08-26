@@ -1,3 +1,4 @@
-import { isDeepStrictEqual } from "node:util"
+import { isDeepStrictEqual } from 'node:util'
 
-export const hasSameShape = (left: unknown, right: unknown) => isDeepStrictEqual(left, right)
+export const hasSameShape = (left: unknown, right: unknown) =>
+  isDeepStrictEqual(left, right)

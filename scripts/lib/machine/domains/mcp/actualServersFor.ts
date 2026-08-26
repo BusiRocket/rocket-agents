@@ -1,11 +1,14 @@
-import { normalizeCodexServer } from "./normalizeCodexServer"
-import type { McpState } from "./types/McpState"
-import type { McpTarget } from "./types/McpTarget"
+import { normalizeCodexServer } from './normalizeCodexServer'
+import type { McpState } from './types/McpState'
+import type { McpTarget } from './types/McpTarget'
 
-export const actualServersFor = (state: McpState, target: McpTarget): Record<string, unknown> => {
+export const actualServersFor = (
+  state: McpState,
+  target: McpTarget,
+): Record<string, unknown> => {
   const raw = state.byTarget[target]
 
-  if (target !== "codex") {
+  if (target !== 'codex') {
     return raw
   }
 

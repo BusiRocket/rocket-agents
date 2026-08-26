@@ -1,3 +1,3 @@
-import { main } from "../commands/refactor"
+import { main } from '../commands/refactor'
 
 main()

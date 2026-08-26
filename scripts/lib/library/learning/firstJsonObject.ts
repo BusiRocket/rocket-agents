@@ -1,7 +1,7 @@
-import { scanJsonEnd } from "./scanJsonEnd"
+import { scanJsonEnd } from './scanJsonEnd'
 
 export const firstJsonObject = (text: string) => {
-  const start = text.indexOf("{")
+  const start = text.indexOf('{')
 
   if (start === -1) {
     return undefined

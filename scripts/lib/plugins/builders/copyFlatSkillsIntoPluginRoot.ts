@@ -1,7 +1,7 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
-import { copyDirRecursive } from "../../../operations/copyDirRecursive"
-import { listSkillDirs } from "../../skills/loaders/listSkillDirs"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { copyDirRecursive } from '../../../operations/copyDirRecursive'
+import { listSkillDirs } from '../../skills/loaders/listSkillDirs'
 
 export const copyFlatSkillsIntoPluginRoot = async ({
   distSkillsDir,

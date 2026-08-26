@@ -5,7 +5,10 @@
  * @param {string} _currentPath - Current rule file path
  * @returns {string} - Content with converted references
  */
-export function convertToAntigravityMentions(content: string, _currentPath: string) {
-  const converted = content.replace(/\.cursor\/rules\//g, ".agent/rules/")
+export function convertToAntigravityMentions(
+  content: string,
+  _currentPath: string,
+) {
+  const converted = content.replace(/\.cursor\/rules\//g, '.agent/rules/')
   return converted
 }

@@ -1,1 +1,1 @@
-export const TRANSPORT_WORDS = new Set(["stdio", "http", "sse"])
+export const TRANSPORT_WORDS = new Set(['stdio', 'http', 'sse'])

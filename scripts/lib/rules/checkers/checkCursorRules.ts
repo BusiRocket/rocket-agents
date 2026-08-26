@@ -1,8 +1,8 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
-import { listFilesRecursive } from "../../fs/operations/listFilesRecursive"
-import { sha256 } from "../../hash/digesters/sha256"
-import { normalizeRel } from "../converters/normalizeRel"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { listFilesRecursive } from '../../fs/operations/listFilesRecursive'
+import { sha256 } from '../../hash/digesters/sha256'
+import { normalizeRel } from '../converters/normalizeRel'
 
 export const checkCursorRules = async (
   sourceFiles: string[],
@@ -13,7 +13,7 @@ export const checkCursorRules = async (
 
   for (const sourcePath of sourceFiles) {
     const rel = normalizeRel(path.relative(sourceDir, sourcePath))
-    const content = await fs.readFile(sourcePath, "utf-8")
+    const content = await fs.readFile(sourcePath, 'utf-8')
     sourceMap.set(rel, sha256(content))
   }
 
@@ -21,14 +21,14 @@ export const checkCursorRules = async (
   try {
     cursorFiles = await listFilesRecursive(cursorDir)
   } catch {
-    return ["Missing .cursor/rules directory"]
+    return ['Missing .cursor/rules directory']
   }
 
   const cursorMap = new Map()
   for (const cursorPath of cursorFiles) {
     const rel = normalizeRel(path.relative(cursorDir, cursorPath))
 
-    const content = await fs.readFile(cursorPath, "utf-8")
+    const content = await fs.readFile(cursorPath, 'utf-8')
     cursorMap.set(rel, sha256(content))
   }
 
@@ -47,7 +47,9 @@ export const checkCursorRules = async (
 
   for (const filePath of cursorMap.keys()) {
     if (!sourceMap.has(filePath)) {
-      errors.push(`Unexpected generated file: .cursor/rules/${String(filePath)}`)
+      errors.push(
+        `Unexpected generated file: .cursor/rules/${String(filePath)}`,
+      )
     }
   }
 

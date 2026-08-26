@@ -4,7 +4,7 @@ interface:
   default_prompt:
     Reconstruct the real working state from artifacts before touching code, then resume at the
     smallest unfinished step without re-asking for context.
-  brand_color: "#0F766E"
+  brand_color: '#0F766E'
 policy:
   allow_implicit_invocation: true
 busirocket:

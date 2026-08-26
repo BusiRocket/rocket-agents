@@ -1,13 +1,13 @@
-import { homedir } from "node:os"
-import { resolvePluginsPaths } from "../lib/machine/cli/resolvePluginsPaths"
-import { findOrphanCacheDirectories } from "../lib/machine/domains/plugins/findOrphanCacheDirectories"
-import { findStaleCacheEntries } from "../lib/machine/domains/plugins/findStaleCacheEntries"
-import { read } from "../lib/machine/domains/plugins/read"
-import { readCacheEntries } from "../lib/machine/domains/plugins/readCacheEntries"
-import { resolveInstalledPaths } from "../lib/machine/domains/plugins/resolveInstalledPaths"
-import { toDeclaredPluginsManifest } from "../lib/machine/domains/plugins/toDeclaredPluginsManifest"
-import { toManifest } from "../lib/machine/domains/plugins/toManifest"
-import { formatPluginsCapture } from "../lib/machine/report/formatters/formatPluginsCapture"
+import { homedir } from 'node:os'
+import { resolvePluginsPaths } from '../lib/machine/cli/resolvePluginsPaths'
+import { findOrphanCacheDirectories } from '../lib/machine/domains/plugins/findOrphanCacheDirectories'
+import { findStaleCacheEntries } from '../lib/machine/domains/plugins/findStaleCacheEntries'
+import { read } from '../lib/machine/domains/plugins/read'
+import { readCacheEntries } from '../lib/machine/domains/plugins/readCacheEntries'
+import { resolveInstalledPaths } from '../lib/machine/domains/plugins/resolveInstalledPaths'
+import { toDeclaredPluginsManifest } from '../lib/machine/domains/plugins/toDeclaredPluginsManifest'
+import { toManifest } from '../lib/machine/domains/plugins/toManifest'
+import { formatPluginsCapture } from '../lib/machine/report/formatters/formatPluginsCapture'
 
 export const main = async () => {
   const paths = resolvePluginsPaths(homedir())
@@ -32,10 +32,12 @@ export const main = async () => {
     },
   }
 
-  if (process.argv.includes("--manifest")) {
-    console.log(JSON.stringify(toDeclaredPluginsManifest(capture.manifest), null, 2))
+  if (process.argv.includes('--manifest')) {
+    console.log(
+      JSON.stringify(toDeclaredPluginsManifest(capture.manifest), null, 2),
+    )
     return
   }
 
-  console.log(formatPluginsCapture(capture, process.argv.includes("--json")))
+  console.log(formatPluginsCapture(capture, process.argv.includes('--json')))
 }

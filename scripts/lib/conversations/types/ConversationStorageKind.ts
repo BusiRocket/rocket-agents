@@ -1,1 +1,1 @@
-export type ConversationStorageKind = "json" | "jsonl" | "sqlite" | "tauri"
+export type ConversationStorageKind = 'json' | 'jsonl' | 'sqlite' | 'tauri'

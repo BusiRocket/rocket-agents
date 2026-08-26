@@ -1,5 +1,5 @@
-import type { DeclaredPlugin } from "./DeclaredPlugin"
-import type { PluginMarketplaceEntry } from "./PluginMarketplaceEntry"
+import type { DeclaredPlugin } from './DeclaredPlugin'
+import type { PluginMarketplaceEntry } from './PluginMarketplaceEntry'
 
 export interface PluginsManifestDocument {
   version: 1

@@ -1,12 +1,12 @@
-import { SESSION_ID_KEYS } from "./constants/SESSION_ID_KEYS"
-import { findStringByKeys } from "./findStringByKeys"
+import { SESSION_ID_KEYS } from './constants/SESSION_ID_KEYS'
+import { findStringByKeys } from './findStringByKeys'
 
 export const conversationSourceId = (records: unknown[], fallback: string) => {
   const sessionMetadata = records.find((record) => {
-    if (typeof record !== "object" || record === null) return false
-    return (record as Record<string, unknown>).type === "session_meta"
+    if (typeof record !== 'object' || record === null) return false
+    return (record as Record<string, unknown>).type === 'session_meta'
   })
-  const metadataId = findStringByKeys(sessionMetadata, new Set(["id"]))
+  const metadataId = findStringByKeys(sessionMetadata, new Set(['id']))
   if (metadataId !== undefined) return metadataId
 
   for (const record of records) {

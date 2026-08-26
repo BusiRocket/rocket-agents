@@ -1,4 +1,4 @@
-import type { CurationState } from "./CurationState"
+import type { CurationState } from './CurationState'
 
 export interface CurationEntry {
   state: CurationState

@@ -1,5 +1,5 @@
-import { promises as fs } from "node:fs"
-import { join } from "node:path"
+import { promises as fs } from 'node:fs'
+import { join } from 'node:path'
 
 export const listRuns = async (rootDir: string) => {
   let names: string[]
@@ -11,9 +11,11 @@ export const listRuns = async (rootDir: string) => {
 
   const runs: { runId: string; complete: boolean }[] = []
 
-  for (const runId of names.toSorted((left, right) => left.localeCompare(right))) {
+  for (const runId of names.toSorted((left, right) =>
+    left.localeCompare(right),
+  )) {
     const complete = await fs
-      .access(join(rootDir, runId, "complete"))
+      .access(join(rootDir, runId, 'complete'))
       .then(() => true)
       .catch(() => false)
 

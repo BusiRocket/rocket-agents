@@ -1,6 +1,7 @@
 # Debug Investigation Template
 
-Use this template when a debugging task needs a clear narrative and evidence trail.
+Use this template when a debugging task needs a clear narrative and evidence
+trail.
 
 ## Symptoms
 
@@ -16,7 +17,8 @@ Use this template when a debugging task needs a clear narrative and evidence tra
 
 ## Minimisation
 
-- Elements cut (inputs, callers, config, data, steps) and the re-run result after each:
+- Elements cut (inputs, callers, config, data, steps) and the re-run result
+  after each:
 - Remaining load-bearing elements:
 
 ## Hypotheses

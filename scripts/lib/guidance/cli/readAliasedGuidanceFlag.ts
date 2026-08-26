@@ -1,4 +1,4 @@
-import { readGuidanceFlag } from "./readGuidanceFlag"
+import { readGuidanceFlag } from './readGuidanceFlag'
 
 export const readAliasedGuidanceFlag = (
   argv: string[],
@@ -7,7 +7,11 @@ export const readAliasedGuidanceFlag = (
 ): string | undefined => {
   const value = readGuidanceFlag(argv, name)
   const compatibilityValue = readGuidanceFlag(argv, compatibilityAlias)
-  if (value !== undefined && compatibilityValue !== undefined && value !== compatibilityValue)
+  if (
+    value !== undefined &&
+    compatibilityValue !== undefined &&
+    value !== compatibilityValue
+  )
     throw new Error(`conflicting values for ${name} and ${compatibilityAlias}`)
   return value ?? compatibilityValue
 }

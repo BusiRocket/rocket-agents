@@ -1,5 +1,5 @@
 export interface Proposal {
-  kind: "promote" | "fix-trigger" | "build" | "park"
+  kind: 'promote' | 'fix-trigger' | 'build' | 'park'
   skill?: string
   procedure?: string
   requests: number

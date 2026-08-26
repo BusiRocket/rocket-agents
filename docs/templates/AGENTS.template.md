@@ -18,8 +18,9 @@ Pair with a CLAUDE.md containing exactly one line: @AGENTS.md
 "Fork of X serving the production Y for high-traffic site Z. Node/Express/
 Mongo, custom plugins under plugins/." -->
 
-**This is production infrastructure. Do not deploy, restart, or modify anything in <environment>
-without explicit human authorization.** Read-only inspection is fine.
+**This is production infrastructure. Do not deploy, restart, or modify anything
+in <environment> without explicit human authorization.** Read-only inspection is
+fine.
 
 ## Branch model
 
@@ -51,8 +52,8 @@ README/AGENTS.md. Delete if truly standalone. -->
 
 ## Security
 
-- Never commit secrets. Secrets reach the app only as runtime env vars (CI/Kubernetes secrets),
-  never as Docker build args or committed files.
+- Never commit secrets. Secrets reach the app only as runtime env vars
+  (CI/Kubernetes secrets), never as Docker build args or committed files.
 
 <!-- Add repo-specific history: "history leaked X; treat as compromised". -->
 

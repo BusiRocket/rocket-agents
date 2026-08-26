@@ -1,7 +1,7 @@
-import type { CurationEntry } from "./types/CurationEntry"
+import type { CurationEntry } from './types/CurationEntry'
 
 export const isFannedOut = (entry: CurationEntry, target: string) => {
-  if (entry.state !== "adopted" && entry.state !== "forked") {
+  if (entry.state !== 'adopted' && entry.state !== 'forked') {
     return false
   }
 

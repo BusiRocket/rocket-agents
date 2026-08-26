@@ -1,8 +1,10 @@
-import { promises as fs } from "node:fs"
+import { promises as fs } from 'node:fs'
 
-export const readInvocationCounts = async (path: string): Promise<Record<string, number>> => {
+export const readInvocationCounts = async (
+  path: string,
+): Promise<Record<string, number>> => {
   try {
-    return JSON.parse(await fs.readFile(path, "utf8")) as Record<string, number>
+    return JSON.parse(await fs.readFile(path, 'utf8')) as Record<string, number>
   } catch {
     return {}
   }

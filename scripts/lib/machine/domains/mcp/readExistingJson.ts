@@ -1,10 +1,12 @@
-import { promises as fs } from "node:fs"
+import { promises as fs } from 'node:fs'
 
-export const readExistingJson = async (path: string): Promise<Record<string, unknown>> => {
+export const readExistingJson = async (
+  path: string,
+): Promise<Record<string, unknown>> => {
   try {
-    const contents = await fs.readFile(path, "utf8")
+    const contents = await fs.readFile(path, 'utf8')
 
-    if (contents.trim() === "") {
+    if (contents.trim() === '') {
       return {}
     }
 

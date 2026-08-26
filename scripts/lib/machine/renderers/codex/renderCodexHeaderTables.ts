@@ -1,8 +1,11 @@
-import { isSecretReference } from "../../secrets/isSecretReference"
-import type { McpValue } from "../../domains/mcp/types/McpValue"
-import { escapeTomlString } from "./escapeTomlString"
+import type { McpValue } from '../../domains/mcp/types/McpValue'
+import { isSecretReference } from '../../secrets/isSecretReference'
+import { escapeTomlString } from './escapeTomlString'
 
-export const renderCodexHeaderTables = (name: string, headers: Record<string, McpValue>) => {
+export const renderCodexHeaderTables = (
+  name: string,
+  headers: Record<string, McpValue>,
+) => {
   const staticHeaders: string[] = []
   const environmentHeaders: string[] = []
 
@@ -16,10 +19,14 @@ export const renderCodexHeaderTables = (name: string, headers: Record<string, Mc
 
   const lines: string[] = []
   if (staticHeaders.length > 0) {
-    lines.push("", `[mcp_servers.${name}.http_headers]`, ...staticHeaders)
+    lines.push('', `[mcp_servers.${name}.http_headers]`, ...staticHeaders)
   }
   if (environmentHeaders.length > 0) {
-    lines.push("", `[mcp_servers.${name}.env_http_headers]`, ...environmentHeaders)
+    lines.push(
+      '',
+      `[mcp_servers.${name}.env_http_headers]`,
+      ...environmentHeaders,
+    )
   }
   return lines
 }

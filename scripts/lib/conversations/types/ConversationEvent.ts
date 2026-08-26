@@ -1,5 +1,5 @@
-import type { ConversationEventKind } from "./ConversationEventKind"
-import type { ConversationRole } from "./ConversationRole"
+import type { ConversationEventKind } from './ConversationEventKind'
+import type { ConversationRole } from './ConversationRole'
 
 export interface ConversationEvent {
   id: string

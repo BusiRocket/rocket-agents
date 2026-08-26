@@ -1,4 +1,4 @@
-import type { SkillPortabilityKind } from "./SkillPortabilityKind"
+import type { SkillPortabilityKind } from './SkillPortabilityKind'
 
 export interface SkillPortabilityFinding {
   path: string

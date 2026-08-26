@@ -1,17 +1,17 @@
-import assert from "node:assert/strict"
-import test from "node:test"
-import { connectorExitCode } from "./connectorExitCode"
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { connectorExitCode } from './connectorExitCode'
 
-void test("a degraded required connector fails the doctor while an optional one does not", () => {
+void test('a degraded required connector fails the doctor while an optional one does not', () => {
   assert.equal(
     connectorExitCode([
       {
-        id: "mempalace",
-        profile: "codex",
-        status: "degraded",
-        criticality: "required",
-        boundary: "client",
-        summary: "connector enabled status is unrecognized",
+        id: 'mempalace',
+        profile: 'codex',
+        status: 'degraded',
+        criticality: 'required',
+        boundary: 'client',
+        summary: 'connector enabled status is unrecognized',
       },
     ]),
     1,
@@ -19,12 +19,12 @@ void test("a degraded required connector fails the doctor while an optional one 
   assert.equal(
     connectorExitCode([
       {
-        id: "zerohedge",
-        profile: "claude-personal",
-        status: "degraded",
-        criticality: "optional",
-        boundary: "hosted-connector",
-        summary: "connector status is unrecognized",
+        id: 'zerohedge',
+        profile: 'claude-personal',
+        status: 'degraded',
+        criticality: 'optional',
+        boundary: 'hosted-connector',
+        summary: 'connector status is unrecognized',
       },
     ]),
     0,

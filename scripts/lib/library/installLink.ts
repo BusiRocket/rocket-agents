@@ -1,7 +1,7 @@
-import { promises as fs } from "node:fs"
-import { join } from "node:path"
-import type { LinkOutcome } from "./types/LinkOutcome"
-import type { PlannedLink } from "./types/PlannedLink"
+import { promises as fs } from 'node:fs'
+import { join } from 'node:path'
+import type { LinkOutcome } from './types/LinkOutcome'
+import type { PlannedLink } from './types/PlannedLink'
 
 export const installLink = async (
   link: PlannedLink,
@@ -14,14 +14,17 @@ export const installLink = async (
     .catch(() => false)
 
   if (!exists) {
-    return { kind: "missing", message: `${link.entryKey} has no directory at ${link.target}` }
+    return {
+      kind: 'missing',
+      message: `${link.entryKey} has no directory at ${link.target}`,
+    }
   }
 
   const linkPath = join(linkDir, link.name)
   const current = await fs.readlink(linkPath).catch(() => undefined)
 
   if (current === link.target) {
-    return { kind: "unchanged" }
+    return { kind: 'unchanged' }
   }
 
   if (current === undefined) {
@@ -31,7 +34,10 @@ export const installLink = async (
       .catch(() => false)
 
     if (occupied) {
-      return { kind: "foreign", message: `${link.name} exists and is not a symlink this tool owns` }
+      return {
+        kind: 'foreign',
+        message: `${link.name} exists and is not a symlink this tool owns`,
+      }
     }
   }
 
@@ -41,5 +47,5 @@ export const installLink = async (
     await fs.symlink(link.target, linkPath)
   }
 
-  return { kind: "created" }
+  return { kind: 'created' }
 }

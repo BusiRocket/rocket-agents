@@ -1,12 +1,12 @@
-import { mkdir, writeFile } from "node:fs/promises"
-import { join } from "node:path"
-import { collectDriftedUnits } from "./collectDriftedUnits"
-import { reloadServiceUnit } from "./reloadServiceUnit"
-import type { ServicesApplyResult } from "./types/ServicesApplyResult"
-import type { ServicesManifest } from "./types/ServicesManifest"
-import type { ServicesPaths } from "./types/ServicesPaths"
-import type { ServicesState } from "./types/ServicesState"
-import type { CommandRunner } from "../../exec/types/CommandRunner"
+import { mkdir, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import type { CommandRunner } from '../../exec/types/CommandRunner'
+import { collectDriftedUnits } from './collectDriftedUnits'
+import { reloadServiceUnit } from './reloadServiceUnit'
+import type { ServicesApplyResult } from './types/ServicesApplyResult'
+import type { ServicesManifest } from './types/ServicesManifest'
+import type { ServicesPaths } from './types/ServicesPaths'
+import type { ServicesState } from './types/ServicesState'
 
 /**
  * Writes every drifted unit file, then loads it in its init system. Undeclared
@@ -27,7 +27,11 @@ export const apply = async ({
   run: CommandRunner
 }): Promise<ServicesApplyResult> => {
   const result: ServicesApplyResult = { written: [], reloaded: [], failed: [] }
-  const drifted = collectDriftedUnits({ manifest, platform: paths.platform, state })
+  const drifted = collectDriftedUnits({
+    manifest,
+    platform: paths.platform,
+    state,
+  })
 
   if (drifted.length === 0) {
     return result
@@ -40,8 +44,8 @@ export const apply = async ({
     result.written.push(unit.file)
   }
 
-  if (paths.platform === "systemd") {
-    const reloaded = await run(["systemctl", "--user", "daemon-reload"])
+  if (paths.platform === 'systemd') {
+    const reloaded = await run(['systemctl', '--user', 'daemon-reload'])
 
     if (!reloaded.ok) {
       result.failed.push(`daemon-reload: ${reloaded.output}`)

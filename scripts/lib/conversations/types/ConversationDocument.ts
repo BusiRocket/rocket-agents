@@ -1,4 +1,4 @@
-import type { ConversationSource } from "./ConversationSource"
+import type { ConversationSource } from './ConversationSource'
 
 export interface ConversationDocument {
   contents: string

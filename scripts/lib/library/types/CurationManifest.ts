@@ -1,4 +1,4 @@
-import type { CurationEntry } from "./CurationEntry"
+import type { CurationEntry } from './CurationEntry'
 
 export interface CurationManifest {
   version: number

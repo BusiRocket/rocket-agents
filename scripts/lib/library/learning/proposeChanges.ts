@@ -1,9 +1,9 @@
-import { selectFannedOutSkills } from "../selectors/selectFannedOutSkills"
-import { proposeForProcedure } from "./proposeForProcedure"
-import { remapInvocations } from "./remapInvocations"
-import { proposeIdleParking } from "./proposeIdleParking"
-import type { Proposal } from "./types/Proposal"
-import type { ProposeChangesInput } from "./types/ProposeChangesInput"
+import { selectFannedOutSkills } from '../selectors/selectFannedOutSkills'
+import { proposeForProcedure } from './proposeForProcedure'
+import { proposeIdleParking } from './proposeIdleParking'
+import { remapInvocations } from './remapInvocations'
+import type { Proposal } from './types/Proposal'
+import type { ProposeChangesInput } from './types/ProposeChangesInput'
 
 export const proposeChanges = ({
   procedures,
@@ -20,7 +20,10 @@ export const proposeChanges = ({
     const resolved =
       procedure.covers === undefined
         ? procedure
-        : { ...procedure, covers: keyIndex[procedure.covers] ?? procedure.covers }
+        : {
+            ...procedure,
+            covers: keyIndex[procedure.covers] ?? procedure.covers,
+          }
     const proposal = proposeForProcedure(resolved, manifest, fannedOut, counts)
     if (proposal !== undefined) {
       proposals.push(proposal)

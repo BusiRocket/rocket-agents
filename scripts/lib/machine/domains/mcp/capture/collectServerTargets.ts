@@ -1,8 +1,10 @@
-import { MCP_TARGETS } from "../constants/MCP_TARGETS"
-import type { McpState } from "../types/McpState"
-import type { McpTarget } from "../types/McpTarget"
+import { MCP_TARGETS } from '../constants/MCP_TARGETS'
+import type { McpState } from '../types/McpState'
+import type { McpTarget } from '../types/McpTarget'
 
-export const collectServerTargets = (state: McpState): Map<string, McpTarget[]> => {
+export const collectServerTargets = (
+  state: McpState,
+): Map<string, McpTarget[]> => {
   const byServer = new Map<string, McpTarget[]>()
 
   for (const target of MCP_TARGETS) {

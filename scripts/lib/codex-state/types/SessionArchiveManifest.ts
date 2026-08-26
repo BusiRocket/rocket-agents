@@ -1,4 +1,4 @@
-import type { SessionArchiveManifestEntry } from "./SessionArchiveManifestEntry"
+import type { SessionArchiveManifestEntry } from './SessionArchiveManifestEntry'
 
 export interface SessionArchiveManifest {
   version: 1

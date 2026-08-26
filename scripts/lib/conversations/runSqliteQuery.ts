@@ -1,4 +1,4 @@
-import { DatabaseSync } from "node:sqlite"
+import { DatabaseSync } from 'node:sqlite'
 
 export const runSqliteQuery = (databasePath: string, query: string) => {
   const database = new DatabaseSync(databasePath, { readOnly: true })

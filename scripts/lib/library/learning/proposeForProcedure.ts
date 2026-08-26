@@ -1,6 +1,6 @@
-import type { CurationManifest } from "../types/CurationManifest"
-import type { Procedure } from "./types/Procedure"
-import type { Proposal } from "./types/Proposal"
+import type { CurationManifest } from '../types/CurationManifest'
+import type { Procedure } from './types/Procedure'
+import type { Proposal } from './types/Proposal'
 
 export const proposeForProcedure = (
   procedure: Procedure,
@@ -12,7 +12,7 @@ export const proposeForProcedure = (
 
   if (covers === undefined) {
     return {
-      kind: "build",
+      kind: 'build',
       procedure: procedure.name,
       requests: procedure.requests,
       why: `${String(procedure.requests)} requests across ${String(procedure.projects)} projects and nothing covers it`,
@@ -23,7 +23,7 @@ export const proposeForProcedure = (
 
   if (entry === undefined) {
     return {
-      kind: "build",
+      kind: 'build',
       procedure: procedure.name,
       requests: procedure.requests,
       why: `covering skill ${covers} is not in the library`,
@@ -32,7 +32,7 @@ export const proposeForProcedure = (
 
   if (!fannedOut.includes(covers)) {
     return {
-      kind: "promote",
+      kind: 'promote',
       skill: covers,
       procedure: procedure.name,
       requests: procedure.requests,
@@ -42,7 +42,7 @@ export const proposeForProcedure = (
 
   if ((invocations[covers] ?? 0) === 0) {
     return {
-      kind: "fix-trigger",
+      kind: 'fix-trigger',
       skill: covers,
       procedure: procedure.name,
       requests: procedure.requests,

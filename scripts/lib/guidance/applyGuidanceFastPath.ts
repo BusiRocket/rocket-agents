@@ -1,7 +1,7 @@
-import { applyGuidanceResult } from "./applyGuidanceResult"
-import type { GuidanceFastPath } from "./types/GuidanceFastPath"
-import type { GuidanceRunReport } from "./types/GuidanceRunReport"
-import type { GuidanceSyncOptions } from "./types/GuidanceSyncOptions"
+import { applyGuidanceResult } from './applyGuidanceResult'
+import type { GuidanceFastPath } from './types/GuidanceFastPath'
+import type { GuidanceRunReport } from './types/GuidanceRunReport'
+import type { GuidanceSyncOptions } from './types/GuidanceSyncOptions'
 
 export const applyGuidanceFastPath = async (options: {
   fastPath: GuidanceFastPath
@@ -9,8 +9,8 @@ export const applyGuidanceFastPath = async (options: {
   runId: string
   snapshotDir: string
 }): Promise<GuidanceRunReport | undefined> => {
-  if (options.fastPath.kind === "reconcile") return undefined
-  if (options.fastPath.kind === "converged")
+  if (options.fastPath.kind === 'reconcile') return undefined
+  if (options.fastPath.kind === 'converged')
     return {
       ok: true,
       applied: false,
@@ -28,7 +28,7 @@ export const applyGuidanceFastPath = async (options: {
       errors: [],
       warnings: [
         ...options.fastPath.result.warnings,
-        "dry run validated successfully; no guidance files or snapshots were written",
+        'dry run validated successfully; no guidance files or snapshots were written',
       ],
     }
   const acceptedSnapshotDir = await applyGuidanceResult({

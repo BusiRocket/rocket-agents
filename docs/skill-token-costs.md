@@ -1,12 +1,14 @@
 # BRP skill invoked token cost
 
-Measured 2026-08-22 over `src/skills/*/*/SKILL.md` with the `gpt-tokenizer` BPE (cl100k). This
-approximates but does not equal Anthropic's tokenizer; treat figures as +/-10%. Invoked cost is the
-SKILL.md body, which is what loads when the skill fires. References load on demand and are listed
-separately; they only cost tokens when the workflow explicitly loads them.
+Measured 2026-08-22 over `src/skills/*/*/SKILL.md` with the `gpt-tokenizer` BPE
+(cl100k). This approximates but does not equal Anthropic's tokenizer; treat
+figures as +/-10%. Invoked cost is the SKILL.md body, which is what loads when
+the skill fires. References load on demand and are listed separately; they only
+cost tokens when the workflow explicitly loads them.
 
-Reference bar: Pocock's `/grilling`, a gate-shaped skill, measures 345 tokens invoked. Anything an
-order of magnitude above that (> ~3,500) needs a reason. No BRP skill crosses it today.
+Reference bar: Pocock's `/grilling`, a gate-shaped skill, measures 345 tokens
+invoked. Anything an order of magnitude above that (> ~3,500) needs a reason. No
+BRP skill crosses it today.
 
 | Skill                      | Invoked | Refs | Ref tokens |
 | -------------------------- | ------- | ---- | ---------- |
@@ -27,18 +29,19 @@ order of magnitude above that (> ~3,500) needs a reason. No BRP skill crosses it
 
 Notes:
 
-- `brp-todo-work` and `brp-todo-create` are the heaviest by design: they were deliberately refilled
-  (2026-08-22) from the prompt files they had been lossily compressed from, after measurement showed
-  the full prompts outperformed the compressed skills 70:7 and 318-line:78 in 30-day invocations.
-- `orchestrator/brp` keeps its invoked cost at 508 by routing everything through on-demand
-  references; that is the pattern to copy when a skill grows.
+- `brp-todo-work` and `brp-todo-create` are the heaviest by design: they were
+  deliberately refilled (2026-08-22) from the prompt files they had been lossily
+  compressed from, after measurement showed the full prompts outperformed the
+  compressed skills 70:7 and 318-line:78 in 30-day invocations.
+- `orchestrator/brp` keeps its invoked cost at 508 by routing everything through
+  on-demand references; that is the pattern to copy when a skill grows.
 
-Re-measure after any skill edit that adds more than a paragraph. Method: in a temp directory,
-`npm install gpt-tokenizer`, then per skill directory count `countTokens(SKILL.md)` and the sum of
-`countTokens(references/*.md)`:
+Re-measure after any skill edit that adds more than a paragraph. Method: in a
+temp directory, `npm install gpt-tokenizer`, then per skill directory count
+`countTokens(SKILL.md)` and the sum of `countTokens(references/*.md)`:
 
 ```js
-import { countTokens } from "gpt-tokenizer"
-import { readFileSync } from "node:fs"
-console.log(countTokens(readFileSync(process.argv[2], "utf8")))
+import { countTokens } from 'gpt-tokenizer'
+import { readFileSync } from 'node:fs'
+console.log(countTokens(readFileSync(process.argv[2], 'utf8')))
 ```

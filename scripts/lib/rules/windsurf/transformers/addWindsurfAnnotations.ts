@@ -1,4 +1,4 @@
-import type { RuleFrontmatter } from "../../types/RuleFrontmatter"
+import type { RuleFrontmatter } from '../../types/RuleFrontmatter'
 
 /**
  * Add Windsurf-specific annotations
@@ -7,13 +7,16 @@ import type { RuleFrontmatter } from "../../types/RuleFrontmatter"
  * @returns {string} - Content with Windsurf annotations
  */
 
-export function addWindsurfAnnotations(content: string, frontmatter: RuleFrontmatter) {
+export function addWindsurfAnnotations(
+  content: string,
+  frontmatter: RuleFrontmatter,
+) {
   let annotated = content
 
   if (frontmatter.globs) {
-    const fileTypes = frontmatter.globs.split(",").map((g: string) => g.trim())
+    const fileTypes = frontmatter.globs.split(',').map((g: string) => g.trim())
 
-    annotated = `<!-- Windsurf Context: ${fileTypes.join(", ")} -->\n\n${annotated}`
+    annotated = `<!-- Windsurf Context: ${fileTypes.join(', ')} -->\n\n${annotated}`
   }
 
   return annotated

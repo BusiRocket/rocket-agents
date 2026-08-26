@@ -1,4 +1,4 @@
-import type { RouterExpectation } from "./types/RouterExpectation"
+import type { RouterExpectation } from './types/RouterExpectation'
 
 export const compareRouterExpectationCorpus = (
   phrases: Record<string, string[]>,
@@ -11,11 +11,17 @@ export const compareRouterExpectationCorpus = (
   )
   const declared = new Set(
     expectations.flatMap((expectation) =>
-      expectation.sourceSkills.map((skill) => `${skill}\u0000${expectation.phrase}`),
+      expectation.sourceSkills.map(
+        (skill) => `${skill}\u0000${expectation.phrase}`,
+      ),
     ),
   )
   return [
-    ...[...measured].filter((pair) => !declared.has(pair)).map((pair) => `missing ${pair}`),
-    ...[...declared].filter((pair) => !measured.has(pair)).map((pair) => `stale ${pair}`),
+    ...[...measured]
+      .filter((pair) => !declared.has(pair))
+      .map((pair) => `missing ${pair}`),
+    ...[...declared]
+      .filter((pair) => !measured.has(pair))
+      .map((pair) => `stale ${pair}`),
   ]
 }

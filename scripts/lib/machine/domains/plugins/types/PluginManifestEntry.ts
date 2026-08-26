@@ -1,5 +1,5 @@
-import type { PluginEnablement } from "./PluginEnablement"
-import type { PluginProfile } from "./PluginProfile"
+import type { PluginEnablement } from './PluginEnablement'
+import type { PluginProfile } from './PluginProfile'
 
 export interface PluginManifestEntry {
   id: string

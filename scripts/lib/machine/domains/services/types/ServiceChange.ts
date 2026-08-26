@@ -1,5 +1,5 @@
 export interface ServiceChange {
-  operation: "create" | "update"
+  operation: 'create' | 'update'
   name: string
   file: string
 }

@@ -1,2 +1,2 @@
 export const escapeTomlString = (value: string) =>
-  `"${value.replaceAll("\\", "\\\\").replaceAll('"', '\\"')}"`
+  `"${value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`

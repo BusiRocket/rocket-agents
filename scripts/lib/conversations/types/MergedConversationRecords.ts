@@ -1,4 +1,4 @@
-import type { ConversationRecord } from "./ConversationRecord"
+import type { ConversationRecord } from './ConversationRecord'
 
 export interface MergedConversationRecords {
   records: ConversationRecord[]

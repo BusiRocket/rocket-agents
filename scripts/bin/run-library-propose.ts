@@ -1,4 +1,4 @@
-import { main } from "../commands/libraryPropose"
+import { main } from '../commands/libraryPropose'
 
 main().catch((error: unknown) => {
   console.error(error)

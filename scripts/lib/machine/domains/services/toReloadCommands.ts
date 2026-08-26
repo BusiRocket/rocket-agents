@@ -1,4 +1,4 @@
-import type { ServicesPlatform } from "./types/ServicesPlatform"
+import type { ServicesPlatform } from './types/ServicesPlatform'
 
 /**
  * Commands that make the init system pick up one freshly written unit file.
@@ -20,16 +20,27 @@ export const toReloadCommands = ({
   uid: number
   hasTimer: boolean
 }): { argv: string[]; tolerateFailure: boolean }[] => {
-  if (platform === "launchd") {
+  if (platform === 'launchd') {
     return [
-      { argv: ["launchctl", "bootout", `gui/${String(uid)}`, unitPath], tolerateFailure: true },
-      { argv: ["launchctl", "bootstrap", `gui/${String(uid)}`, unitPath], tolerateFailure: false },
+      {
+        argv: ['launchctl', 'bootout', `gui/${String(uid)}`, unitPath],
+        tolerateFailure: true,
+      },
+      {
+        argv: ['launchctl', 'bootstrap', `gui/${String(uid)}`, unitPath],
+        tolerateFailure: false,
+      },
     ]
   }
 
-  if (unitFile.endsWith(".service") && hasTimer) {
+  if (unitFile.endsWith('.service') && hasTimer) {
     return []
   }
 
-  return [{ argv: ["systemctl", "--user", "enable", "--now", unitFile], tolerateFailure: false }]
+  return [
+    {
+      argv: ['systemctl', '--user', 'enable', '--now', unitFile],
+      tolerateFailure: false,
+    },
+  ]
 }

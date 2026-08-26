@@ -1,6 +1,6 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises"
-import { dirname } from "node:path"
-import { sortRecordKeys } from "./sortRecordKeys"
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { dirname } from 'node:path'
+import { sortRecordKeys } from './sortRecordKeys'
 
 export const writeGeminiSettings = async ({
   path,
@@ -13,14 +13,15 @@ export const writeGeminiSettings = async ({
 }) => {
   let existing: Record<string, unknown> = {}
   try {
-    const contents = await readFile(path, "utf8")
-    if (contents.trim() !== "") existing = JSON.parse(contents) as Record<string, unknown>
+    const contents = await readFile(path, 'utf8')
+    if (contents.trim() !== '')
+      existing = JSON.parse(contents) as Record<string, unknown>
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
   }
 
   const currentServers =
-    typeof existing.mcpServers === "object" && existing.mcpServers !== null
+    typeof existing.mcpServers === 'object' && existing.mcpServers !== null
       ? (existing.mcpServers as Record<string, unknown>)
       : {}
   const merged: Record<string, unknown> = {}

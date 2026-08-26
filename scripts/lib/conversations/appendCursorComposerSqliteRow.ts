@@ -1,13 +1,13 @@
-import { parseCursorSqliteObject } from "./parseCursorSqliteObject"
-import { projectCursorBubble } from "./projectCursorBubble"
-import type { CursorConversation } from "./types/CursorConversation"
-import type { CursorSqliteRow } from "./types/CursorSqliteRow"
+import { parseCursorSqliteObject } from './parseCursorSqliteObject'
+import { projectCursorBubble } from './projectCursorBubble'
+import type { CursorConversation } from './types/CursorConversation'
+import type { CursorSqliteRow } from './types/CursorSqliteRow'
 
 export const appendCursorComposerSqliteRow = (
   conversations: Map<string, CursorConversation>,
   row: CursorSqliteRow,
 ) => {
-  const composerId = row.key.slice("composerData:".length)
+  const composerId = row.key.slice('composerData:'.length)
   const value = parseCursorSqliteObject(row.key, row.value)
   const current = conversations.get(composerId) ?? { messages: [] }
   current.metadata = {
@@ -18,8 +18,10 @@ export const appendCursorComposerSqliteRow = (
 
   if (Array.isArray(value.conversation)) {
     for (const bubble of value.conversation) {
-      if (typeof bubble === "object" && bubble !== null) {
-        current.messages.push(projectCursorBubble(bubble as Record<string, unknown>))
+      if (typeof bubble === 'object' && bubble !== null) {
+        current.messages.push(
+          projectCursorBubble(bubble as Record<string, unknown>),
+        )
       }
     }
   }

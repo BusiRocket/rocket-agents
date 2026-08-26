@@ -1,6 +1,10 @@
-import type { ReconciliationResult } from "./ReconciliationResult"
+import type { ReconciliationResult } from './ReconciliationResult'
 
 export type GuidanceOutputDocuments = Pick<
   ReconciliationResult,
-  "shared" | "claudeOverlay" | "codexOverlay" | "claudeDocument" | "codexDocument"
+  | 'shared'
+  | 'claudeOverlay'
+  | 'codexOverlay'
+  | 'claudeDocument'
+  | 'codexDocument'
 >

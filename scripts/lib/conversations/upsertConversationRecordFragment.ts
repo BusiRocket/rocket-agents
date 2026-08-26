@@ -1,5 +1,5 @@
-import { mergeConversationRecordFragments } from "./mergeConversationRecordFragments"
-import type { ConversationRecord } from "./types/ConversationRecord"
+import { mergeConversationRecordFragments } from './mergeConversationRecordFragments'
+import type { ConversationRecord } from './types/ConversationRecord'
 
 export const upsertConversationRecordFragment = (
   records: Map<string, ConversationRecord>,
@@ -8,6 +8,8 @@ export const upsertConversationRecordFragment = (
   const existing = records.get(record.id)
   records.set(
     record.id,
-    existing === undefined ? record : mergeConversationRecordFragments(existing, record),
+    existing === undefined
+      ? record
+      : mergeConversationRecordFragments(existing, record),
   )
 }

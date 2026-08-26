@@ -1,4 +1,4 @@
-import type { CodexStdioProbeTarget } from "./CodexStdioProbeTarget"
+import type { CodexStdioProbeTarget } from './CodexStdioProbeTarget'
 
 export type CodexStdioProbeTargetResolution =
   | { ok: true; targets: ReadonlyMap<string, CodexStdioProbeTarget> }

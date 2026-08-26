@@ -1,30 +1,34 @@
-import { mkdir, readFile, realpath } from "node:fs/promises"
-import { join } from "node:path"
-import { applyGuidanceResult } from "./applyGuidanceResult"
-import { applyGuidanceFastPath } from "./applyGuidanceFastPath"
-import { acquireGuidanceLock } from "./acquireGuidanceLock"
-import { buildReconciliationPrompt } from "./buildReconciliationPrompt"
-import { collectGuidanceSources } from "./collectGuidanceSources"
-import { containsSensitiveGuidanceContent } from "./containsSensitiveGuidanceContent"
-import { createGuidanceRunId } from "./createGuidanceRunId"
-import { parseGuidancePolicy } from "./parseGuidancePolicy"
-import { removeCreatedGuidanceStateDir } from "./removeCreatedGuidanceStateDir"
-import { resolveGuidanceFastPath } from "./resolveGuidanceFastPath"
-import { runReconciliationAgent } from "./runReconciliationAgent"
-import { shouldRemoveGuidanceStateDir } from "./shouldRemoveGuidanceStateDir"
-import { validateReconciliationResult } from "./validators/validateReconciliationResult"
-import type { GuidanceRunReport } from "./types/GuidanceRunReport"
-import type { GuidanceSyncOptions } from "./types/GuidanceSyncOptions"
+import { mkdir, readFile, realpath } from 'node:fs/promises'
+import { join } from 'node:path'
+import { acquireGuidanceLock } from './acquireGuidanceLock'
+import { applyGuidanceFastPath } from './applyGuidanceFastPath'
+import { applyGuidanceResult } from './applyGuidanceResult'
+import { buildReconciliationPrompt } from './buildReconciliationPrompt'
+import { collectGuidanceSources } from './collectGuidanceSources'
+import { containsSensitiveGuidanceContent } from './containsSensitiveGuidanceContent'
+import { createGuidanceRunId } from './createGuidanceRunId'
+import { parseGuidancePolicy } from './parseGuidancePolicy'
+import { removeCreatedGuidanceStateDir } from './removeCreatedGuidanceStateDir'
+import { resolveGuidanceFastPath } from './resolveGuidanceFastPath'
+import { runReconciliationAgent } from './runReconciliationAgent'
+import { shouldRemoveGuidanceStateDir } from './shouldRemoveGuidanceStateDir'
+import type { GuidanceRunReport } from './types/GuidanceRunReport'
+import type { GuidanceSyncOptions } from './types/GuidanceSyncOptions'
+import { validateReconciliationResult } from './validators/validateReconciliationResult'
 
-export const guidanceSync = async (options: GuidanceSyncOptions): Promise<GuidanceRunReport> => {
+export const guidanceSync = async (
+  options: GuidanceSyncOptions,
+): Promise<GuidanceRunReport> => {
   const runId = createGuidanceRunId()
-  const lockPath = join(options.stateDir, "lock")
-  const snapshotDir = join(options.stateDir, "runs", runId)
+  const lockPath = join(options.stateDir, 'lock')
+  const snapshotDir = join(options.stateDir, 'runs', runId)
   let removeEmptyStateDir = false
   let parsedPolicy: ReturnType<typeof parseGuidancePolicy>
   try {
     parsedPolicy = parseGuidancePolicy(
-      JSON.parse(await readFile(join(options.canonicalDir, "policy.json"), "utf8")) as unknown,
+      JSON.parse(
+        await readFile(join(options.canonicalDir, 'policy.json'), 'utf8'),
+      ) as unknown,
     )
   } catch {
     return {
@@ -32,7 +36,7 @@ export const guidanceSync = async (options: GuidanceSyncOptions): Promise<Guidan
       applied: false,
       runId,
       snapshotDir,
-      errors: ["policy.json is missing or invalid JSON"],
+      errors: ['policy.json is missing or invalid JSON'],
       warnings: [],
     }
   }
@@ -52,7 +56,11 @@ export const guidanceSync = async (options: GuidanceSyncOptions): Promise<Guidan
       options.dryRun === true,
     )
     await mkdir(options.stateDir, { recursive: true, mode: 0o700 })
-    releaseLock = await acquireGuidanceLock(lockPath, runId, parsedPolicy.policy.timeoutMs + 30_000)
+    releaseLock = await acquireGuidanceLock(
+      lockPath,
+      runId,
+      parsedPolicy.policy.timeoutMs + 30_000,
+    )
   } catch (error) {
     await removeCreatedGuidanceStateDir(options.stateDir, removeEmptyStateDir)
     return {
@@ -60,7 +68,11 @@ export const guidanceSync = async (options: GuidanceSyncOptions): Promise<Guidan
       applied: false,
       runId,
       snapshotDir,
-      errors: [error instanceof Error ? error.message : "could not acquire guidance lock"],
+      errors: [
+        error instanceof Error
+          ? error.message
+          : 'could not acquire guidance lock',
+      ],
       warnings: [],
     }
   }
@@ -72,7 +84,9 @@ export const guidanceSync = async (options: GuidanceSyncOptions): Promise<Guidan
         applied: false,
         runId,
         snapshotDir,
-        errors: ["guidance sources contain credential or captured conversation material"],
+        errors: [
+          'guidance sources contain credential or captured conversation material',
+        ],
         warnings: [],
       }
     const fastPath = resolveGuidanceFastPath({
@@ -117,7 +131,9 @@ export const guidanceSync = async (options: GuidanceSyncOptions): Promise<Guidan
         ),
       ) !==
       JSON.stringify(
-        Object.entries(sources.hashes).toSorted(([left], [right]) => left.localeCompare(right)),
+        Object.entries(sources.hashes).toSorted(([left], [right]) =>
+          left.localeCompare(right),
+        ),
       )
     )
       return {
@@ -125,7 +141,7 @@ export const guidanceSync = async (options: GuidanceSyncOptions): Promise<Guidan
         applied: false,
         runId,
         snapshotDir,
-        errors: ["guidance sources changed during reconciliation"],
+        errors: ['guidance sources changed during reconciliation'],
         warnings: [],
       }
     if (options.dryRun === true)
@@ -137,7 +153,7 @@ export const guidanceSync = async (options: GuidanceSyncOptions): Promise<Guidan
         errors: [],
         warnings: [
           ...validated.result.warnings,
-          "dry run validated successfully; no guidance files or snapshots were written",
+          'dry run validated successfully; no guidance files or snapshots were written',
         ],
       }
     const acceptedSnapshotDir = await applyGuidanceResult({
@@ -159,7 +175,11 @@ export const guidanceSync = async (options: GuidanceSyncOptions): Promise<Guidan
       applied: false,
       runId,
       snapshotDir,
-      errors: [error instanceof Error ? error.message : "guidance reconciliation failed"],
+      errors: [
+        error instanceof Error
+          ? error.message
+          : 'guidance reconciliation failed',
+      ],
       warnings: [],
     }
   } finally {

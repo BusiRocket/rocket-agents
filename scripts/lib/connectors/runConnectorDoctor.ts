@@ -1,8 +1,8 @@
-import { connectorExitCode } from "./connectorExitCode"
-import { resolveCodexStdioProbeTargets } from "./resolveCodexStdioProbeTargets"
-import { resolveConnectorProfiles } from "./resolveConnectorProfiles"
-import type { ConnectorDoctorInput } from "./types/ConnectorDoctorInput"
-import type { ConnectorDoctorResult } from "./types/ConnectorDoctorResult"
+import { connectorExitCode } from './connectorExitCode'
+import { resolveCodexStdioProbeTargets } from './resolveCodexStdioProbeTargets'
+import { resolveConnectorProfiles } from './resolveConnectorProfiles'
+import type { ConnectorDoctorInput } from './types/ConnectorDoctorInput'
+import type { ConnectorDoctorResult } from './types/ConnectorDoctorResult'
 
 export const runConnectorDoctor = async (
   input: ConnectorDoctorInput,
@@ -14,7 +14,7 @@ export const runConnectorDoctor = async (
   if (!input.parsedMcp.ok) {
     return {
       exitCode: 2,
-      output: { ok: false, errors: ["MCP manifest is missing or invalid"] },
+      output: { ok: false, errors: ['MCP manifest is missing or invalid'] },
     }
   }
   const resolved = resolveCodexStdioProbeTargets(
@@ -28,7 +28,12 @@ export const runConnectorDoctor = async (
   const results = (
     await Promise.all(
       resolveConnectorProfiles(input.requestedProfile).map((profile) =>
-        input.inspect(profile, parsed.manifest.connectors, input.home, resolved.targets),
+        input.inspect(
+          profile,
+          parsed.manifest.connectors,
+          input.home,
+          resolved.targets,
+        ),
       ),
     )
   ).flat()

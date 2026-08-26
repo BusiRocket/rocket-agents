@@ -1,7 +1,7 @@
-import { readFile } from "node:fs/promises"
-import { join } from "node:path"
-import { parsePluginsManifest } from "../domains/plugins/parsePluginsManifest"
-import type { PluginsManifestParseResult } from "../domains/plugins/types/PluginsManifestParseResult"
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import { parsePluginsManifest } from '../domains/plugins/parsePluginsManifest'
+import type { PluginsManifestParseResult } from '../domains/plugins/types/PluginsManifestParseResult'
 
 export const loadPluginsManifest = async (
   instanceDir: string,
@@ -9,7 +9,7 @@ export const loadPluginsManifest = async (
   let contents: string
 
   try {
-    contents = await readFile(join(instanceDir, "plugins.json"), "utf8")
+    contents = await readFile(join(instanceDir, 'plugins.json'), 'utf8')
   } catch {
     return undefined
   }
@@ -17,6 +17,9 @@ export const loadPluginsManifest = async (
   try {
     return parsePluginsManifest(JSON.parse(contents) as unknown)
   } catch {
-    return { ok: false, errors: [`plugins.json in ${instanceDir} is not valid JSON`] }
+    return {
+      ok: false,
+      errors: [`plugins.json in ${instanceDir} is not valid JSON`],
+    }
   }
 }

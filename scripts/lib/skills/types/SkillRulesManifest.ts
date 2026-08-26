@@ -1,4 +1,4 @@
-import type { SkillEntry } from "./SkillEntry"
+import type { SkillEntry } from './SkillEntry'
 
 export interface SkillRulesManifest {
   version: number

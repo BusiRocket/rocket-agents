@@ -1,17 +1,27 @@
-import { cp, lstat, mkdir, rm, writeFile, readFile } from "node:fs/promises"
-import { dirname } from "node:path"
-import { cleanGlobalPrefix } from "../../../link/operations/cleanGlobalPrefix"
-import { linkOneWithBackup } from "../../../link/operations/linkOneWithBackup"
-import { isCapabilityTargetDetected } from "./isCapabilityTargetDetected"
-import { planCapabilityLinks } from "./planCapabilityLinks"
-import type { CapabilityTarget } from "./types/CapabilityTarget"
+import { cp, lstat, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { dirname } from 'node:path'
+import { cleanGlobalPrefix } from '../../../link/operations/cleanGlobalPrefix'
+import { linkOneWithBackup } from '../../../link/operations/linkOneWithBackup'
+import { isCapabilityTargetDetected } from './isCapabilityTargetDetected'
+import { planCapabilityLinks } from './planCapabilityLinks'
+import type { CapabilityTarget } from './types/CapabilityTarget'
 
 export const applyCapabilityLinks = async (target: CapabilityTarget) => {
-  if (target.support === "unsupported") {
-    return { status: "unsupported" as const, linked: 0, copied: 0, cleaned: [] as string[] }
+  if (target.support === 'unsupported') {
+    return {
+      status: 'unsupported' as const,
+      linked: 0,
+      copied: 0,
+      cleaned: [] as string[],
+    }
   }
   if (!(await isCapabilityTargetDetected(target))) {
-    return { status: "unavailable" as const, linked: 0, copied: 0, cleaned: [] as string[] }
+    return {
+      status: 'unavailable' as const,
+      linked: 0,
+      copied: 0,
+      cleaned: [] as string[],
+    }
   }
 
   const cleaned: string[] = []
@@ -24,8 +34,8 @@ export const applyCapabilityLinks = async (target: CapabilityTarget) => {
   let copied = 0
 
   for (const link of target.links) {
-    if (link.method === "native" || !changedTargets.has(link.target)) continue
-    if (link.method === "symlink") {
+    if (link.method === 'native' || !changedTargets.has(link.target)) continue
+    if (link.method === 'symlink') {
       await linkOneWithBackup(link)
       linked++
       continue
@@ -39,5 +49,5 @@ export const applyCapabilityLinks = async (target: CapabilityTarget) => {
     copied++
   }
 
-  return { status: "supported" as const, linked, copied, cleaned }
+  return { status: 'supported' as const, linked, copied, cleaned }
 }

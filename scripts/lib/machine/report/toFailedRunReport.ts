@@ -1,4 +1,4 @@
-import type { RunReport } from "../types/RunReport"
+import type { RunReport } from '../types/RunReport'
 
 export const toFailedRunReport = ({
   runId,
@@ -11,6 +11,6 @@ export const toFailedRunReport = ({
 }): RunReport => ({
   runId,
   profile,
-  domains: [{ domain: "machine", status: "failed", changes: 0, messages }],
+  domains: [{ domain: 'machine', status: 'failed', changes: 0, messages }],
   ok: false,
 })

@@ -1,7 +1,13 @@
 {
   "servers": {
     "serena": {
-      "targets": ["claude-personal", "claude-favish", "codex", "gemini", "cursor"],
+      "targets": [
+        "claude-personal",
+        "claude-favish",
+        "codex",
+        "gemini",
+        "cursor"
+      ],
       "transport": "stdio",
       "command": "serena",
       "args": ["start-mcp-server"],
@@ -36,7 +42,13 @@
       }
     },
     "codegraph": {
-      "targets": ["claude-personal", "claude-favish", "codex", "gemini", "cursor"],
+      "targets": [
+        "claude-personal",
+        "claude-favish",
+        "codex",
+        "gemini",
+        "cursor"
+      ],
       "transport": "stdio",
       "command": "codegraph",
       "args": ["serve", "--mcp"]

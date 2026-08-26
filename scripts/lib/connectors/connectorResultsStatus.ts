@@ -1,20 +1,29 @@
-import type { CapabilityStatus } from "../platform-health/types/CapabilityStatus"
-import type { ProfileConnectorResult } from "./types/ProfileConnectorResult"
+import type { CapabilityStatus } from '../platform-health/types/CapabilityStatus'
+import type { ProfileConnectorResult } from './types/ProfileConnectorResult'
 
-export const connectorResultsStatus = (results: ProfileConnectorResult[]): CapabilityStatus => {
-  if (results.some(({ criticality, status }) => criticality === "required" && status === "failed"))
-    return "failed"
+export const connectorResultsStatus = (
+  results: ProfileConnectorResult[],
+): CapabilityStatus => {
   if (
     results.some(
-      ({ criticality, status }) => criticality === "required" && status === "auth-required",
+      ({ criticality, status }) =>
+        criticality === 'required' && status === 'failed',
     )
   )
-    return "auth-required"
+    return 'failed'
   if (
     results.some(
-      ({ status }) => status === "failed" || status === "degraded" || status === "disabled",
+      ({ criticality, status }) =>
+        criticality === 'required' && status === 'auth-required',
     )
   )
-    return "degraded"
-  return "healthy"
+    return 'auth-required'
+  if (
+    results.some(
+      ({ status }) =>
+        status === 'failed' || status === 'degraded' || status === 'disabled',
+    )
+  )
+    return 'degraded'
+  return 'healthy'
 }

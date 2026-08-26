@@ -1,6 +1,6 @@
-import { daysBetween } from "../daysBetween"
-import { isFannedOut } from "../isFannedOut"
-import type { SelectIdleEntriesInput } from "../types/SelectIdleEntriesInput"
+import { daysBetween } from '../daysBetween'
+import { isFannedOut } from '../isFannedOut'
+import type { SelectIdleEntriesInput } from '../types/SelectIdleEntriesInput'
 
 export const selectIdleEntries = ({
   manifest,
@@ -20,7 +20,10 @@ export const selectIdleEntries = ({
         return false
       }
 
-      if (entry.decidedAt === undefined || daysBetween(entry.decidedAt, today) < idleDays) {
+      if (
+        entry.decidedAt === undefined ||
+        daysBetween(entry.decidedAt, today) < idleDays
+      ) {
         return false
       }
 

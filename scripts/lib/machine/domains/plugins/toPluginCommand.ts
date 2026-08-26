@@ -1,7 +1,7 @@
-import { dirname } from "node:path"
-import type { PluginChange } from "./types/PluginChange"
-import type { PluginCommand } from "./types/PluginCommand"
-import type { PluginsPaths } from "./types/PluginsPaths"
+import { dirname } from 'node:path'
+import type { PluginChange } from './types/PluginChange'
+import type { PluginCommand } from './types/PluginCommand'
+import type { PluginsPaths } from './types/PluginsPaths'
 
 /**
  * Maps a planned change to the claude CLI invocation that performs it. The CLI
@@ -13,21 +13,40 @@ export const toPluginCommand = (
   change: PluginChange,
   paths: PluginsPaths,
 ): PluginCommand | undefined => {
-  if (change.operation === "install") {
-    return { argv: ["claude", "plugin", "install", "--scope", "user", "--yes", change.id] }
+  if (change.operation === 'install') {
+    return {
+      argv: [
+        'claude',
+        'plugin',
+        'install',
+        '--scope',
+        'user',
+        '--yes',
+        change.id,
+      ],
+    }
   }
 
-  if (change.operation === "remove") {
-    return { argv: ["claude", "plugin", "uninstall", "--scope", "user", change.id] }
+  if (change.operation === 'remove') {
+    return {
+      argv: ['claude', 'plugin', 'uninstall', '--scope', 'user', change.id],
+    }
   }
 
-  if (change.operation === "enable" || change.operation === "disable") {
+  if (change.operation === 'enable' || change.operation === 'disable') {
     if (change.profile === undefined) {
       return undefined
     }
 
     return {
-      argv: ["claude", "plugin", change.operation, "--scope", "user", change.id],
+      argv: [
+        'claude',
+        'plugin',
+        change.operation,
+        '--scope',
+        'user',
+        change.id,
+      ],
       env: { CLAUDE_CONFIG_DIR: dirname(paths.settings[change.profile]) },
     }
   }

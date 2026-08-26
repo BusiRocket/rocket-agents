@@ -1,6 +1,6 @@
-import { RULES_INDEX_END } from "../constants/RULES_INDEX_END"
-import { RULES_INDEX_HEADING } from "../constants/RULES_INDEX_HEADING"
-import { RULES_INDEX_START } from "../constants/RULES_INDEX_START"
+import { RULES_INDEX_END } from '../constants/RULES_INDEX_END'
+import { RULES_INDEX_HEADING } from '../constants/RULES_INDEX_HEADING'
+import { RULES_INDEX_START } from '../constants/RULES_INDEX_START'
 
 export const renderRulesIndex = (rules: string[]) => {
   const lines = [
@@ -10,5 +10,5 @@ export const renderRulesIndex = (rules: string[]) => {
     RULES_INDEX_END,
   ]
 
-  return `${lines.join("\n")}\n`
+  return `${lines.join('\n')}\n`
 }

@@ -1,4 +1,4 @@
-import { main } from "../commands/guidanceDoctor"
+import { main } from '../commands/guidanceDoctor'
 
 main().catch((error: unknown) => {
   console.error(error)

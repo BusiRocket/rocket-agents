@@ -1,6 +1,6 @@
-import { promises as fs } from "node:fs"
-import { copyDirRecursive } from "../../../operations/copyDirRecursive"
-import { pathExists } from "../../link/operations/pathExists"
+import { promises as fs } from 'node:fs'
+import { copyDirRecursive } from '../../../operations/copyDirRecursive'
+import { pathExists } from '../../link/operations/pathExists'
 
 export const copyHooksIntoPluginRoot = async ({
   srcHooksDir,

@@ -1,18 +1,18 @@
-import { homedir } from "node:os"
-import { join, resolve } from "node:path"
-import { readAliasedGuidanceFlag } from "../lib/guidance/cli/readAliasedGuidanceFlag"
-import { readGuidanceFlag } from "../lib/guidance/cli/readGuidanceFlag"
-import { guidanceRollback } from "../lib/guidance/guidanceRollback"
+import { homedir } from 'node:os'
+import { join, resolve } from 'node:path'
+import { readAliasedGuidanceFlag } from '../lib/guidance/cli/readAliasedGuidanceFlag'
+import { readGuidanceFlag } from '../lib/guidance/cli/readGuidanceFlag'
+import { guidanceRollback } from '../lib/guidance/guidanceRollback'
 
 export const main = async (): Promise<void> => {
-  const home = readGuidanceFlag(process.argv, "--home") ?? homedir()
+  const home = readGuidanceFlag(process.argv, '--home') ?? homedir()
   const canonicalDir =
-    readAliasedGuidanceFlag(process.argv, "--config", "--canonical-dir") ??
-    join(home, ".config", "rocket-agents", "agent-guidance")
+    readAliasedGuidanceFlag(process.argv, '--config', '--canonical-dir') ??
+    join(home, '.config', 'rocket-agents', 'agent-guidance')
   const stateDir =
-    readGuidanceFlag(process.argv, "--state-dir") ??
-    join(home, ".local", "state", "rocket-agents", "guidance", "default")
-  const requestedRun = readAliasedGuidanceFlag(process.argv, "--run", "--to")
+    readGuidanceFlag(process.argv, '--state-dir') ??
+    join(home, '.local', 'state', 'rocket-agents', 'guidance', 'default')
+  const requestedRun = readAliasedGuidanceFlag(process.argv, '--run', '--to')
   const report = await guidanceRollback({
     home: resolve(home),
     canonicalDir: resolve(canonicalDir),

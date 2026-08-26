@@ -1,4 +1,4 @@
-import type { MachineStatus } from "./MachineStatus"
+import type { MachineStatus } from './MachineStatus'
 
 export interface DomainResult {
   domain: string

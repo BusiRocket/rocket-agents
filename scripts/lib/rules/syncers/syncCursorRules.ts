@@ -1,6 +1,6 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
-import { ensureDir } from "../../fs/operations/ensureDir"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { ensureDir } from '../../fs/operations/ensureDir'
 
 export const syncCursorRules = async (
   sourceFiles: string[],

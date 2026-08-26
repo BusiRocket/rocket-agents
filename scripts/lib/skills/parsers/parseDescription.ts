@@ -1,13 +1,13 @@
-import { stripQuotes } from "../transformers/stripQuotes"
+import { stripQuotes } from '../transformers/stripQuotes'
 
 export const parseDescription = (frontmatterRaw: string) => {
   const lines = frontmatterRaw.split(/\r?\n/)
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
 
-    if (!line?.startsWith("description:")) continue
+    if (!line?.startsWith('description:')) continue
 
-    const initial = line.replace(/^description:\s*/, "").trim()
+    const initial = line.replace(/^description:\s*/, '').trim()
     if (initial.length > 0) return stripQuotes(initial)
 
     const values = []
@@ -18,8 +18,8 @@ export const parseDescription = (frontmatterRaw: string) => {
       values.push(next.trim())
     }
 
-    return values.join(" ").trim()
+    return values.join(' ').trim()
   }
 
-  return ""
+  return ''
 }

@@ -1,7 +1,7 @@
 # Reading Cursor Conversation History
 
-Cursor stores composer chats in a SQLite database, not in files. Read it with exact queries; do not
-guess at the schema.
+Cursor stores composer chats in a SQLite database, not in files. Read it with
+exact queries; do not guess at the schema.
 
 ## Location
 
@@ -10,16 +10,18 @@ guess at the schema.
 - Windows: `%APPDATA%/Cursor/User/globalStorage/state.vscdb`
 
 Older Cursor versions also keep per-workspace chat state in
-`User/workspaceStorage/<hash>/state.vscdb` under the `ItemTable` table; check those only when the
-global database has no `composerData` keys.
+`User/workspaceStorage/<hash>/state.vscdb` under the `ItemTable` table; check
+those only when the global database has no `composerData` keys.
 
 ## Schema and queries
 
-Two tables: `ItemTable` and `cursorDiskKV` (both `key TEXT, value BLOB`). Conversations live in
-`cursorDiskKV`:
+Two tables: `ItemTable` and `cursorDiskKV` (both `key TEXT, value BLOB`).
+Conversations live in `cursorDiskKV`:
 
-- `composerData:<composerId>` — one JSON blob per conversation (metadata, title, context).
-- `bubbleId:<composerId>:<bubbleId>` — one JSON blob per message in that conversation.
+- `composerData:<composerId>` — one JSON blob per conversation (metadata, title,
+  context).
+- `bubbleId:<composerId>:<bubbleId>` — one JSON blob per message in that
+  conversation.
 
 Always open read-only so a live Cursor process is never disturbed:
 
@@ -36,8 +38,10 @@ sqlite3 "file:...state.vscdb?mode=ro" \
 
 ## Index identity
 
-- `conversation_id` for `TODO_HISTORY_INDEX.jsonl` is the `composerId` (stable, provider-native).
-- The change fingerprint is a hash over the conversation's bubble keys plus the `composerData` blob;
-  bubble count alone misses edits.
-- Filter conversations to the current repository by matching workspace paths inside the
-  `composerData` JSON before parsing bubbles; unmatched conversations are `irrelevant`.
+- `conversation_id` for `TODO_HISTORY_INDEX.jsonl` is the `composerId` (stable,
+  provider-native).
+- The change fingerprint is a hash over the conversation's bubble keys plus the
+  `composerData` blob; bubble count alone misses edits.
+- Filter conversations to the current repository by matching workspace paths
+  inside the `composerData` JSON before parsing bubbles; unmatched conversations
+  are `irrelevant`.

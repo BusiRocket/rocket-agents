@@ -1,6 +1,6 @@
-import type { InstalledPlugin } from "./InstalledPlugin"
-import type { PluginMarketplaceEntry } from "./PluginMarketplaceEntry"
-import type { PluginProfile } from "./PluginProfile"
+import type { InstalledPlugin } from './InstalledPlugin'
+import type { PluginMarketplaceEntry } from './PluginMarketplaceEntry'
+import type { PluginProfile } from './PluginProfile'
 
 export interface PluginsState {
   marketplaces: PluginMarketplaceEntry[]

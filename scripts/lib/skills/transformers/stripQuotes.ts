@@ -1,1 +1,1 @@
-export const stripQuotes = (value: string) => value.replace(/^['"]|['"]$/g, "")
+export const stripQuotes = (value: string) => value.replace(/^['"]|['"]$/g, '')

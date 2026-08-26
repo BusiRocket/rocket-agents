@@ -1,5 +1,6 @@
 export const projectCursorBubble = (bubble: Record<string, unknown>) => {
-  const role = bubble.type === 1 || bubble.type === "user" ? "user" : "assistant"
+  const role =
+    bubble.type === 1 || bubble.type === 'user' ? 'user' : 'assistant'
   return {
     role,
     content: bubble.text,

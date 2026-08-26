@@ -1,12 +1,13 @@
-import { openCodeTimestamp } from "./openCodeTimestamp"
-import { parseOpenCodeSqliteData } from "./parseOpenCodeSqliteData"
-import type { OpenCodeConversation } from "./types/OpenCodeConversation"
+import { openCodeTimestamp } from './openCodeTimestamp'
+import { parseOpenCodeSqliteData } from './parseOpenCodeSqliteData'
+import type { OpenCodeConversation } from './types/OpenCodeConversation'
 
 export const appendOpenCodeSqliteRow = (
   conversations: Map<string, OpenCodeConversation>,
   row: Record<string, unknown>,
 ) => {
-  if (typeof row.session_id !== "string" || typeof row.message_id !== "string") return
+  if (typeof row.session_id !== 'string' || typeof row.message_id !== 'string')
+    return
   const current = conversations.get(row.session_id) ?? {
     metadata: {
       sessionId: row.session_id,
@@ -19,16 +20,16 @@ export const appendOpenCodeSqliteRow = (
     messages: new Map<string, Record<string, unknown>>(),
   }
   const message = current.messages.get(row.message_id) ?? {
-    ...parseOpenCodeSqliteData("message", row.message_id, row.message_data),
+    ...parseOpenCodeSqliteData('message', row.message_id, row.message_data),
     id: row.message_id,
     sessionId: row.session_id,
     timestamp: openCodeTimestamp(row.message_time_created),
     parts: [],
   }
-  if (typeof row.part_id === "string") {
+  if (typeof row.part_id === 'string') {
     const parts = message.parts as unknown[]
     parts.push({
-      ...parseOpenCodeSqliteData("part", row.part_id, row.part_data),
+      ...parseOpenCodeSqliteData('part', row.part_id, row.part_data),
       id: row.part_id,
       timestamp: openCodeTimestamp(row.part_time_created),
     })

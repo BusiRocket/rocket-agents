@@ -2,9 +2,9 @@
 
 ## Decision
 
-Conversation capabilities have one ecosystem owner each. Repositories may invoke an owner's public
-interface, but they must not reproduce its provider knowledge, normalization, integrity, merge, or
-indexing logic.
+Conversation capabilities have one ecosystem owner each. Repositories may invoke
+an owner's public interface, but they must not reproduce its provider knowledge,
+normalization, integrity, merge, or indexing logic.
 
 | Capability                                                                          | Owner         | Other repositories may                                  |
 | ----------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------- |
@@ -24,22 +24,27 @@ provider state --read--> Rocket Agents canonical archive
                                +-- Rocket Agents render --> MemPalace index --> search
 ```
 
-Dependencies do not point back toward provider state. MemPalace never supplies transport records,
-and `dotfiles` never interprets provider files or canonical records.
+Dependencies do not point back toward provider state. MemPalace never supplies
+transport records, and `dotfiles` never interprets provider files or canonical
+records.
 
 ## Prohibited duplication
 
-- `dotfiles` must not enumerate provider storage, parse JSON/JSONL/SQLite conversations, merge
-  native history, copy provider databases, implement redaction, or copy MemPalace storage.
-- MemPalace integration code must not discover provider state, exchange archives between machines,
-  schedule transport, or define a second BusiRocket provider catalog.
-- Rocket Agents must not contain private host aliases, personal schedules, SSH credentials, or a
-  semantic index implementation.
-- Compatibility aliases for a retired workflow are removed instead of maintained indefinitely.
+- `dotfiles` must not enumerate provider storage, parse JSON/JSONL/SQLite
+  conversations, merge native history, copy provider databases, implement
+  redaction, or copy MemPalace storage.
+- MemPalace integration code must not discover provider state, exchange archives
+  between machines, schedule transport, or define a second BusiRocket provider
+  catalog.
+- Rocket Agents must not contain private host aliases, personal schedules, SSH
+  credentials, or a semantic index implementation.
+- Compatibility aliases for a retired workflow are removed instead of maintained
+  indefinitely.
 
-MemPalace continues to support its upstream standalone transcript import formats. In the BusiRocket
-integration those importers are compatibility inputs only: new provider coverage lands in Rocket
-Agents, and MemPalace consumes the rendered Markdown corpus.
+MemPalace continues to support its upstream standalone transcript import
+formats. In the BusiRocket integration those importers are compatibility inputs
+only: new provider coverage lands in Rocket Agents, and MemPalace consumes the
+rendered Markdown corpus.
 
 ## Verification
 
@@ -51,6 +56,7 @@ cd ~/p/dotfiles && ./scripts/check
 cd ~/p/mempalace && uv run pytest tests/test_normalize.py tests/test_convo_miner_unit.py -q
 ```
 
-The `dotfiles` gate statically rejects native provider paths and retired merge entrypoints. Rocket
-Agents tests cover capture, normalization, security, import, and render behavior. MemPalace tests
-cover generic transcript-to-index ingestion.
+The `dotfiles` gate statically rejects native provider paths and retired merge
+entrypoints. Rocket Agents tests cover capture, normalization, security, import,
+and render behavior. MemPalace tests cover generic transcript-to-index
+ingestion.

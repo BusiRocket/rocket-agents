@@ -1,6 +1,6 @@
-import type { DocumentationEvidence } from "./DocumentationEvidence"
-import type { GuidanceDecision } from "./GuidanceDecision"
-import type { GuidanceInputHash } from "./GuidanceInputHash"
+import type { DocumentationEvidence } from './DocumentationEvidence'
+import type { GuidanceDecision } from './GuidanceDecision'
+import type { GuidanceInputHash } from './GuidanceInputHash'
 
 export interface ReconciliationResult {
   version: 1

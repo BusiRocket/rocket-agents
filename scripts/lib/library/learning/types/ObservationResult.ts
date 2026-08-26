@@ -1,5 +1,5 @@
-import type { ObservationSummary } from "./ObservationSummary"
-import type { ObservedTurn } from "./ObservedTurn"
+import type { ObservationSummary } from './ObservationSummary'
+import type { ObservedTurn } from './ObservedTurn'
 
 export interface ObservationResult {
   summary: ObservationSummary

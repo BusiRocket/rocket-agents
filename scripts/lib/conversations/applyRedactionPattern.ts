@@ -1,4 +1,4 @@
-import type { RedactedText } from "./types/RedactedText"
+import type { RedactedText } from './types/RedactedText'
 
 export const applyRedactionPattern = (
   input: string,

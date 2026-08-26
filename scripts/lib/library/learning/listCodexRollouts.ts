@@ -1,5 +1,5 @@
-import { promises as fs } from "node:fs"
-import { join } from "node:path"
+import { promises as fs } from 'node:fs'
+import { join } from 'node:path'
 
 export const listCodexRollouts = async (root: string) => {
   const files: string[] = []
@@ -24,7 +24,7 @@ export const listCodexRollouts = async (root: string) => {
         continue
       }
 
-      if (entry.name.endsWith(".jsonl")) {
+      if (entry.name.endsWith('.jsonl')) {
         files.push(path)
       }
     }

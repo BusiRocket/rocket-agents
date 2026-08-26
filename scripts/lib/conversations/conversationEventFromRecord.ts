@@ -1,10 +1,10 @@
-import { conversationEventKindFromRecord } from "./conversationEventKindFromRecord"
-import { conversationRoleFromRecord } from "./conversationRoleFromRecord"
-import { conversationTimestampFromRecord } from "./conversationTimestampFromRecord"
-import { extractConversationText } from "./extractConversationText"
-import { hashText } from "./hashText"
-import { redactSensitiveText } from "./redactSensitiveText"
-import type { ConversationEvent } from "./types/ConversationEvent"
+import { conversationEventKindFromRecord } from './conversationEventKindFromRecord'
+import { conversationRoleFromRecord } from './conversationRoleFromRecord'
+import { conversationTimestampFromRecord } from './conversationTimestampFromRecord'
+import { extractConversationText } from './extractConversationText'
+import { hashText } from './hashText'
+import { redactSensitiveText } from './redactSensitiveText'
+import type { ConversationEvent } from './types/ConversationEvent'
 
 export const conversationEventFromRecord = (
   record: unknown,
@@ -12,7 +12,7 @@ export const conversationEventFromRecord = (
 ): { event?: ConversationEvent; redactions: number } => {
   const redacted = redactSensitiveText(extractConversationText(record))
   const text = redacted.text.trim()
-  if (text === "") return { redactions: redacted.redactions }
+  if (text === '') return { redactions: redacted.redactions }
 
   const timestamp = conversationTimestampFromRecord(record)
   return {

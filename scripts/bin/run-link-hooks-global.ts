@@ -1,4 +1,4 @@
-import { main } from "../commands/linkHooksGlobal"
+import { main } from '../commands/linkHooksGlobal'
 
 main().catch((error: unknown) => {
   console.error(error)

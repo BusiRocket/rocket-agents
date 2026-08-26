@@ -1,8 +1,8 @@
-import path from "node:path"
-import { ensureDir } from "../../fs/operations/ensureDir"
-import { processSourceFile } from "../helpers/processors/processSourceFile"
-import { writeRuleFile } from "../helpers/processors/writeRuleFile"
-import { toAntigravityRule } from "../converters/toAntigravityRule"
+import path from 'node:path'
+import { ensureDir } from '../../fs/operations/ensureDir'
+import { toAntigravityRule } from '../converters/toAntigravityRule'
+import { processSourceFile } from '../helpers/processors/processSourceFile'
+import { writeRuleFile } from '../helpers/processors/writeRuleFile'
 
 /**
  * Sync rules to Antigravity format (.agent/rules/)
@@ -16,7 +16,7 @@ export async function syncAntigravityRules(
   targetDir: string,
 ) {
   await ensureDir(targetDir)
-  const workflowsDir = path.join(path.dirname(targetDir), "workflows")
+  const workflowsDir = path.join(path.dirname(targetDir), 'workflows')
   await ensureDir(workflowsDir)
   for (const file of sourceFiles) {
     const { parsed, relativePath } = await processSourceFile(file, sourceDir)

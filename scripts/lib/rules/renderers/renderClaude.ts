@@ -1,4 +1,4 @@
-import { renderBundleMd } from "./renderBundleMd"
+import { renderBundleMd } from './renderBundleMd'
 
 export const renderClaude = (bundle: { rel: string; content: string }[]) =>
-  renderBundleMd("CLAUDE.md", bundle)
+  renderBundleMd('CLAUDE.md', bundle)

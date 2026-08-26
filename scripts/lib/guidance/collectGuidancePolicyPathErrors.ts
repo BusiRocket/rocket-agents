@@ -1,4 +1,4 @@
-import { isSafeAbsolutePathList } from "./isSafeAbsolutePathList"
+import { isSafeAbsolutePathList } from './isSafeAbsolutePathList'
 
 export const collectGuidancePolicyPathErrors = (
   readAllowlist: unknown,
@@ -6,8 +6,8 @@ export const collectGuidancePolicyPathErrors = (
 ): string[] => {
   const errors: string[] = []
   for (const [value, label] of [
-    [readAllowlist, "agentReadAllowlist"],
-    [bootstrapFiles, "agentBootstrapFiles"],
+    [readAllowlist, 'agentReadAllowlist'],
+    [bootstrapFiles, 'agentBootstrapFiles'],
   ] as const)
     if (value !== undefined && !isSafeAbsolutePathList(value))
       errors.push(`${label} must contain safe absolute paths`)

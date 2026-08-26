@@ -1,5 +1,5 @@
-import type { PlatformLifecycle } from "./PlatformLifecycle"
-import type { ProbeResult } from "./ProbeResult"
+import type { PlatformLifecycle } from './PlatformLifecycle'
+import type { ProbeResult } from './ProbeResult'
 
 export interface PlatformRuntimeState {
   registryId: string

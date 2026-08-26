@@ -1,7 +1,11 @@
-import type { CurationEntry } from "./types/CurationEntry"
-import type { LockEntry } from "./types/LockEntry"
+import type { CurationEntry } from './types/CurationEntry'
+import type { LockEntry } from './types/LockEntry'
 
-export const seedEntryFromLock = (name: string, lock: LockEntry, ours: string[]): CurationEntry => {
+export const seedEntryFromLock = (
+  name: string,
+  lock: LockEntry,
+  ours: string[],
+): CurationEntry => {
   const provenance = {
     ...(lock.source ? { source: lock.source } : {}),
     ...(lock.sourceUrl ? { sourceUrl: lock.sourceUrl } : {}),
@@ -10,12 +14,12 @@ export const seedEntryFromLock = (name: string, lock: LockEntry, ours: string[])
   }
 
   if (ours.includes(name)) {
-    return { state: "adopted", ...provenance, reason: "authored here" }
+    return { state: 'adopted', ...provenance, reason: 'authored here' }
   }
 
   return {
-    state: "parked",
+    state: 'parked',
     ...provenance,
-    reason: "seeded from the lock, not yet judged against measured demand",
+    reason: 'seeded from the lock, not yet judged against measured demand',
   }
 }

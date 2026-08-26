@@ -1,4 +1,4 @@
-import type { PlatformDefinition } from "./PlatformDefinition"
+import type { PlatformDefinition } from './PlatformDefinition'
 
 export interface PlatformManifest {
   version: 1

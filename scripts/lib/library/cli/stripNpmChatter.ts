@@ -4,4 +4,4 @@
  * npm's env-config warning rather than the stage's first real line.
  */
 export const stripNpmChatter = (output: string) =>
-  output.replaceAll(/^npm (?:notice|warn|WARN).*$\n?/gm, "")
+  output.replaceAll(/^npm (?:notice|warn|WARN).*$\n?/gm, '')

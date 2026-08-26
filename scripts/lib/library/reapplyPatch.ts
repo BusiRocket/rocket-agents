@@ -1,8 +1,8 @@
-import { promises as fs } from "node:fs"
-import { join } from "node:path"
-import { runPatchCommand } from "./runPatchCommand"
-import type { CurationEntry } from "./types/CurationEntry"
-import type { PatchOutcome } from "./types/PatchOutcome"
+import { promises as fs } from 'node:fs'
+import { join } from 'node:path'
+import { runPatchCommand } from './runPatchCommand'
+import type { CurationEntry } from './types/CurationEntry'
+import type { PatchOutcome } from './types/PatchOutcome'
 
 export const reapplyPatch = async (
   skill: string,
@@ -11,7 +11,7 @@ export const reapplyPatch = async (
   currentHash: string | undefined,
 ): Promise<PatchOutcome> => {
   if (entry.patch === undefined) {
-    return { kind: "missing-patch", skill, path: "(none declared)" }
+    return { kind: 'missing-patch', skill, path: '(none declared)' }
   }
 
   const patchPath = join(libraryDir, entry.patch)
@@ -21,32 +21,35 @@ export const reapplyPatch = async (
     .catch(() => false)
 
   if (!exists) {
-    return { kind: "missing-patch", skill, path: patchPath }
+    return { kind: 'missing-patch', skill, path: patchPath }
   }
 
   if (currentHash !== undefined && currentHash === entry.upstreamHash) {
-    return { kind: "already-current", skill }
+    return { kind: 'already-current', skill }
   }
 
-  const check = await runPatchCommand(["apply", "--check", patchPath], libraryDir)
+  const check = await runPatchCommand(
+    ['apply', '--check', patchPath],
+    libraryDir,
+  )
 
   if (check.code !== 0) {
     return {
-      kind: "conflict",
+      kind: 'conflict',
       skill,
-      detail: check.stderr.trim().split("\n")[0] ?? "apply --check failed",
+      detail: check.stderr.trim().split('\n')[0] ?? 'apply --check failed',
     }
   }
 
-  const applied = await runPatchCommand(["apply", patchPath], libraryDir)
+  const applied = await runPatchCommand(['apply', patchPath], libraryDir)
 
   if (applied.code !== 0) {
     return {
-      kind: "conflict",
+      kind: 'conflict',
       skill,
-      detail: applied.stderr.trim().split("\n")[0] ?? "apply failed",
+      detail: applied.stderr.trim().split('\n')[0] ?? 'apply failed',
     }
   }
 
-  return { kind: "applied", skill }
+  return { kind: 'applied', skill }
 }

@@ -4,7 +4,7 @@ interface:
   default_prompt:
     Pull the latest source state, map the differences per screen, and port the design slice by slice
     while wiring real data and preserving existing functionality.
-  brand_color: "#DB2777"
+  brand_color: '#DB2777'
 policy:
   allow_implicit_invocation: true
 busirocket:

@@ -1,7 +1,7 @@
-import { toEnablement } from "./toEnablement"
-import { toPluginMarketplace } from "./toPluginMarketplace"
-import type { PluginsManifest } from "./types/PluginsManifest"
-import type { PluginsState } from "./types/PluginsState"
+import { toEnablement } from './toEnablement'
+import { toPluginMarketplace } from './toPluginMarketplace'
+import type { PluginsManifest } from './types/PluginsManifest'
+import type { PluginsState } from './types/PluginsState'
 
 export const toManifest = (state: PluginsState): PluginsManifest => ({
   marketplaces: state.marketplaces,
@@ -11,13 +11,23 @@ export const toManifest = (state: PluginsState): PluginsManifest => ({
       marketplace: toPluginMarketplace(plugin.id),
       scope: plugin.scope,
       version: plugin.version,
-      ...(plugin.gitCommitSha === undefined ? {} : { gitCommitSha: plugin.gitCommitSha }),
+      ...(plugin.gitCommitSha === undefined
+        ? {}
+        : { gitCommitSha: plugin.gitCommitSha }),
       enablement: {
-        "claude-personal": toEnablement(state.enabledByProfile["claude-personal"], plugin.id),
-        "claude-favish": toEnablement(state.enabledByProfile["claude-favish"], plugin.id),
+        'claude-personal': toEnablement(
+          state.enabledByProfile['claude-personal'],
+          plugin.id,
+        ),
+        'claude-favish': toEnablement(
+          state.enabledByProfile['claude-favish'],
+          plugin.id,
+        ),
       },
     }))
     .sort(
-      (left, right) => left.id.localeCompare(right.id) || left.scope.localeCompare(right.scope),
+      (left, right) =>
+        left.id.localeCompare(right.id) ||
+        left.scope.localeCompare(right.scope),
     ),
 })

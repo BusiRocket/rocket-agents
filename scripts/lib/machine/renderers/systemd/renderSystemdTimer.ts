@@ -1,21 +1,23 @@
-import { toTimerSchedule } from "./toTimerSchedule"
-import type { ServiceDefinition } from "../../domains/services/types/ServiceDefinition"
+import type { ServiceDefinition } from '../../domains/services/types/ServiceDefinition'
+import { toTimerSchedule } from './toTimerSchedule'
 
-export const renderSystemdTimer = (service: ServiceDefinition): string | undefined => {
+export const renderSystemdTimer = (
+  service: ServiceDefinition,
+): string | undefined => {
   if (service.schedule === undefined) {
     return undefined
   }
 
   return [
-    "[Unit]",
+    '[Unit]',
     `Description=${service.name} timer`,
-    "",
-    "[Timer]",
+    '',
+    '[Timer]',
     ...toTimerSchedule(service.schedule),
-    "Persistent=true",
-    "",
-    "[Install]",
-    "WantedBy=timers.target",
-    "",
-  ].join("\n")
+    'Persistent=true',
+    '',
+    '[Install]',
+    'WantedBy=timers.target',
+    '',
+  ].join('\n')
 }

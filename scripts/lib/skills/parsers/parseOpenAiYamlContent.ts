@@ -1,32 +1,50 @@
-import { matchBoolean } from "../matchers/matchBoolean"
-import { matchValue } from "../matchers/matchValue"
-import { stripQuotes } from "../transformers/stripQuotes"
+import { matchBoolean } from '../matchers/matchBoolean'
+import { matchValue } from '../matchers/matchValue'
+import { stripQuotes } from '../transformers/stripQuotes'
 
 export const parseOpenAiYamlContent = (content: string) => {
-  const interfaceDisplayName = stripQuotes(matchValue(content, /^\s{2}display_name:(.*)$/m))
+  const interfaceDisplayName = stripQuotes(
+    matchValue(content, /^\s{2}display_name:(.*)$/m),
+  )
   const interfaceShortDescription = stripQuotes(
     matchValue(content, /^\s{2}short_description:(.*)$/m),
   )
-  const interfaceDefaultPrompt = stripQuotes(matchValue(content, /^\s{2}default_prompt:(.*)$/m))
+  const interfaceDefaultPrompt = stripQuotes(
+    matchValue(content, /^\s{2}default_prompt:(.*)$/m),
+  )
 
-  const interfaceBrandColor = stripQuotes(matchValue(content, /^\s{2}brand_color:(.*)$/m))
+  const interfaceBrandColor = stripQuotes(
+    matchValue(content, /^\s{2}brand_color:(.*)$/m),
+  )
 
-  const interfaceIconSmall = stripQuotes(matchValue(content, /^\s{2}icon_small:(.*)$/m))
+  const interfaceIconSmall = stripQuotes(
+    matchValue(content, /^\s{2}icon_small:(.*)$/m),
+  )
 
-  const interfaceIconLarge = stripQuotes(matchValue(content, /^\s{2}icon_large:(.*)$/m))
+  const interfaceIconLarge = stripQuotes(
+    matchValue(content, /^\s{2}icon_large:(.*)$/m),
+  )
   const allowImplicitInvocation = matchBoolean(
     content,
 
     /^\s{2}allow_implicit_invocation:(.*)$/m,
   )
 
-  const skillClass = stripQuotes(matchValue(content, /^\s{2}skill_class:(.*)$/m))
+  const skillClass = stripQuotes(
+    matchValue(content, /^\s{2}skill_class:(.*)$/m),
+  )
 
-  const requiresReferences = matchBoolean(content, /^\s{2}requires_references:(.*)$/m)
+  const requiresReferences = matchBoolean(
+    content,
+    /^\s{2}requires_references:(.*)$/m,
+  )
 
-  const failureMode = stripQuotes(matchValue(content, /^\s{2}failure_mode:(.*)$/m))
+  const failureMode = stripQuotes(
+    matchValue(content, /^\s{2}failure_mode:(.*)$/m),
+  )
 
-  const toolDependencyCount = (content.match(/^\s{4}- type:(.*)$/gm) ?? []).length
+  const toolDependencyCount = (content.match(/^\s{4}- type:(.*)$/gm) ?? [])
+    .length
 
   return {
     raw: content,

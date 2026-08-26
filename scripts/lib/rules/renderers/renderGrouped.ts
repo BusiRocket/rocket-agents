@@ -1,16 +1,18 @@
-import type { groupByCategoryAndSubcategory } from "../groupers/groupByCategoryAndSubcategory"
-import { renderRuleBlock } from "./renderRuleBlock"
+import type { groupByCategoryAndSubcategory } from '../groupers/groupByCategoryAndSubcategory'
+import { renderRuleBlock } from './renderRuleBlock'
 
-export function renderGrouped(grouped: ReturnType<typeof groupByCategoryAndSubcategory>): string {
+export function renderGrouped(
+  grouped: ReturnType<typeof groupByCategoryAndSubcategory>,
+): string {
   const lines: string[] = []
   for (const { category, subgroups } of grouped) {
     lines.push(`## ${category}`)
-    lines.push("")
+    lines.push('')
 
     for (const { subcategory, rules } of subgroups) {
       if (subcategory) {
         lines.push(`### ${subcategory}`)
-        lines.push("")
+        lines.push('')
       }
 
       for (const rule of rules) {
@@ -19,5 +21,5 @@ export function renderGrouped(grouped: ReturnType<typeof groupByCategoryAndSubca
     }
   }
 
-  return lines.join("\n")
+  return lines.join('\n')
 }

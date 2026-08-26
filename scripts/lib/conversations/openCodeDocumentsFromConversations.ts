@@ -1,6 +1,6 @@
-import type { ConversationArtifact } from "./types/ConversationArtifact"
-import type { ConversationDocument } from "./types/ConversationDocument"
-import type { OpenCodeConversation } from "./types/OpenCodeConversation"
+import type { ConversationArtifact } from './types/ConversationArtifact'
+import type { ConversationDocument } from './types/ConversationDocument'
+import type { OpenCodeConversation } from './types/OpenCodeConversation'
 
 export const openCodeDocumentsFromConversations = (
   artifact: ConversationArtifact,

@@ -1,8 +1,8 @@
-import path from "node:path"
-import { ensureDir } from "../../fs/operations/ensureDir"
-import { processSourceFile } from "../helpers/processors/processSourceFile"
-import { writeRuleFile } from "../helpers/processors/writeRuleFile"
-import { toWindsurfRule } from "../converters/toWindsurfRule"
+import path from 'node:path'
+import { ensureDir } from '../../fs/operations/ensureDir'
+import { toWindsurfRule } from '../converters/toWindsurfRule'
+import { processSourceFile } from '../helpers/processors/processSourceFile'
+import { writeRuleFile } from '../helpers/processors/writeRuleFile'
 
 /**
  * Sync rules to Windsurf format (.windsurf/rules/)
@@ -19,7 +19,10 @@ export async function syncWindsurfRules(
   for (const file of sourceFiles) {
     const { parsed, relativePath } = await processSourceFile(file, sourceDir)
     const converted = toWindsurfRule(parsed, relativePath)
-    const targetPath = path.join(targetDir, relativePath.replace(/\.mdc$/, ".md"))
+    const targetPath = path.join(
+      targetDir,
+      relativePath.replace(/\.mdc$/, '.md'),
+    )
     await writeRuleFile(targetPath, converted)
   }
 }

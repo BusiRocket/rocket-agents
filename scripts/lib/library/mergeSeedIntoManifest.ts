@@ -1,4 +1,4 @@
-import type { CurationManifest } from "./types/CurationManifest"
+import type { CurationManifest } from './types/CurationManifest'
 
 export const mergeSeedIntoManifest = (
   existing: CurationManifest,

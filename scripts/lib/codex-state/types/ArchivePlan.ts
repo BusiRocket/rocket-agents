@@ -1,4 +1,4 @@
-import type { ArchivePlanEntry } from "./ArchivePlanEntry"
+import type { ArchivePlanEntry } from './ArchivePlanEntry'
 
 export interface ArchivePlan {
   sessionsDir: string

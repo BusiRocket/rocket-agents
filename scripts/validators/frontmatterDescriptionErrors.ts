@@ -13,15 +13,15 @@
  */
 export const frontmatterDescriptionErrors = (frontmatter: string): string[] => {
   const errors: string[] = []
-  const lines = frontmatter.split("\n")
-  const start = lines.findIndex((line) => line.startsWith("description:"))
+  const lines = frontmatter.split('\n')
+  const start = lines.findIndex((line) => line.startsWith('description:'))
 
   if (start === -1) {
-    errors.push("frontmatter has no description field")
+    errors.push('frontmatter has no description field')
     return errors
   }
 
-  const inline = lines[start]?.replace(/^description:\s*/, "").trim() ?? ""
+  const inline = lines[start]?.replace(/^description:\s*/, '').trim() ?? ''
   const isBlockScalar = /^[|>]/.test(inline)
 
   const continuation: string[] = []
@@ -30,8 +30,8 @@ export const frontmatterDescriptionErrors = (frontmatter: string): string[] => {
     continuation.push(line)
   }
 
-  if (inline === "" && continuation.length === 0) {
-    errors.push("description is empty")
+  if (inline === '' && continuation.length === 0) {
+    errors.push('description is empty')
     return errors
   }
 
@@ -42,7 +42,7 @@ export const frontmatterDescriptionErrors = (frontmatter: string): string[] => {
   if (quoted) return errors
 
   for (const line of continuation) {
-    if (line.includes(": ")) {
+    if (line.includes(': ')) {
       errors.push(
         `description is a plain multi-line scalar containing ": " which YAML cannot parse: ` +
           `"${line.trim().slice(0, 60)}". Rephrase without the colon, or use a > block scalar.`,

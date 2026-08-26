@@ -4,17 +4,17 @@
  * @returns {string} - Antigravity activation mode
  */
 
-import type { RuleFrontmatter } from "../../types/RuleFrontmatter"
+import type { RuleFrontmatter } from '../../types/RuleFrontmatter'
 
 export function getAntigravityActivation(frontmatter?: RuleFrontmatter) {
   const { alwaysApply, globs } = frontmatter ?? {}
   if (alwaysApply === true) {
-    return "Always On"
+    return 'Always On'
   }
 
-  if (globs && globs.trim() !== "") {
+  if (globs && globs.trim() !== '') {
     return `Glob: ${globs}`
   }
 
-  return "Model Decision"
+  return 'Model Decision'
 }

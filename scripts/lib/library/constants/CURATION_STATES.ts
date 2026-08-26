@@ -1,1 +1,6 @@
-export const CURATION_STATES = ["adopted", "forked", "extracted", "parked"] as const
+export const CURATION_STATES = [
+  'adopted',
+  'forked',
+  'extracted',
+  'parked',
+] as const

@@ -17,13 +17,30 @@
     },
     {
       "registryId": "claude",
-      "capabilities": ["skills", "rules", "hooks", "plugins", "mcp", "security"],
+      "capabilities": [
+        "skills",
+        "rules",
+        "hooks",
+        "plugins",
+        "mcp",
+        "security"
+      ],
       "probe": { "commands": ["claude"], "configPaths": ["$HOME/.claude"] }
     },
     {
       "registryId": "codex",
-      "capabilities": ["skills", "rules", "hooks", "plugins", "mcp", "security"],
-      "probe": { "commands": ["codex"], "configPaths": ["$HOME/.codex", "/etc/codex"] }
+      "capabilities": [
+        "skills",
+        "rules",
+        "hooks",
+        "plugins",
+        "mcp",
+        "security"
+      ],
+      "probe": {
+        "commands": ["codex"],
+        "configPaths": ["$HOME/.codex", "/etc/codex"]
+      }
     },
     {
       "registryId": "copilot",

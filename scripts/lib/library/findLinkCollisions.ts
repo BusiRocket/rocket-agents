@@ -1,4 +1,4 @@
-import type { PlannedLink } from "./types/PlannedLink"
+import type { PlannedLink } from './types/PlannedLink'
 
 export const findLinkCollisions = (links: PlannedLink[]) => {
   const seen = new Map<string, string>()
@@ -12,7 +12,9 @@ export const findLinkCollisions = (links: PlannedLink[]) => {
       continue
     }
 
-    collisions.push(`${link.name} is claimed by both ${previous} and ${link.entryKey}`)
+    collisions.push(
+      `${link.name} is claimed by both ${previous} and ${link.entryKey}`,
+    )
   }
 
   return collisions

@@ -1,6 +1,9 @@
-import { unquoteTomlString } from "./unquoteTomlString"
+import { unquoteTomlString } from './unquoteTomlString'
 
-export const normalizeCodexSubTable = (record: Record<string, string>, table: string) => {
+export const normalizeCodexSubTable = (
+  record: Record<string, string>,
+  table: string,
+) => {
   const normalized: Record<string, string> = {}
   const prefix = `${table}.`
 

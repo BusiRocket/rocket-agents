@@ -1,8 +1,8 @@
-import { promises as fs } from "node:fs"
-import path from "node:path"
-import { listSkillDirs } from "../loaders/listSkillDirs"
-import { stripAnthropicOnlyFields } from "../transformers/stripAnthropicOnlyFields"
-import { copyDirRecursive } from "../../../operations/copyDirRecursive"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { copyDirRecursive } from '../../../operations/copyDirRecursive'
+import { listSkillDirs } from '../loaders/listSkillDirs'
+import { stripAnthropicOnlyFields } from '../transformers/stripAnthropicOnlyFields'
 
 export const emitPortableSkillsFromDist = async ({
   distSkillsDir,
@@ -21,11 +21,11 @@ export const emitPortableSkillsFromDist = async ({
     const targetDir = path.join(distSkillsPortableDir, relative)
     await copyDirRecursive(sourceDir, targetDir)
 
-    const skillMdPath = path.join(targetDir, "SKILL.md")
-    const original = await fs.readFile(skillMdPath, "utf8")
+    const skillMdPath = path.join(targetDir, 'SKILL.md')
+    const original = await fs.readFile(skillMdPath, 'utf8')
     const stripped = stripAnthropicOnlyFields(original)
     if (stripped !== original) {
-      await fs.writeFile(skillMdPath, stripped, "utf8")
+      await fs.writeFile(skillMdPath, stripped, 'utf8')
     }
   }
 

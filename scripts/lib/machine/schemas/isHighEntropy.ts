@@ -5,5 +5,7 @@ export const isHighEntropy = (value: string) => {
     return false
   }
 
-  return /[a-z]/.test(candidate) && /[A-Z]/.test(candidate) && /\d/.test(candidate)
+  return (
+    /[a-z]/.test(candidate) && /[A-Z]/.test(candidate) && /\d/.test(candidate)
+  )
 }

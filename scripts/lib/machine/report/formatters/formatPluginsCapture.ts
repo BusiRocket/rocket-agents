@@ -1,6 +1,9 @@
-import type { PluginsCapture } from "../../domains/plugins/types/PluginsCapture"
+import type { PluginsCapture } from '../../domains/plugins/types/PluginsCapture'
 
-export const formatPluginsCapture = (capture: PluginsCapture, asJson: boolean) => {
+export const formatPluginsCapture = (
+  capture: PluginsCapture,
+  asJson: boolean,
+) => {
   if (asJson) {
     return JSON.stringify(capture, null, 2)
   }
@@ -15,8 +18,8 @@ export const formatPluginsCapture = (capture: PluginsCapture, asJson: boolean) =
   }
 
   for (const plugin of manifest.plugins) {
-    const personal = plugin.enablement["claude-personal"]
-    const favish = plugin.enablement["claude-favish"]
+    const personal = plugin.enablement['claude-personal']
+    const favish = plugin.enablement['claude-favish']
     lines.push(
       `  ${plugin.id.padEnd(44)} ${plugin.version.padEnd(10)} personal=${personal} favish=${favish}`,
     )
@@ -34,5 +37,5 @@ export const formatPluginsCapture = (capture: PluginsCapture, asJson: boolean) =
     lines.push(`  orphan ${directory}`)
   }
 
-  return lines.join("\n")
+  return lines.join('\n')
 }

@@ -1,4 +1,4 @@
-import type { CommandRunner } from "../types/CommandRunner"
+import type { CommandRunner } from '../types/CommandRunner'
 
 /**
  * A CommandRunner that records invocations instead of executing them, so apply
@@ -12,7 +12,10 @@ export const createRecordingRunner = (fails: string[] = []) => {
     calls.push({ argv, ...(env === undefined ? {} : { env }) })
     const failing = argv.some((word) => fails.includes(word))
 
-    return Promise.resolve({ ok: !failing, output: failing ? "command failed" : "" })
+    return Promise.resolve({
+      ok: !failing,
+      output: failing ? 'command failed' : '',
+    })
   }
 
   return { calls, run }

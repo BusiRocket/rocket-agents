@@ -1,5 +1,5 @@
-import { toOnCalendar } from "./toOnCalendar"
-import type { ServiceSchedule } from "../../domains/services/types/ServiceSchedule"
+import type { ServiceSchedule } from '../../domains/services/types/ServiceSchedule'
+import { toOnCalendar } from './toOnCalendar'
 
 /**
  * The `[Timer]` line for a schedule. An interval maps to `OnUnitActiveSec` plus

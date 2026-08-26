@@ -1,4 +1,4 @@
-import type { DomainResult } from "./DomainResult"
+import type { DomainResult } from './DomainResult'
 
 export interface RunReport {
   runId: string

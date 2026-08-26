@@ -1,5 +1,5 @@
-import { readConversationExport } from "./readConversationExport"
-import type { ConversationExportReadResult } from "./types/ConversationExportReadResult"
+import { readConversationExport } from './readConversationExport'
+import type { ConversationExportReadResult } from './types/ConversationExportReadResult'
 
 export const readExistingConversationArchive = async (
   archive: string,
@@ -7,7 +7,8 @@ export const readExistingConversationArchive = async (
   try {
     return await readConversationExport(archive)
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return { records: [], errors: [] }
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT')
+      return { records: [], errors: [] }
     throw error
   }
 }

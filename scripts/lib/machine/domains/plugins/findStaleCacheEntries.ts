@@ -1,4 +1,4 @@
-import type { CacheEntry } from "./types/CacheEntry"
+import type { CacheEntry } from './types/CacheEntry'
 
 export const findStaleCacheEntries = ({
   entries,

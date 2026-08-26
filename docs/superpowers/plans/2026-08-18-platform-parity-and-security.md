@@ -1,29 +1,35 @@
 # Platform Parity and Security Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development
-> (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use
+> **For agentic workers:** REQUIRED SUB-SKILL: Use
+> superpowers:subagent-driven-development (recommended) or
+> superpowers:executing-plans to implement this plan task-by-task. Steps use
 > checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Apply shared rules, skills, MCP, hooks, plugins, and safe settings to every supported
-active platform while preserving account identity and reporting unsupported capabilities honestly.
+**Goal:** Apply shared rules, skills, MCP, hooks, plugins, and safe settings to
+every supported active platform while preserving account identity and reporting
+unsupported capabilities honestly.
 
-**Architecture:** Extend the machine engine with capability-specific adapters selected by the
-platform manifest. Adapters use ownership records and snapshots. Claude personal and Favish share
-non-identity policy through explicit profile targets, while credentials and state remain separate.
+**Architecture:** Extend the machine engine with capability-specific adapters
+selected by the platform manifest. Adapters use ownership records and snapshots.
+Claude personal and Favish share non-identity policy through explicit profile
+targets, while credentials and state remain separate.
 
-**Tech Stack:** TypeScript, JSON and TOML renderers already in the machine engine, `node:test`,
-native client CLIs for post-apply verification.
+**Tech Stack:** TypeScript, JSON and TOML renderers already in the machine
+engine, `node:test`, native client CLIs for post-apply verification.
 
-**Spec:** `docs/superpowers/specs/2026-08-18-agent-platform-reliability-design.md`
+**Spec:**
+`docs/superpowers/specs/2026-08-18-agent-platform-reliability-design.md`
 
 ## Global Constraints
 
-- Recheck current official documentation for each active client immediately before implementing its
-  adapter.
+- Recheck current official documentation for each active client immediately
+  before implementing its adapter.
 - Never infer support from a directory created by this repository.
 - Preserve all foreign keys and files.
-- Profiles may share policy, never credentials, cookies, projects, logs, or conversations.
-- Unsupported capabilities remain visible as `unsupported`; do not emulate them silently.
+- Profiles may share policy, never credentials, cookies, projects, logs, or
+  conversations.
+- Unsupported capabilities remain visible as `unsupported`; do not emulate them
+  silently.
 - Mutations snapshot first and expose rollback.
 - Every task ends with a commit and `git push origin HEAD`.
 
@@ -31,8 +37,9 @@ native client CLIs for post-apply verification.
 
 ### Task 1: Declare shared security policy and profile boundaries
 
-This task runs after the health-matrix plan and before Task 5 of the Codex state-recovery plan. The
-remaining tasks in this plan run after Codex recovery and skill-router reliability.
+This task runs after the health-matrix plan and before Task 5 of the Codex
+state-recovery plan. The remaining tasks in this plan run after Codex recovery
+and skill-router reliability.
 
 **Files:**
 
@@ -61,12 +68,14 @@ Initial policy:
 }
 ```
 
-- [ ] Write tests that require an exception reason when remote control is enabled and reject all
-      credential-shaped fields.
+- [ ] Write tests that require an exception reason when remote control is
+      enabled and reject all credential-shaped fields.
 - [ ] Implement strict parsing and credential-literal scanning.
-- [ ] Document that Claude `auto` remains the low-friction mode and that the dangerous-mode warning
-      is restored without changing normal auto-mode prompts.
-- [ ] Run `npx tsx --test scripts/lib/machine/domains/security/PARSE_SECURITY_MANIFEST_TEST.ts`.
+- [ ] Document that Claude `auto` remains the low-friction mode and that the
+      dangerous-mode warning is restored without changing normal auto-mode
+      prompts.
+- [ ] Run
+      `npx tsx --test scripts/lib/machine/domains/security/PARSE_SECURITY_MANIFEST_TEST.ts`.
 - [ ] Run `pnpm run format && pnpm run lint:fix`.
 - [ ] Commit and push:
 
@@ -86,17 +95,19 @@ git push origin HEAD
 - Create: `scripts/lib/machine/domains/security/readClaudeSettings.ts`
 - Create: `scripts/lib/machine/domains/security/planClaudeSettings.ts`
 - Create: `scripts/lib/machine/domains/security/writeClaudeSettings.ts`
-- Test: `scripts/lib/machine/domains/security/CLAUDE_SETTINGS_IDEMPOTENCY_TEST.ts`
+- Test:
+  `scripts/lib/machine/domains/security/CLAUDE_SETTINGS_IDEMPOTENCY_TEST.ts`
 - Modify: `scripts/lib/machine/ownership/OwnedRecord.ts`
 
-Only these keys are owned: `permissions.defaultMode`, `skipDangerousModePermissionPrompt`, and
-`remoteControlAtStartup`. The adapter must not own `enabledPlugins`, OAuth state, or any account
-identifier.
+Only these keys are owned: `permissions.defaultMode`,
+`skipDangerousModePermissionPrompt`, and `remoteControlAtStartup`. The adapter
+must not own `enabledPlugins`, OAuth state, or any account identifier.
 
-- [ ] Write fixtures with unrelated settings, plugin declarations, comments represented by absent
-      JSON keys, and divergent profile credentials outside `settings.json`.
-- [ ] Assert both profiles converge on owned keys and foreign settings survive byte-equivalent JSON
-      normalization.
+- [ ] Write fixtures with unrelated settings, plugin declarations, comments
+      represented by absent JSON keys, and divergent profile credentials outside
+      `settings.json`.
+- [ ] Assert both profiles converge on owned keys and foreign settings survive
+      byte-equivalent JSON normalization.
 - [ ] Implement plan and apply using the existing machine snapshot mechanism.
 - [ ] Verify idempotency with a second apply that reports zero changes.
 - [ ] Run the focused test and `pnpm run machine:test`.
@@ -124,15 +135,17 @@ git push origin HEAD
 - Modify: `scripts/lib/machine/domains/mcp/apply.ts`
 - Modify: `scripts/lib/link/constants/IDE_REGISTRY.ts`
 
-Gemini's native config is `~/.gemini/settings.json`; Streamable HTTP uses `httpUrl`, not Claude's
-`url` field. Gemini can read user skills from `~/.agents/skills`, so avoid duplicate skill copies
-unless target-specific compilation is required.
+Gemini's native config is `~/.gemini/settings.json`; Streamable HTTP uses
+`httpUrl`, not Claude's `url` field. Gemini can read user skills from
+`~/.agents/skills`, so avoid duplicate skill copies unless target-specific
+compilation is required.
 
-- [ ] Write render tests for stdio, Streamable HTTP, environment references, headers, timeout, and
-      foreign settings preservation.
+- [ ] Write render tests for stdio, Streamable HTTP, environment references,
+      headers, timeout, and foreign settings preservation.
 - [ ] Change the Gemini target path from `~/.gemini/config/mcp_config.json` to
       `~/.gemini/settings.json`.
-- [ ] Mark Gemini as reading canonical user skills or its compiled portable view, not both.
+- [ ] Mark Gemini as reading canonical user skills or its compiled portable
+      view, not both.
 - [ ] Apply against temp configs and prove idempotency.
 - [ ] Run `pnpm run machine:test && pnpm run link:test`.
 - [ ] Run the real `gemini mcp list` and `gemini skills list` after apply.
@@ -160,18 +173,21 @@ git push origin HEAD
 - Modify: `machine/mcp.json`
 - Modify: `scripts/lib/link/constants/IDE_RULE_TARGETS.ts`
 
-Cursor uses global `~/.cursor/mcp.json` and project `.cursor/mcp.json`. This adapter manages only
-the global machine-owned servers. Recheck current Cursor docs because the previously stable deep
-links now redirect to a consolidated documentation site.
+Cursor uses global `~/.cursor/mcp.json` and project `.cursor/mcp.json`. This
+adapter manages only the global machine-owned servers. Recheck current Cursor
+docs because the previously stable deep links now redirect to a consolidated
+documentation site.
 
-- [ ] Add `cursor` to `MCP_TARGETS` only after confirming current transport field names.
+- [ ] Add `cursor` to `MCP_TARGETS` only after confirming current transport
+      field names.
 - [ ] Write renderer and ownership-preservation tests.
-- [ ] Add Context7, Serena, and CodeGraph target declarations where their transport is supported.
-- [ ] Verify rules remain under `~/.cursor/rules/busirocket` and skills resolve through the compiled
-      portable target.
+- [ ] Add Context7, Serena, and CodeGraph target declarations where their
+      transport is supported.
+- [ ] Verify rules remain under `~/.cursor/rules/busirocket` and skills resolve
+      through the compiled portable target.
 - [ ] Run `pnpm run machine:test && pnpm run link:test`.
-- [ ] Run `cursor-agent mcp list` and `cursor-agent mcp list-tools <server>` for each required
-      server.
+- [ ] Run `cursor-agent mcp list` and `cursor-agent mcp list-tools <server>` for
+      each required server.
 - [ ] Run `pnpm run format && pnpm run lint:fix`.
 - [ ] Commit and push:
 
@@ -196,13 +212,15 @@ git push origin HEAD
 - Modify: `scripts/commands/linkRulesGlobal.ts`
 - Modify: `scripts/commands/linkSkillsGlobal.ts`
 
-- [ ] Convert existing global link targets into declarative capability targets without changing
-      output paths.
-- [ ] Keep Claude plugin declarations separate from plugin cache contents and account login state.
-- [ ] Treat hooks as unsupported for a client unless its current docs expose a compatible hook
-      mechanism.
+- [ ] Convert existing global link targets into declarative capability targets
+      without changing output paths.
+- [ ] Keep Claude plugin declarations separate from plugin cache contents and
+      account login state.
+- [ ] Treat hooks as unsupported for a client unless its current docs expose a
+      compatible hook mechanism.
 - [ ] Add stale-link and broken-link findings to verification.
-- [ ] Run all existing link and hook tests before and after the refactor and compare output.
+- [ ] Run all existing link and hook tests before and after the refactor and
+      compare output.
 - [ ] Run `pnpm run format && pnpm run lint:fix`.
 - [ ] Commit and push:
 
@@ -225,14 +243,15 @@ git push origin HEAD
 - Modify: `README.md`
 - Modify: `docs/ide-setup.md`
 
-- [ ] Add `security` and `capabilities` domains to diff, apply, rollback, ownership, and report
-      formatting.
-- [ ] Run `pnpm run machine:diff -- --json` and inspect every planned path before apply.
+- [ ] Add `security` and `capabilities` domains to diff, apply, rollback,
+      ownership, and report formatting.
+- [ ] Run `pnpm run machine:diff -- --json` and inspect every planned path
+      before apply.
 - [ ] Run `pnpm run machine:apply -- --json`.
 - [ ] Run a second diff and require zero changes.
 - [ ] Run live inventories in both Claude profiles, Codex, Gemini, and Cursor.
-- [ ] Confirm Claude profiles have identical non-identity settings and plugin declarations while
-      their credential/state roots remain different.
+- [ ] Confirm Claude profiles have identical non-identity settings and plugin
+      declarations while their credential/state roots remain different.
 - [ ] Document active, provisioned, unavailable, and unsupported semantics.
 - [ ] Run `pnpm run check:all && git diff --check`.
 - [ ] Commit and push:
@@ -259,5 +278,6 @@ cursor-agent mcp list
 git status --short --branch
 ```
 
-Expected: machine diff is empty; active-client capabilities pass; Claude identities remain separate;
-unsupported capabilities are explicit; the repository is clean and synced.
+Expected: machine diff is empty; active-client capabilities pass; Claude
+identities remain separate; unsupported capabilities are explicit; the
+repository is clean and synced.

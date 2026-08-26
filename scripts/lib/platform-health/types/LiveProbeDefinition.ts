@@ -1,4 +1,4 @@
-import type { PlatformCapability } from "./PlatformCapability"
+import type { PlatformCapability } from './PlatformCapability'
 
 export interface LiveProbeDefinition {
   platformId: string

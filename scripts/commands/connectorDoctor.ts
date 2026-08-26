@@ -1,18 +1,18 @@
-import { homedir } from "node:os"
-import { ROOT } from "../constants/ROOT"
-import { inspectProfileConnectors } from "../lib/connectors/inspectProfileConnectors"
-import { createManagedAgentCliEnvironment } from "../lib/connectors/createManagedAgentCliEnvironment"
-import { loadConnectorManifest } from "../lib/connectors/loadConnectorManifest"
-import { runConnectorDoctor } from "../lib/connectors/runConnectorDoctor"
-import { flagValue } from "../lib/machine/cli/flagValue"
-import { loadMcpManifest } from "../lib/machine/cli/loadMcpManifest"
-import { resolveInstanceDir } from "../lib/machine/instance/resolveInstanceDir"
+import { homedir } from 'node:os'
+import { ROOT } from '../constants/ROOT'
+import { createManagedAgentCliEnvironment } from '../lib/connectors/createManagedAgentCliEnvironment'
+import { inspectProfileConnectors } from '../lib/connectors/inspectProfileConnectors'
+import { loadConnectorManifest } from '../lib/connectors/loadConnectorManifest'
+import { runConnectorDoctor } from '../lib/connectors/runConnectorDoctor'
+import { flagValue } from '../lib/machine/cli/flagValue'
+import { loadMcpManifest } from '../lib/machine/cli/loadMcpManifest'
+import { resolveInstanceDir } from '../lib/machine/instance/resolveInstanceDir'
 
 export const main = async () => {
   const home = homedir()
   const env = createManagedAgentCliEnvironment(home, process.env)
   process.env.PATH = env.PATH
-  const instance = flagValue(process.argv, "--instance")
+  const instance = flagValue(process.argv, '--instance')
   const instanceDir = resolveInstanceDir({
     ...(instance === undefined ? {} : { flag: instance }),
     env: process.env,
@@ -20,7 +20,7 @@ export const main = async () => {
   })
   const parsed = await loadConnectorManifest(instanceDir)
   const parsedMcp = await loadMcpManifest(instanceDir)
-  const requested = flagValue(process.argv, "--profile")
+  const requested = flagValue(process.argv, '--profile')
   const result = await runConnectorDoctor({
     parsed,
     parsedMcp,

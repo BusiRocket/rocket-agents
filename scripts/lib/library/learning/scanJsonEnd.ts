@@ -8,13 +8,13 @@ export const scanJsonEnd = (text: string, start: number) => {
 
     if (escaped) {
       escaped = false
-    } else if (character === "\\") {
+    } else if (character === '\\') {
       escaped = true
     } else if (character === '"') {
       inString = !inString
-    } else if (!inString && character === "{") {
+    } else if (!inString && character === '{') {
       depth++
-    } else if (!inString && character === "}") {
+    } else if (!inString && character === '}') {
       depth--
 
       if (depth === 0) {

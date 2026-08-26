@@ -1,8 +1,8 @@
-import { planDeclaredPlugin } from "./planDeclaredPlugin"
-import { planRemovals } from "./planRemovals"
-import type { PluginChange } from "./types/PluginChange"
-import type { PluginsManifestDocument } from "./types/PluginsManifestDocument"
-import type { PluginsState } from "./types/PluginsState"
+import { planDeclaredPlugin } from './planDeclaredPlugin'
+import { planRemovals } from './planRemovals'
+import type { PluginChange } from './types/PluginChange'
+import type { PluginsManifestDocument } from './types/PluginsManifestDocument'
+import type { PluginsState } from './types/PluginsState'
 
 export const plan = ({
   manifest,

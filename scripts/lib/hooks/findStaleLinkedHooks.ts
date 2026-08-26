@@ -1,6 +1,6 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs"
-import path from "node:path"
-import { fileURLToPath } from "node:url"
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 /**
  * Find hooks whose linked copy has drifted from source.
@@ -14,22 +14,29 @@ import { fileURLToPath } from "node:url"
  *   copy, or are missing from it. Empty when in sync, or when nothing is linked.
  */
 export const findStaleLinkedHooks = (): string[] => {
-  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..")
-  const source = path.join(repoRoot, "src/hooks")
-  const linked = path.join(process.env.HOME ?? "", ".agents/hooks")
+  const repoRoot = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../..',
+  )
+  const source = path.join(repoRoot, 'src/hooks')
+  const linked = path.join(process.env.HOME ?? '', '.agents/hooks')
   if (!existsSync(linked)) return []
 
-  const walk = (dir: string, prefix = ""): string[] =>
+  const walk = (dir: string, prefix = ''): string[] =>
     readdirSync(dir).flatMap((entry) => {
       const full = path.join(dir, entry)
       const rel = prefix ? path.join(prefix, entry) : entry
-      if (statSync(full).isDirectory()) return entry === "__pycache__" ? [] : walk(full, rel)
+      if (statSync(full).isDirectory())
+        return entry === '__pycache__' ? [] : walk(full, rel)
       return [rel]
     })
 
   return walk(source).filter((rel) => {
     const linkedFile = path.join(linked, rel)
     if (!existsSync(linkedFile)) return true
-    return readFileSync(path.join(source, rel), "utf8") !== readFileSync(linkedFile, "utf8")
+    return (
+      readFileSync(path.join(source, rel), 'utf8') !==
+      readFileSync(linkedFile, 'utf8')
+    )
   })
 }

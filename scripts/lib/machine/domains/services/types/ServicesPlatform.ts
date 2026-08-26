@@ -1,1 +1,1 @@
-export type ServicesPlatform = "launchd" | "systemd"
+export type ServicesPlatform = 'launchd' | 'systemd'

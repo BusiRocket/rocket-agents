@@ -1,28 +1,44 @@
-import { captureConversationArtifact } from "./captureConversationArtifact"
-import { CONVERSATION_CAPTURE_CONCURRENCY } from "./constants/CONVERSATION_CAPTURE_CONCURRENCY"
-import { inspectConversationSources } from "./inspectConversationSources"
-import type { ConversationCaptureSummary } from "./types/ConversationCaptureSummary"
-import type { ConversationRecord } from "./types/ConversationRecord"
-import type { ConversationSource } from "./types/ConversationSource"
+import { captureConversationArtifact } from './captureConversationArtifact'
+import { CONVERSATION_CAPTURE_CONCURRENCY } from './constants/CONVERSATION_CAPTURE_CONCURRENCY'
+import { inspectConversationSources } from './inspectConversationSources'
+import type { ConversationCaptureSummary } from './types/ConversationCaptureSummary'
+import type { ConversationRecord } from './types/ConversationRecord'
+import type { ConversationSource } from './types/ConversationSource'
 
 export const captureConversationArtifacts = async (
   home: string,
   selectedSources: ReadonlySet<ConversationSource> | undefined,
   consume: (record: ConversationRecord) => void,
 ): Promise<ConversationCaptureSummary> => {
-  const { artifacts, statuses } = await inspectConversationSources(home, selectedSources)
+  const { artifacts, statuses } = await inspectConversationSources(
+    home,
+    selectedSources,
+  )
   const skipped: string[] = []
 
-  for (let index = 0; index < artifacts.length; index += CONVERSATION_CAPTURE_CONCURRENCY) {
-    const batch = artifacts.slice(index, index + CONVERSATION_CAPTURE_CONCURRENCY)
+  for (
+    let index = 0;
+    index < artifacts.length;
+    index += CONVERSATION_CAPTURE_CONCURRENCY
+  ) {
+    const batch = artifacts.slice(
+      index,
+      index + CONVERSATION_CAPTURE_CONCURRENCY,
+    )
     for (const captured of await Promise.all(
-      batch.map(async (artifact) => captureConversationArtifact(artifact, home)),
+      batch.map(async (artifact) =>
+        captureConversationArtifact(artifact, home),
+      ),
     )) {
       for (const record of captured.records) consume(record)
       if (captured.error === undefined) continue
 
-      skipped.push(`${captured.source}:${captured.relativePath}: ${captured.error}`)
-      const status = statuses.find((candidate) => candidate.source === captured.source)
+      skipped.push(
+        `${captured.source}:${captured.relativePath}: ${captured.error}`,
+      )
+      const status = statuses.find(
+        (candidate) => candidate.source === captured.source,
+      )
       if (status !== undefined) status.skipped++
     }
   }

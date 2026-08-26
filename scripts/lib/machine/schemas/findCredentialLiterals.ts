@@ -1,5 +1,5 @@
-import { checkCredentialValue } from "./checkCredentialValue"
-import type { ServerShape } from "./types/ServerShape"
+import { checkCredentialValue } from './checkCredentialValue'
+import type { ServerShape } from './types/ServerShape'
 
 export const findCredentialLiterals = (server: ServerShape) => {
   const findings: string[] = []

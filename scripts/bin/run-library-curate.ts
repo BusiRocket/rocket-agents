@@ -1,4 +1,4 @@
-import { main } from "../commands/libraryCurate"
+import { main } from '../commands/libraryCurate'
 
 main().catch((error: unknown) => {
   console.error(error)

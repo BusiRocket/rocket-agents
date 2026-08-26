@@ -1,4 +1,4 @@
-import { main } from "../commands/libraryObserveCodex"
+import { main } from '../commands/libraryObserveCodex'
 
 main().catch((error: unknown) => {
   console.error(error)

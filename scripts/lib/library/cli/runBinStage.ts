@@ -1,6 +1,6 @@
-import { spawn } from "node:child_process"
-import { stripNpmChatter } from "./stripNpmChatter"
-import type { StageResult } from "./types/StageResult"
+import { spawn } from 'node:child_process'
+import { stripNpmChatter } from './stripNpmChatter'
+import type { StageResult } from './types/StageResult'
 
 export const runBinStage = async (
   name: string,
@@ -8,23 +8,23 @@ export const runBinStage = async (
   args: string[],
 ): Promise<StageResult> =>
   new Promise((resolve) => {
-    const child = spawn("npx", ["tsx", binPath, ...args], {
-      stdio: ["ignore", "pipe", "pipe"],
+    const child = spawn('npx', ['tsx', binPath, ...args], {
+      stdio: ['ignore', 'pipe', 'pipe'],
     })
-    let output = ""
+    let output = ''
 
-    child.stdout.on("data", (chunk: Buffer) => {
+    child.stdout.on('data', (chunk: Buffer) => {
       output += chunk.toString()
     })
-    child.stderr.on("data", (chunk: Buffer) => {
+    child.stderr.on('data', (chunk: Buffer) => {
       output += chunk.toString()
     })
 
-    child.on("error", (error) => {
+    child.on('error', (error) => {
       resolve({ name, ok: false, output: String(error) })
     })
 
-    child.on("close", (code) => {
+    child.on('close', (code) => {
       resolve({ name, ok: code === 0, output: stripNpmChatter(output) })
     })
   })

@@ -1,4 +1,4 @@
-import { CODEX_SKILL_READ_PATTERNS } from "./constants/CODEX_SKILL_READ_PATTERNS"
+import { CODEX_SKILL_READ_PATTERNS } from './constants/CODEX_SKILL_READ_PATTERNS'
 
 export const readCodexSkillReads = (contents: string) => {
   const counts: Record<string, number> = {}

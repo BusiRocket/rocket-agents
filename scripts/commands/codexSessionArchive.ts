@@ -1,19 +1,21 @@
-import { homedir } from "node:os"
-import { join } from "node:path"
-import { applySessionArchive } from "../lib/codex-state/applySessionArchive"
-import { planSessionArchive } from "../lib/codex-state/planSessionArchive"
-import { flagValue } from "../lib/machine/cli/flagValue"
-import { createRunId } from "../lib/machine/runs/createRunId"
+import { homedir } from 'node:os'
+import { join } from 'node:path'
+import { applySessionArchive } from '../lib/codex-state/applySessionArchive'
+import { planSessionArchive } from '../lib/codex-state/planSessionArchive'
+import { flagValue } from '../lib/machine/cli/flagValue'
+import { createRunId } from '../lib/machine/runs/createRunId'
 
 export const main = async () => {
   const home = homedir()
-  const codexDir = join(home, ".codex")
-  const retentionDays = Number(flagValue(process.argv, "--retention-days") ?? "90")
-  const plan = await planSessionArchive(join(codexDir, "sessions"), {
+  const codexDir = join(home, '.codex')
+  const retentionDays = Number(
+    flagValue(process.argv, '--retention-days') ?? '90',
+  )
+  const plan = await planSessionArchive(join(codexDir, 'sessions'), {
     retentionDays,
     now: new Date(),
   })
-  if (!process.argv.includes("--apply")) {
+  if (!process.argv.includes('--apply')) {
     console.log(
       JSON.stringify(
         {
@@ -32,8 +34,12 @@ export const main = async () => {
   }
 
   const runId = createRunId(new Date(), Math.random)
-  const result = await applySessionArchive(plan, join(codexDir, "session-archive"), runId)
-  const ok = result.status === "archived"
+  const result = await applySessionArchive(
+    plan,
+    join(codexDir, 'session-archive'),
+    runId,
+  )
+  const ok = result.status === 'archived'
   console.log(
     JSON.stringify(
       {
@@ -45,7 +51,9 @@ export const main = async () => {
         runDir: result.runDir,
         reasons: result.reasons,
         ...(ok
-          ? { restoreCommand: `pnpm run codex:restore -- --run "${result.runDir}" --apply` }
+          ? {
+              restoreCommand: `pnpm run codex:restore -- --run "${result.runDir}" --apply`,
+            }
           : {}),
       },
       null,

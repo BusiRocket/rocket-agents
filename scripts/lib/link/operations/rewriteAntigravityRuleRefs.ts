@@ -9,5 +9,6 @@
 export const rewriteAntigravityRuleRefs = (content: string): string =>
   content.replace(
     /@rules\/([^/\s]+)\/([^\s]+?)\.mdc/g,
-    (_match: string, cat: string, name: string) => `@.agent/rules/${cat}-${name}.md`,
+    (_match: string, cat: string, name: string) =>
+      `@.agent/rules/${cat}-${name}.md`,
   )

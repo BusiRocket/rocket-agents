@@ -1,4 +1,4 @@
-import type { GuidanceInputHash } from "./GuidanceInputHash"
+import type { GuidanceInputHash } from './GuidanceInputHash'
 
 export interface AcceptedGuidanceState {
   runId: string

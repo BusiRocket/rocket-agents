@@ -1,5 +1,5 @@
-import { redactHealthText } from "../platform-health/redactHealthText"
-import type { CodexStateReport } from "./types/CodexStateReport"
+import { redactHealthText } from '../platform-health/redactHealthText'
+import type { CodexStateReport } from './types/CodexStateReport'
 
 export const redactCodexStateReport = (
   report: CodexStateReport,

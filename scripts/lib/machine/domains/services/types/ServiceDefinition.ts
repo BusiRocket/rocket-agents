@@ -1,4 +1,4 @@
-import type { ServiceSchedule } from "./ServiceSchedule"
+import type { ServiceSchedule } from './ServiceSchedule'
 
 export interface ServiceDefinition {
   name: string

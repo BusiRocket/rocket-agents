@@ -1,12 +1,12 @@
-import type { CapabilityStatus } from "../types/CapabilityStatus"
-import type { PlatformHealth } from "../types/PlatformHealth"
+import type { CapabilityStatus } from '../types/CapabilityStatus'
+import type { PlatformHealth } from '../types/PlatformHealth'
 
 export const createPlatformHealth = (
-  lifecycle: PlatformHealth["lifecycle"],
+  lifecycle: PlatformHealth['lifecycle'],
   status: CapabilityStatus,
 ): PlatformHealth => ({
-  registryId: "test",
+  registryId: 'test',
   lifecycle,
   probes: [],
-  capabilities: [{ capability: "mcp", status, summary: "test", findings: [] }],
+  capabilities: [{ capability: 'mcp', status, summary: 'test', findings: [] }],
 })

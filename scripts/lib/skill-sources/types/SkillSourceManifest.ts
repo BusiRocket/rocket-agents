@@ -1,4 +1,4 @@
-import type { SkillSource } from "./SkillSource"
+import type { SkillSource } from './SkillSource'
 
 export interface SkillSourceManifest {
   version: 1

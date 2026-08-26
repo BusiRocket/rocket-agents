@@ -1,4 +1,4 @@
-import type { SkillSourceSecurityException } from "./SkillSourceSecurityException"
+import type { SkillSourceSecurityException } from './SkillSourceSecurityException'
 
 export interface SkillSource {
   id: string

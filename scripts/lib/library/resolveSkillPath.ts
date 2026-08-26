@@ -1,4 +1,4 @@
-import { join } from "node:path"
+import { join } from 'node:path'
 
 export const resolveSkillPath = (skillsRoot: string, entryKey: string) =>
-  join(skillsRoot, ...entryKey.split("/"))
+  join(skillsRoot, ...entryKey.split('/'))

@@ -1,4 +1,4 @@
-import { promises as fs } from "node:fs"
+import { promises as fs } from 'node:fs'
 
 export const copyDirWithTransform = async (
   src: string,
@@ -14,10 +14,10 @@ export const copyDirWithTransform = async (
       await fs.mkdir(destPath, { recursive: true })
       await copyDirWithTransform(srcPath, destPath, source, transformContent)
     } else {
-      const rel = srcPath.replace(`${source}/`, "")
-      const raw = await fs.readFile(srcPath, "utf-8")
+      const rel = srcPath.replace(`${source}/`, '')
+      const raw = await fs.readFile(srcPath, 'utf-8')
       const transformed = transformContent(raw, rel)
-      await fs.writeFile(destPath, transformed, "utf-8")
+      await fs.writeFile(destPath, transformed, 'utf-8')
     }
   }
 }

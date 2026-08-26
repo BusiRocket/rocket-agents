@@ -1,33 +1,37 @@
-import assert from "node:assert/strict"
-import test from "node:test"
-import { readProfileConnectorStatus } from "./readProfileConnectorStatus"
-import { runConnectorDoctor } from "./runConnectorDoctor"
-import type { ConnectorDefinition } from "./types/ConnectorDefinition"
-import type { ConnectorProfile } from "./types/ConnectorProfile"
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { readProfileConnectorStatus } from './readProfileConnectorStatus'
+import { runConnectorDoctor } from './runConnectorDoctor'
+import type { ConnectorDefinition } from './types/ConnectorDefinition'
+import type { ConnectorProfile } from './types/ConnectorProfile'
 
-void test("the explicit Codex doctor dispatches once and returns required failures in its JSON envelope", async () => {
+void test('the explicit Codex doctor dispatches once and returns required failures in its JSON envelope', async () => {
   const definitions: ConnectorDefinition[] = [
     {
-      id: "mempalace",
-      match: "mempalace",
-      profiles: ["codex"],
-      ownership: "machine",
-      probe: "native-cli",
-      criticality: "required",
+      id: 'mempalace',
+      match: 'mempalace',
+      profiles: ['codex'],
+      ownership: 'machine',
+      probe: 'native-cli',
+      criticality: 'required',
     },
   ]
   const cases = [
     {
-      output: JSON.stringify([{ name: "mempalace" }]),
-      status: "failed",
-      summary: "connector enabled status is unrecognized",
+      output: JSON.stringify([{ name: 'mempalace' }]),
+      status: 'failed',
+      summary: 'connector enabled status is unrecognized',
     },
     {
-      output: JSON.stringify([{ name: "mempalace", enabled: false }]),
-      status: "disabled",
-      summary: "connector disabled",
+      output: JSON.stringify([{ name: 'mempalace', enabled: false }]),
+      status: 'disabled',
+      summary: 'connector disabled',
     },
-    { output: JSON.stringify([]), status: "failed", summary: "connector is not listed" },
+    {
+      output: JSON.stringify([]),
+      status: 'failed',
+      summary: 'connector is not listed',
+    },
   ] as const
 
   for (const expected of cases) {
@@ -39,37 +43,41 @@ void test("the explicit Codex doctor dispatches once and returns required failur
         manifest: {
           servers: {
             mempalace: {
-              targets: ["codex"],
-              transport: "stdio",
-              command: "mempalace-mcp",
-              args: ["--read-only"],
+              targets: ['codex'],
+              transport: 'stdio',
+              command: 'mempalace-mcp',
+              args: ['--read-only'],
             },
           },
         },
       },
-      requestedProfile: "codex",
-      home: "/test-home",
+      requestedProfile: 'codex',
+      home: '/test-home',
       env: {},
       inspect: (profile, inspectedDefinitions) => {
         profiles.push(profile)
         return Promise.resolve(
-          readProfileConnectorStatus(expected.output, profile, inspectedDefinitions),
+          readProfileConnectorStatus(
+            expected.output,
+            profile,
+            inspectedDefinitions,
+          ),
         )
       },
     })
 
-    assert.deepEqual(profiles, ["codex"])
+    assert.deepEqual(profiles, ['codex'])
     assert.equal(result.exitCode, 1)
     assert.equal(result.output.ok, false)
     assert.deepEqual(result.output, {
       ok: false,
       connectors: [
         {
-          id: "mempalace",
-          profile: "codex",
+          id: 'mempalace',
+          profile: 'codex',
           status: expected.status,
-          criticality: "required",
-          boundary: "client",
+          criticality: 'required',
+          boundary: 'client',
           summary: expected.summary,
         },
       ],

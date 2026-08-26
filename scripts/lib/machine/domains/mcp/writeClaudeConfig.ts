@@ -1,9 +1,13 @@
-import { promises as fs } from "node:fs"
-import { readExistingJson } from "./readExistingJson"
-import { sortRecordKeys } from "./sortRecordKeys"
-import type { WriteClaudeConfigInput } from "./types/WriteClaudeConfigInput"
+import { promises as fs } from 'node:fs'
+import { readExistingJson } from './readExistingJson'
+import { sortRecordKeys } from './sortRecordKeys'
+import type { WriteClaudeConfigInput } from './types/WriteClaudeConfigInput'
 
-export const writeClaudeConfig = async ({ path, servers, ownedNames }: WriteClaudeConfigInput) => {
+export const writeClaudeConfig = async ({
+  path,
+  servers,
+  ownedNames,
+}: WriteClaudeConfigInput) => {
   const existing = await readExistingJson(path)
   const currentServers = (existing.mcpServers ?? {}) as Record<string, unknown>
   const merged: Record<string, unknown> = {}

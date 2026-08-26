@@ -1,4 +1,4 @@
-import type { RuleFrontmatter } from "./RuleFrontmatter"
+import type { RuleFrontmatter } from './RuleFrontmatter'
 
 export interface RuleItem {
   rel: string

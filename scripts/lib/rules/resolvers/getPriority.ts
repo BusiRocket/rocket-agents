@@ -1,4 +1,4 @@
-import type { RuleItem } from "../types/RuleItem"
+import type { RuleItem } from '../types/RuleItem'
 
 /**
  * @param {RuleItem} item
@@ -8,8 +8,8 @@ import type { RuleItem } from "../types/RuleItem"
 export function getPriority(item: RuleItem) {
   const frontmatter = item.frontmatter ?? {}
 
-  if (frontmatter.alwaysApply === true) return "high"
+  if (frontmatter.alwaysApply === true) return 'high'
 
-  if (frontmatter.globs && frontmatter.globs.trim() !== "") return "high"
-  return "medium"
+  if (frontmatter.globs && frontmatter.globs.trim() !== '') return 'high'
+  return 'medium'
 }

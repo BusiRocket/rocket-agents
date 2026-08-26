@@ -4,7 +4,7 @@ interface:
   default_prompt:
     Audit the repository quality gates, report findings first, then propose the smallest hardening
     steps that improve style fidelity and safety.
-  brand_color: "#0F766E"
+  brand_color: '#0F766E'
 policy:
   allow_implicit_invocation: true
 busirocket:

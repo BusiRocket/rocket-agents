@@ -1,4 +1,4 @@
-import { tokenize } from "./tokenize"
+import { tokenize } from './tokenize'
 
 export const overlapScore = (left: string, right: string) => {
   const leftTokens = new Set(tokenize(left))

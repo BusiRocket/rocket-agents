@@ -1,6 +1,6 @@
-import { isSecretReference } from "../../../secrets/isSecretReference"
-import type { McpCaptureRefusal } from "../types/McpCaptureRefusal"
-import type { McpValue } from "../types/McpValue"
+import { isSecretReference } from '../../../secrets/isSecretReference'
+import type { McpCaptureRefusal } from '../types/McpCaptureRefusal'
+import type { McpValue } from '../types/McpValue'
 
 export const toCapturedValues = ({
   server,
@@ -10,14 +10,16 @@ export const toCapturedValues = ({
   refused,
 }: {
   server: string
-  field: "env" | "headers"
+  field: 'env' | 'headers'
   live: Record<string, unknown>
   declared: Record<string, McpValue> | undefined
   refused: McpCaptureRefusal[]
 }): Record<string, McpValue> => {
   const captured: Record<string, McpValue> = {}
 
-  for (const key of Object.keys(live).toSorted((left, right) => left.localeCompare(right))) {
+  for (const key of Object.keys(live).toSorted((left, right) =>
+    left.localeCompare(right),
+  )) {
     const reference = declared?.[key]
 
     if (reference !== undefined && isSecretReference(reference)) {
@@ -28,7 +30,8 @@ export const toCapturedValues = ({
     refused.push({
       server,
       field: `${field}.${key}`,
-      reason: "no environment reference is declared for this key in the tracked manifest",
+      reason:
+        'no environment reference is declared for this key in the tracked manifest',
     })
   }
 

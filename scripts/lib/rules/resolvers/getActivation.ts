@@ -1,4 +1,4 @@
-import type { RuleItem } from "../types/RuleItem"
+import type { RuleItem } from '../types/RuleItem'
 
 /**
  * @param {RuleItem} item
@@ -8,8 +8,9 @@ import type { RuleItem } from "../types/RuleItem"
 export function getActivation(item: RuleItem) {
   const frontmatter = item.frontmatter ?? {}
 
-  if (frontmatter.alwaysApply === true) return "Always On"
+  if (frontmatter.alwaysApply === true) return 'Always On'
 
-  if (frontmatter.globs && frontmatter.globs.trim() !== "") return `Glob: ${frontmatter.globs}`
-  return "Model Decision"
+  if (frontmatter.globs && frontmatter.globs.trim() !== '')
+    return `Glob: ${frontmatter.globs}`
+  return 'Model Decision'
 }

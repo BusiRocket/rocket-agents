@@ -1,5 +1,5 @@
-import { join } from "node:path"
-import type { SkillTarget } from "./types/SkillTarget"
+import { join } from 'node:path'
+import type { SkillTarget } from './types/SkillTarget'
 
 /**
  * Where a target's links belong. Only claude has a default: every other target
@@ -21,5 +21,5 @@ export const resolveLinkDir = ({
     return into
   }
 
-  return target === "claude" ? join(home, ".claude", "skills") : undefined
+  return target === 'claude' ? join(home, '.claude', 'skills') : undefined
 }

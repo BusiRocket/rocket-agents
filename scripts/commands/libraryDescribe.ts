@@ -1,18 +1,18 @@
-import { homedir } from "node:os"
-import { join } from "node:path"
-import { flagValue } from "../lib/machine/cli/flagValue"
-import { readCurationManifest } from "../lib/library/cli/readCurationManifest"
-import { resolveLibraryDir } from "../lib/library/cli/resolveLibraryDir"
-import { phraseIsCoveredByDescription } from "../lib/library/phraseIsCoveredByDescription"
-import { formatDescriptionProposals } from "../lib/library/formatters/formatDescriptionProposals"
-import { proposeDescriptionEdit } from "../lib/library/proposeDescriptionEdit"
-import { readSkillDescription } from "../lib/library/cli/readSkillDescription"
-import type { DescriptionProposal } from "../lib/library/types/DescriptionProposal"
+import { homedir } from 'node:os'
+import { join } from 'node:path'
+import { readCurationManifest } from '../lib/library/cli/readCurationManifest'
+import { readSkillDescription } from '../lib/library/cli/readSkillDescription'
+import { resolveLibraryDir } from '../lib/library/cli/resolveLibraryDir'
+import { formatDescriptionProposals } from '../lib/library/formatters/formatDescriptionProposals'
+import { phraseIsCoveredByDescription } from '../lib/library/phraseIsCoveredByDescription'
+import { proposeDescriptionEdit } from '../lib/library/proposeDescriptionEdit'
+import type { DescriptionProposal } from '../lib/library/types/DescriptionProposal'
+import { flagValue } from '../lib/machine/cli/flagValue'
 
 export const main = async () => {
   const home = homedir()
-  const asJson = process.argv.includes("--json")
-  const libraryFlag = flagValue(process.argv, "--library")
+  const asJson = process.argv.includes('--json')
+  const libraryFlag = flagValue(process.argv, '--library')
 
   const libraryDir = resolveLibraryDir({
     ...(libraryFlag === undefined ? {} : { flag: libraryFlag }),
@@ -23,7 +23,7 @@ export const main = async () => {
   const parsed = await readCurationManifest(libraryDir)
 
   if (!parsed.ok) {
-    console.error(parsed.errors.join("\n"))
+    console.error(parsed.errors.join('\n'))
     process.exitCode = 1
     return
   }
@@ -37,7 +37,9 @@ export const main = async () => {
       continue
     }
 
-    const description = await readSkillDescription(join(libraryDir, "skills", name))
+    const description = await readSkillDescription(
+      join(libraryDir, 'skills', name),
+    )
 
     if (description === undefined) {
       continue
@@ -56,6 +58,8 @@ export const main = async () => {
   }
 
   console.log(
-    asJson ? JSON.stringify({ proposals }, null, 2) : formatDescriptionProposals(proposals),
+    asJson
+      ? JSON.stringify({ proposals }, null, 2)
+      : formatDescriptionProposals(proposals),
   )
 }

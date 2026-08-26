@@ -1,5 +1,5 @@
-import { promises as fs } from "node:fs"
-import { copyDirWithTransform } from "./copyDirWithTransform"
+import { promises as fs } from 'node:fs'
+import { copyDirWithTransform } from './copyDirWithTransform'
 
 export const copySkillToTargetWithTransform = async ({
   source,

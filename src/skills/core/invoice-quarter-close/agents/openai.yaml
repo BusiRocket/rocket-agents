@@ -4,7 +4,7 @@ interface:
   default_prompt:
     Close the quarter for the named company following the brain playbook, verifying every amount
     against the live source and reporting each figure with its provenance.
-  brand_color: "#B45309"
+  brand_color: '#B45309'
 policy:
   allow_implicit_invocation: true
 busirocket:

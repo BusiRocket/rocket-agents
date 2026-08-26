@@ -1,1 +1,2 @@
-export const isSkillCurationKey = (entryKey: string) => !entryKey.startsWith("rules/")
+export const isSkillCurationKey = (entryKey: string) =>
+  !entryKey.startsWith('rules/')

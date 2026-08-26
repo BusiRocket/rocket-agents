@@ -1,8 +1,11 @@
-import { resolveSkillPath } from "./resolveSkillPath"
-import { toLinkName } from "./toLinkName"
-import type { PlannedLink } from "./types/PlannedLink"
+import { resolveSkillPath } from './resolveSkillPath'
+import { toLinkName } from './toLinkName'
+import type { PlannedLink } from './types/PlannedLink'
 
-export const planLinks = (skillsRoot: string, entryKeys: string[]): PlannedLink[] =>
+export const planLinks = (
+  skillsRoot: string,
+  entryKeys: string[],
+): PlannedLink[] =>
   entryKeys.map((entryKey) => ({
     name: toLinkName(entryKey),
     target: resolveSkillPath(skillsRoot, entryKey),

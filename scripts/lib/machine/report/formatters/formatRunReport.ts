@@ -1,4 +1,4 @@
-import type { RunReport } from "../../types/RunReport"
+import type { RunReport } from '../../types/RunReport'
 
 export const formatRunReport = (report: RunReport, asJson: boolean) => {
   if (asJson) {
@@ -17,5 +17,5 @@ export const formatRunReport = (report: RunReport, asJson: boolean) => {
     }
   }
 
-  return lines.join("\n")
+  return lines.join('\n')
 }

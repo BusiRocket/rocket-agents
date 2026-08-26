@@ -1,4 +1,4 @@
-import { main } from "../commands/libraryTriggers"
+import { main } from '../commands/libraryTriggers'
 
 main().catch((error: unknown) => {
   console.error(error)

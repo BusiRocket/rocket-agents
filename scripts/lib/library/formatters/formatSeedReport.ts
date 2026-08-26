@@ -1,6 +1,9 @@
-import type { CurationManifest } from "../types/CurationManifest"
+import type { CurationManifest } from '../types/CurationManifest'
 
-export const formatSeedReport = (manifest: CurationManifest, asJson: boolean) => {
+export const formatSeedReport = (
+  manifest: CurationManifest,
+  asJson: boolean,
+) => {
   if (asJson) {
     return JSON.stringify(manifest, null, 2)
   }
@@ -10,12 +13,14 @@ export const formatSeedReport = (manifest: CurationManifest, asJson: boolean) =>
     counts[entry.state] = (counts[entry.state] ?? 0) + 1
   }
 
-  const lines = [`seeded ${String(Object.keys(manifest.entries).length)} entries`]
+  const lines = [
+    `seeded ${String(Object.keys(manifest.entries).length)} entries`,
+  ]
   for (const [state, count] of Object.entries(counts).toSorted(
     (left, right) => right[1] - left[1],
   )) {
     lines.push(`  ${state.padEnd(10)} ${String(count)}`)
   }
 
-  return lines.join("\n")
+  return lines.join('\n')
 }

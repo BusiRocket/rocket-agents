@@ -1,5 +1,5 @@
-import path from "node:path"
-import { promises as fs } from "node:fs"
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 export const listSkillDirs = async (baseDir: string): Promise<string[]> => {
   const result: string[] = []

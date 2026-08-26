@@ -1,10 +1,11 @@
 # Conversation capability coverage
 
-This map compares the Rocket Agents ecosystem with the observable capabilities of
-[Historious](https://github.com/nikvdp/historious) at `9b9f26fb9e9d52882be55d76880d1623021a22e4` and
+This map compares the Rocket Agents ecosystem with the observable capabilities
+of [Historious](https://github.com/nikvdp/historious) at
+`9b9f26fb9e9d52882be55d76880d1623021a22e4` and
 [ai-data-extraction](https://github.com/0xSero/ai-data-extraction) at
-`b7520c48b2bb46d5a0d3257e80ca1a59670d5e37`. It records capability coverage, not code lineage; the
-implementation in this repository is independent.
+`b7520c48b2bb46d5a0d3257e80ca1a59670d5e37`. It records capability coverage, not
+code lineage; the implementation in this repository is independent.
 
 | Capability                                                 | Rocket Agents owner                                 | Coverage                                                                        |
 | ---------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------- |
@@ -31,17 +32,19 @@ implementation in this repository is independent.
 
 ## Baseline differences
 
-The strict BusiRocket baseline adds controls that neither reference defines as the transport
-contract: atomic exported units, TypeScript strictness including unchecked-index and exact-optional
-checks, architectural import boundaries, secret redaction, traversal rejection, size limits,
-allowlisted SQLite tables, content manifests, mode-0600 files, dry-run mutation gates, full project
-checks, home-path redaction, and explicit supply-chain policy in `pnpm-workspace.yaml`. Node 22.13
-is enforced so SQLite-backed adapters use the built-in read-only driver instead of shell
-interpolation or an additional native dependency.
+The strict BusiRocket baseline adds controls that neither reference defines as
+the transport contract: atomic exported units, TypeScript strictness including
+unchecked-index and exact-optional checks, architectural import boundaries,
+secret redaction, traversal rejection, size limits, allowlisted SQLite tables,
+content manifests, mode-0600 files, dry-run mutation gates, full project checks,
+home-path redaction, and explicit supply-chain policy in `pnpm-workspace.yaml`.
+Node 22.13 is enforced so SQLite-backed adapters use the built-in read-only
+driver instead of shell interpolation or an additional native dependency.
 
 ## Acceptance boundary
 
-Feature parity is measured at the Rocket Agents ecosystem boundary, not by reproducing every command
-name from a monolithic reference. Transport, indexing, knowledge organization, agent integration,
-and machine scheduling keep separate owners. A capability counts as covered only when its owning
-component has a runnable verification command.
+Feature parity is measured at the Rocket Agents ecosystem boundary, not by
+reproducing every command name from a monolithic reference. Transport, indexing,
+knowledge organization, agent integration, and machine scheduling keep separate
+owners. A capability counts as covered only when its owning component has a
+runnable verification command.

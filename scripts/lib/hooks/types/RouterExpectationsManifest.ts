@@ -1,4 +1,4 @@
-import type { RouterExpectation } from "./RouterExpectation"
+import type { RouterExpectation } from './RouterExpectation'
 
 export interface RouterExpectationsManifest {
   version: 1

@@ -9,12 +9,14 @@ Use this rubric to keep review findings consistent and findings-first.
 
 ## P1
 
-- High-confidence functional bug, regression, or broken contract with serious impact.
+- High-confidence functional bug, regression, or broken contract with serious
+  impact.
 - Should block delivery until fixed or explicitly accepted.
 
 ## P2
 
-- Real maintainability, correctness, performance, or testing gap with moderate impact.
+- Real maintainability, correctness, performance, or testing gap with moderate
+  impact.
 - Usually should be fixed soon; may not block a draft.
 
 ## P3

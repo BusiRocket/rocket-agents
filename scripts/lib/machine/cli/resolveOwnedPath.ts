@@ -1,3 +1,4 @@
-import { join } from "node:path"
+import { join } from 'node:path'
 
-export const resolveOwnedPath = (home: string) => join(home, ".agents-machine", "owned.json")
+export const resolveOwnedPath = (home: string) =>
+  join(home, '.agents-machine', 'owned.json')

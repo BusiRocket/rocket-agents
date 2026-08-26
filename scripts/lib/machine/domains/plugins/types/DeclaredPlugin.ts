@@ -1,4 +1,4 @@
-import type { PluginProfile } from "./PluginProfile"
+import type { PluginProfile } from './PluginProfile'
 
 export interface DeclaredPlugin {
   id: string

@@ -1,6 +1,6 @@
-import { main } from "../commands/conversationsDoctor"
+import { main } from '../commands/conversationsDoctor'
 
 main().catch(() => {
-  console.error("Conversation doctor failed unexpectedly")
+  console.error('Conversation doctor failed unexpectedly')
   process.exitCode = 2
 })

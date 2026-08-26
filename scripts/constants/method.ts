@@ -1,4 +1,4 @@
-import { detectExecutor } from "../detectors/detectExecutor"
-import { skillDirs } from "./skillDirs"
+import { detectExecutor } from '../detectors/detectExecutor'
+import { skillDirs } from './skillDirs'
 
-export const method = detectExecutor(skillDirs[0] ?? "")
+export const method = detectExecutor(skillDirs[0] ?? '')

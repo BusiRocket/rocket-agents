@@ -1,1 +1,12 @@
-export const IDENTIFIER_SYMBOLS = new Set([".", "_", "/", "-", ":", ",", "(", ")", "@", "#"])
+export const IDENTIFIER_SYMBOLS = new Set([
+  '.',
+  '_',
+  '/',
+  '-',
+  ':',
+  ',',
+  '(',
+  ')',
+  '@',
+  '#',
+])

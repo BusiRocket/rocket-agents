@@ -1,4 +1,4 @@
-import { firstJsonObject } from "./firstJsonObject"
+import { firstJsonObject } from './firstJsonObject'
 
 export const parseClassifierOutput = (raw: string) => {
   const block = firstJsonObject(raw)
@@ -23,20 +23,22 @@ export const parseClassifierOutput = (raw: string) => {
   const classified: { procedure: string; project?: string }[] = []
 
   for (const item of items) {
-    if (typeof item !== "object" || item === null) {
+    if (typeof item !== 'object' || item === null) {
       continue
     }
 
     const record = item as Record<string, unknown>
     const procedure = record.procedure ?? record.recurring_shape
 
-    if (typeof procedure !== "string") {
+    if (typeof procedure !== 'string') {
       continue
     }
 
     classified.push({
       procedure,
-      ...(typeof record.project === "string" ? { project: record.project } : {}),
+      ...(typeof record.project === 'string'
+        ? { project: record.project }
+        : {}),
     })
   }
 

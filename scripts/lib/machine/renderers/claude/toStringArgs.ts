@@ -1,6 +1,9 @@
-import type { McpValue } from "../../domains/mcp/types/McpValue"
+import type { McpValue } from '../../domains/mcp/types/McpValue'
 
-export const toStringArgs = (args: McpValue[] | undefined, appended: string[]) => [
-  ...(args ?? []).filter((value): value is string => typeof value === "string"),
+export const toStringArgs = (
+  args: McpValue[] | undefined,
+  appended: string[],
+) => [
+  ...(args ?? []).filter((value): value is string => typeof value === 'string'),
   ...appended,
 ]

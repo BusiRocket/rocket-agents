@@ -1,6 +1,6 @@
-import type { ConversationArtifact } from "./types/ConversationArtifact"
-import type { ConversationDocument } from "./types/ConversationDocument"
-import type { CursorConversation } from "./types/CursorConversation"
+import type { ConversationArtifact } from './types/ConversationArtifact'
+import type { ConversationDocument } from './types/ConversationDocument'
+import type { CursorConversation } from './types/CursorConversation'
 
 export const cursorDocumentsFromConversations = (
   artifact: ConversationArtifact,

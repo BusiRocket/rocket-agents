@@ -1,8 +1,11 @@
-import { isContinuationPhrase } from "./isContinuationPhrase"
-import { mightCarrySecret } from "./mightCarrySecret"
-import type { ObservedTurn } from "./types/ObservedTurn"
+import { isContinuationPhrase } from './isContinuationPhrase'
+import { mightCarrySecret } from './mightCarrySecret'
+import type { ObservedTurn } from './types/ObservedTurn'
 
-export const collectTriggerPhrases = (turns: ObservedTurn[], maxLength: number) => {
+export const collectTriggerPhrases = (
+  turns: ObservedTurn[],
+  maxLength: number,
+) => {
   const phrases: Record<string, string[]> = {}
   let previous: string | undefined
 

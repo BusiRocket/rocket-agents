@@ -1,1 +1,1 @@
-export type CodexLoginStatus = "chatgpt" | "api" | "signed-out"
+export type CodexLoginStatus = 'chatgpt' | 'api' | 'signed-out'

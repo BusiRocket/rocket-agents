@@ -1,7 +1,7 @@
-import { stat } from "node:fs/promises"
-import { join } from "node:path"
-import { hashFile } from "./hashFile"
-import type { SessionArchiveManifest } from "./types/SessionArchiveManifest"
+import { stat } from 'node:fs/promises'
+import { join } from 'node:path'
+import { hashFile } from './hashFile'
+import type { SessionArchiveManifest } from './types/SessionArchiveManifest'
 
 export const verifySessionArchive = async (
   runDir: string,
@@ -18,7 +18,9 @@ export const verifySessionArchive = async (
         errors.push(`archive hash mismatch: ${entry.relativePath}`)
       }
     } catch {
-      errors.push(`archive file is missing or unreadable: ${entry.relativePath}`)
+      errors.push(
+        `archive file is missing or unreadable: ${entry.relativePath}`,
+      )
     }
   }
   return errors

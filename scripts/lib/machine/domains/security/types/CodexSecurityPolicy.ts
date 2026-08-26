@@ -1,3 +1,3 @@
 export interface CodexSecurityPolicy {
-  forcedLoginMethod: "chatgpt"
+  forcedLoginMethod: 'chatgpt'
 }

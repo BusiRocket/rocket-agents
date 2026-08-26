@@ -1,11 +1,11 @@
-import { promises as fs } from "node:fs"
-import { join } from "node:path"
+import { promises as fs } from 'node:fs'
+import { join } from 'node:path'
 
 export const readSkillDescription = async (skillDir: string) => {
   let contents: string
 
   try {
-    contents = await fs.readFile(join(skillDir, "SKILL.md"), "utf8")
+    contents = await fs.readFile(join(skillDir, 'SKILL.md'), 'utf8')
   } catch {
     return undefined
   }
@@ -18,5 +18,5 @@ export const readSkillDescription = async (skillDir: string) => {
 
   const description = /^description:\s*(.+(?:\n\s+.+)*)/m.exec(frontmatter)?.[1]
 
-  return description?.replaceAll(/\s+/g, " ").trim()
+  return description?.replaceAll(/\s+/g, ' ').trim()
 }

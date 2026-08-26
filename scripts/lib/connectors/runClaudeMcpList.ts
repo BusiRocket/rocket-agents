@@ -1,5 +1,5 @@
-import { spawn } from "node:child_process"
-import { toProfileEnv } from "./toProfileEnv"
+import { spawn } from 'node:child_process'
+import { toProfileEnv } from './toProfileEnv'
 
 /**
  * Each profile gets an explicitly built environment. The personal probe used to
@@ -9,22 +9,22 @@ import { toProfileEnv } from "./toProfileEnv"
  * connectors read as missing.
  */
 export const runClaudeMcpList = (
-  profile: "claude-personal" | "claude-favish",
+  profile: 'claude-personal' | 'claude-favish',
   home: string,
-  executable = "claude",
+  executable = 'claude',
 ): Promise<string> =>
   new Promise((resolve, reject) => {
     const env = toProfileEnv(profile, home, process.env)
-    const child = spawn(executable, ["mcp", "list"], { env, shell: false })
-    let output = ""
-    child.stdout.on("data", (chunk: Buffer) => {
+    const child = spawn(executable, ['mcp', 'list'], { env, shell: false })
+    let output = ''
+    child.stdout.on('data', (chunk: Buffer) => {
       output = `${output}${chunk.toString()}`.slice(-65_536)
     })
-    child.stderr.on("data", (chunk: Buffer) => {
+    child.stderr.on('data', (chunk: Buffer) => {
       output = `${output}${chunk.toString()}`.slice(-65_536)
     })
-    child.on("error", reject)
-    child.on("close", () => {
+    child.on('error', reject)
+    child.on('close', () => {
       resolve(output)
     })
   })

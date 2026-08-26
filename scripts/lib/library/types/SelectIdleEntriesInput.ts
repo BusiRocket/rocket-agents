@@ -1,4 +1,4 @@
-import type { CurationManifest } from "./CurationManifest"
+import type { CurationManifest } from './CurationManifest'
 
 export interface SelectIdleEntriesInput {
   manifest: CurationManifest

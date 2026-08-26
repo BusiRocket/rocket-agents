@@ -1,37 +1,40 @@
-import assert from "node:assert/strict"
-import test from "node:test"
-import { matchesConnectorLine } from "./matchesConnectorLine"
-import type { ConnectorDefinition } from "./types/ConnectorDefinition"
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { matchesConnectorLine } from './matchesConnectorLine'
+import type { ConnectorDefinition } from './types/ConnectorDefinition'
 
-void test("a directly configured server matches on its bare name", () => {
+void test('a directly configured server matches on its bare name', () => {
   const definition = {
-    id: "openseo",
-    match: "openseo",
-    profiles: ["claude-personal"],
-    ownership: "machine",
-    probe: "native-cli",
-    criticality: "required",
-  } as ConnectorDefinition
-
-  assert.equal(
-    matchesConnectorLine("openseo: https://seo.busirocket.com/mcp (HTTP) - Connected", definition),
-    true,
-  )
-})
-
-void test("a plugin-provided server satisfies the same connector", () => {
-  const definition = {
-    id: "context7",
-    match: "context7",
-    profiles: ["claude-personal"],
-    ownership: "machine",
-    probe: "native-cli",
-    criticality: "required",
+    id: 'openseo',
+    match: 'openseo',
+    profiles: ['claude-personal'],
+    ownership: 'machine',
+    probe: 'native-cli',
+    criticality: 'required',
   } as ConnectorDefinition
 
   assert.equal(
     matchesConnectorLine(
-      "plugin:context7:context7: https://mcp.context7.com/mcp (HTTP) - Connected",
+      'openseo: https://seo.busirocket.com/mcp (HTTP) - Connected',
+      definition,
+    ),
+    true,
+  )
+})
+
+void test('a plugin-provided server satisfies the same connector', () => {
+  const definition = {
+    id: 'context7',
+    match: 'context7',
+    profiles: ['claude-personal'],
+    ownership: 'machine',
+    probe: 'native-cli',
+    criticality: 'required',
+  } as ConnectorDefinition
+
+  assert.equal(
+    matchesConnectorLine(
+      'plugin:context7:context7: https://mcp.context7.com/mcp (HTTP) - Connected',
       definition,
     ),
     true,
@@ -40,35 +43,38 @@ void test("a plugin-provided server satisfies the same connector", () => {
 
 void test("another plugin's server does not satisfy this connector", () => {
   const definition = {
-    id: "context7",
-    match: "context7",
-    profiles: ["claude-personal"],
-    ownership: "machine",
-    probe: "native-cli",
-    criticality: "required",
+    id: 'context7',
+    match: 'context7',
+    profiles: ['claude-personal'],
+    ownership: 'machine',
+    probe: 'native-cli',
+    criticality: 'required',
   } as ConnectorDefinition
 
   assert.equal(
     matchesConnectorLine(
-      "plugin:cloudflare:cloudflare-api: https://mcp.cloudflare.com/mcp (HTTP) - Connected",
+      'plugin:cloudflare:cloudflare-api: https://mcp.cloudflare.com/mcp (HTTP) - Connected',
       definition,
     ),
     false,
   )
 })
 
-void test("a hosted connector whose name merely contains the match does not count", () => {
+void test('a hosted connector whose name merely contains the match does not count', () => {
   const definition = {
-    id: "slack",
-    match: "slack",
-    profiles: ["claude-personal"],
-    ownership: "account",
-    probe: "native-cli",
-    criticality: "optional",
+    id: 'slack',
+    match: 'slack',
+    profiles: ['claude-personal'],
+    ownership: 'account',
+    probe: 'native-cli',
+    criticality: 'optional',
   } as ConnectorDefinition
 
   assert.equal(
-    matchesConnectorLine("claude.ai Slack: https://mcp.slack.com/mcp - Connected", definition),
+    matchesConnectorLine(
+      'claude.ai Slack: https://mcp.slack.com/mcp - Connected',
+      definition,
+    ),
     false,
   )
 })

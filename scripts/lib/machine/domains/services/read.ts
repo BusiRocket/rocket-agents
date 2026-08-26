@@ -1,7 +1,7 @@
-import { readdir, readFile } from "node:fs/promises"
-import { join } from "node:path"
-import type { ServicesPaths } from "./types/ServicesPaths"
-import type { ServicesState } from "./types/ServicesState"
+import { readdir, readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import type { ServicesPaths } from './types/ServicesPaths'
+import type { ServicesState } from './types/ServicesState'
 
 export const read = async (paths: ServicesPaths): Promise<ServicesState> => {
   let files: string[]
@@ -15,7 +15,10 @@ export const read = async (paths: ServicesPaths): Promise<ServicesState> => {
   const entries = await Promise.all(
     files.map(async (file) => {
       try {
-        return [file, await readFile(join(paths.directory, file), "utf8")] as const
+        return [
+          file,
+          await readFile(join(paths.directory, file), 'utf8'),
+        ] as const
       } catch {
         return undefined
       }

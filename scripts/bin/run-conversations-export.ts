@@ -1,6 +1,6 @@
-import { main } from "../commands/conversationsExport"
+import { main } from '../commands/conversationsExport'
 
 main().catch(() => {
-  console.error("Conversation export failed unexpectedly")
+  console.error('Conversation export failed unexpectedly')
   process.exitCode = 2
 })

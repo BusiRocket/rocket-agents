@@ -1,16 +1,16 @@
-import type { CurationManifest } from "../../types/CurationManifest"
-import { resolveLaneSkill } from "../resolveLaneSkill"
-import type { SkillAlias } from "../types/SkillAlias"
+import type { CurationManifest } from '../../types/CurationManifest'
+import { resolveLaneSkill } from '../resolveLaneSkill'
+import type { SkillAlias } from '../types/SkillAlias'
 
 export const validateLaneSkills = (
-  lanes: Record<string, readonly string[] | "policy-only">,
+  lanes: Record<string, readonly string[] | 'policy-only'>,
   target: string,
   manifest: CurationManifest,
   aliases: SkillAlias[],
 ): string[] => {
   const errors: string[] = []
   for (const [lane, skills] of Object.entries(lanes)) {
-    if (skills === "policy-only") continue
+    if (skills === 'policy-only') continue
     if (skills.length === 0) {
       errors.push(`${lane}: lane must declare a skill or policy-only ownership`)
       continue

@@ -1,4 +1,4 @@
-import type { SnapshotManifestEntry } from "./SnapshotManifestEntry"
+import type { SnapshotManifestEntry } from './SnapshotManifestEntry'
 
 export interface SnapshotManifest {
   version: 1

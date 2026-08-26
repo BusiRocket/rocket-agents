@@ -1,11 +1,16 @@
-import { tokenize } from "./tokenize"
+import { tokenize } from './tokenize'
 
-export const semanticCoherenceWarning = (description: string, rules: string[]) => {
+export const semanticCoherenceWarning = (
+  description: string,
+  rules: string[],
+) => {
   const descriptionTokens = new Set(tokenize(description))
   const ruleTokens = new Set(
     rules
       .flatMap((rule: string) =>
-        tokenize(rule.replace("@rules/", "").replace(".mdc", "").replace(/\//g, " ")),
+        tokenize(
+          rule.replace('@rules/', '').replace('.mdc', '').replace(/\//g, ' '),
+        ),
       )
       .filter((token: string) => token.length > 2),
   )
@@ -16,7 +21,7 @@ export const semanticCoherenceWarning = (description: string, rules: string[]) =
   }
 
   if (overlap === 0) {
-    return "description may be semantically misaligned with mapped rules"
+    return 'description may be semantically misaligned with mapped rules'
   }
 
   return null

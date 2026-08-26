@@ -1,8 +1,8 @@
-import { promises as fs } from "node:fs"
-import { listTranscriptFiles } from "./listTranscriptFiles"
-import { readTranscriptTurns } from "./readTranscriptTurns"
-import type { ObservationResult } from "./types/ObservationResult"
-import type { ObservedTurn } from "./types/ObservedTurn"
+import { promises as fs } from 'node:fs'
+import { listTranscriptFiles } from './listTranscriptFiles'
+import { readTranscriptTurns } from './readTranscriptTurns'
+import type { ObservationResult } from './types/ObservationResult'
+import type { ObservedTurn } from './types/ObservedTurn'
 
 export const observeTranscripts = async (
   root: string,
@@ -28,7 +28,7 @@ export const observeTranscripts = async (
 
     let contents: string
     try {
-      contents = await fs.readFile(file, "utf8")
+      contents = await fs.readFile(file, 'utf8')
     } catch {
       continue
     }
@@ -46,7 +46,12 @@ export const observeTranscripts = async (
   }
 
   return {
-    summary: { transcripts: files.length, skipped, requests: turns.length, invocations },
+    summary: {
+      transcripts: files.length,
+      skipped,
+      requests: turns.length,
+      invocations,
+    },
     turns,
     sequence,
     index,

@@ -1,4 +1,4 @@
-import { main } from "../commands/machineApply"
+import { main } from '../commands/machineApply'
 
 main().catch((error: unknown) => {
   console.error(error)

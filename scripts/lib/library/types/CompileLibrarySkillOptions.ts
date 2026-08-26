@@ -1,4 +1,4 @@
-import type { SkillTarget } from "./SkillTarget"
+import type { SkillTarget } from './SkillTarget'
 
 export interface CompileLibrarySkillOptions {
   logicalName: string

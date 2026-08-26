@@ -1,4 +1,4 @@
-import type { DescriptionProposal } from "./types/DescriptionProposal"
+import type { DescriptionProposal } from './types/DescriptionProposal'
 
 export const proposeDescriptionEdit = (
   skill: string,

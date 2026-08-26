@@ -61,7 +61,10 @@
             "type": "string",
             "enum": ["promoted", "preserved", "translated", "removed"]
           },
-          "source": { "type": "string", "enum": ["shared", "claude", "codex", "rule"] },
+          "source": {
+            "type": "string",
+            "enum": ["shared", "claude", "codex", "rule"]
+          },
           "rationale": { "type": "string", "minLength": 1 }
         }
       }

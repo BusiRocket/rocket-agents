@@ -1,10 +1,10 @@
-import { apply } from "./apply"
-import { read } from "./read"
-import { toServicesApplyStatus } from "./toServicesApplyStatus"
-import type { ServicesManifestParseResult } from "./types/ServicesManifestParseResult"
-import type { ServicesPaths } from "./types/ServicesPaths"
-import type { CommandRunner } from "../../exec/types/CommandRunner"
-import type { DomainResult } from "../../types/DomainResult"
+import type { CommandRunner } from '../../exec/types/CommandRunner'
+import type { DomainResult } from '../../types/DomainResult'
+import { apply } from './apply'
+import { read } from './read'
+import { toServicesApplyStatus } from './toServicesApplyStatus'
+import type { ServicesManifestParseResult } from './types/ServicesManifestParseResult'
+import type { ServicesPaths } from './types/ServicesPaths'
 
 /**
  * Writes and loads the declared units, then reports the domain result. Like
@@ -24,15 +24,20 @@ export const runServicesApply = async ({
 }): Promise<DomainResult> => {
   if (parsed === undefined) {
     return {
-      domain: "services",
-      status: "skipped",
+      domain: 'services',
+      status: 'skipped',
       changes: 0,
-      messages: ["no services.json in the instance directory"],
+      messages: ['no services.json in the instance directory'],
     }
   }
 
   if (!parsed.ok) {
-    return { domain: "services", status: "failed", changes: 0, messages: parsed.errors }
+    return {
+      domain: 'services',
+      status: 'failed',
+      changes: 0,
+      messages: parsed.errors,
+    }
   }
 
   const result = await apply({
@@ -44,7 +49,7 @@ export const runServicesApply = async ({
   })
 
   return {
-    domain: "services",
+    domain: 'services',
     status: toServicesApplyStatus(result),
     changes: result.written.length,
     messages: [

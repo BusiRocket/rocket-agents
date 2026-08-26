@@ -1,6 +1,6 @@
-import { readdir } from "node:fs/promises"
-import { join } from "node:path"
-import type { PluginMarketplaceEntry } from "./types/PluginMarketplaceEntry"
+import { readdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import type { PluginMarketplaceEntry } from './types/PluginMarketplaceEntry'
 
 export const findOrphanCacheDirectories = async ({
   cacheDir,

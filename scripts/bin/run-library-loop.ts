@@ -1,4 +1,4 @@
-import { main } from "../commands/libraryLoop"
+import { main } from '../commands/libraryLoop'
 
 main().catch((error: unknown) => {
   console.error(error)

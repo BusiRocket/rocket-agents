@@ -1,4 +1,5 @@
-import type { PluginsManifestDocument } from "./PluginsManifestDocument"
+import type { PluginsManifestDocument } from './PluginsManifestDocument'
 
 export type PluginsManifestParseResult =
-  { ok: true; manifest: PluginsManifestDocument } | { ok: false; errors: string[] }
+  | { ok: true; manifest: PluginsManifestDocument }
+  | { ok: false; errors: string[] }

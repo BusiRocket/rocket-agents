@@ -1,9 +1,11 @@
-import { parseTomlArray } from "./parseTomlArray"
-import { normalizeCodexSubTable } from "./normalizeCodexSubTable"
-import { unquoteTomlString } from "./unquoteTomlString"
-import type { NormalizedCodexServer } from "./types/NormalizedCodexServer"
+import { normalizeCodexSubTable } from './normalizeCodexSubTable'
+import { parseTomlArray } from './parseTomlArray'
+import type { NormalizedCodexServer } from './types/NormalizedCodexServer'
+import { unquoteTomlString } from './unquoteTomlString'
 
-export const normalizeCodexServer = (record: Record<string, string>): NormalizedCodexServer => {
+export const normalizeCodexServer = (
+  record: Record<string, string>,
+): NormalizedCodexServer => {
   const normalized: NormalizedCodexServer = {}
 
   if (record.command !== undefined) {
@@ -23,19 +25,21 @@ export const normalizeCodexServer = (record: Record<string, string>): Normalized
   }
 
   if (record.required !== undefined) {
-    normalized.required = record.required === "true"
+    normalized.required = record.required === 'true'
   }
 
   if (record.default_tools_approval_mode !== undefined) {
-    normalized.default_tools_approval_mode = unquoteTomlString(record.default_tools_approval_mode)
+    normalized.default_tools_approval_mode = unquoteTomlString(
+      record.default_tools_approval_mode,
+    )
   }
 
-  const httpHeaders = normalizeCodexSubTable(record, "http_headers")
+  const httpHeaders = normalizeCodexSubTable(record, 'http_headers')
   if (httpHeaders !== undefined) {
     normalized.http_headers = httpHeaders
   }
 
-  const environmentHeaders = normalizeCodexSubTable(record, "env_http_headers")
+  const environmentHeaders = normalizeCodexSubTable(record, 'env_http_headers')
   if (environmentHeaders !== undefined) {
     normalized.env_http_headers = environmentHeaders
   }

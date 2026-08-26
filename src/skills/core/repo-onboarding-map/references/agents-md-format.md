@@ -117,8 +117,11 @@ upgraded opportunistically, and how large a diff should be.
 - Date anything that can go stale — smoke tests, version pins, deploy topology.
 - ASCII punctuation; no smart quotes, no invisible characters.
 - English, always, regardless of the conversation's language.
-- Keep it under roughly 150 lines. Past that, the file stops being read, and an
-  unread map is worse than none because it looks like coverage.
+- Budget the prose, not the file. Roughly 120 lines of prose is the ceiling;
+  past that the file stops being read, and an unread map is worse than none
+  because it looks like coverage. Verified command blocks do not count against
+  it — they are the part that earns the reader's trust, and trimming them to hit
+  a line count is the wrong trade.
 
 ## Staleness
 

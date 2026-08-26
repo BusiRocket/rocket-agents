@@ -94,7 +94,7 @@
   },
   "devDependencies": {
     "@busirocket/prettier-config": "^0.2.0",
-    "@busirocket/quality-config": "^0.7.0",
+    "@busirocket/quality-config": "^0.10.0",
     "@busirocket/tsconfig": "^0.2.1",
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.1.1",

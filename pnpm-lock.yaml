@@ -16,8 +16,8 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0(prettier-plugin-organize-imports@4.3.0(@typescript/typescript6@6.0.2)(prettier@3.9.5))(prettier@3.9.5)
       '@busirocket/quality-config':
-        specifier: ^0.7.0
-        version: 0.7.0(@typescript/typescript6@6.0.2)(dependency-cruiser@18.2.0)(knip@6.32.2)
+        specifier: ^0.10.0
+        version: 0.10.0(@typescript/typescript6@6.0.2)(dependency-cruiser@18.2.0)(knip@6.32.2)
       '@busirocket/tsconfig':
         specifier: ^0.2.1
         version: 0.2.1
@@ -127,8 +127,8 @@ packages:
       prettier-plugin-tailwindcss:
         optional: true
 
-  '@busirocket/quality-config@0.7.0':
-    resolution: {integrity: sha512-Bda07SO2aADCSP/D188Ni9l9z+aMSJ9Bw5nWrOnjR/zJ3boKEjwINKd2fWhjl+6RunbHIEqhaBHt2ECe4alQ/w==}
+  '@busirocket/quality-config@0.10.0':
+    resolution: {integrity: sha512-gA47Y3HF9F21g3S7Azd1c/YPGlrs2yDm05JDMCIbioJVduRR/OB55kp1KBV8nJaVd7iX8VAHI7TbY+8e3zX64A==}
     engines: {node: '>=22'}
     hasBin: true
     peerDependencies:
@@ -2045,7 +2045,7 @@ snapshots:
       prettier: 3.9.5
       prettier-plugin-organize-imports: 4.3.0(@typescript/typescript6@6.0.2)(prettier@3.9.5)
 
-  '@busirocket/quality-config@0.7.0(@typescript/typescript6@6.0.2)(dependency-cruiser@18.2.0)(knip@6.32.2)':
+  '@busirocket/quality-config@0.10.0(@typescript/typescript6@6.0.2)(dependency-cruiser@18.2.0)(knip@6.32.2)':
     dependencies:
       typescript: '@typescript/typescript6@6.0.2'
     optionalDependencies:

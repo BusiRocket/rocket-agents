@@ -1,13 +1,12 @@
 ---
 name: repo-onboarding-map
 description:
-  Maps a repository nobody on the team has worked in yet and writes the
-  AGENTS.md that lets the next agent or human start without re-deriving the
-  stack, infrastructure, and deployment path. Trigger when a repo has just been
-  cloned, when a ticket lands in an unfamiliar codebase, when onboarding notes
-  are asked for, or when an existing AGENTS.md has gone stale against the code.
-  Do not use for writing feature documentation, API references, or ADRs (that is
-  brp-docs), and do not use to audit a ticket's completion.
+  Maps an unfamiliar repository and writes the AGENTS.md a new contributor needs
+  to start without re-deriving its infrastructure. Trigger when a repo has just
+  been cloned, when a ticket lands in a codebase nobody here has touched, when
+  onboarding notes are asked for, or when an existing AGENTS.md has gone stale
+  against the code. Do not use for feature documentation, API references, or
+  ADRs (that is brp-docs), and do not use to audit a ticket's completion.
 allowed-tools: Read, Grep, Glob, Edit, Write, Bash
 argument-hint: [repo-path]
 ---

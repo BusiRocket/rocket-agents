@@ -55,6 +55,60 @@ void test('streamed exports preserve manifests without retaining the archive in 
   assert.equal(valid.manifest?.records, 1)
 })
 
+void test('a partial export declares itself incomplete and lists every skip', async (context) => {
+  const root = await fs.mkdtemp(join(tmpdir(), 'rocket-conversations-partial-'))
+  context.after(async () => fs.rm(root, { recursive: true, force: true }))
+  const store = new ConversationCaptureStore(join(root, 'capture.sqlite'))
+  const output = join(root, 'export.jsonl')
+  const skipped = ['codex:sessions/huge.jsonl: file exceeds 64 MiB limit']
+  try {
+    store.mergeFragment(createConversationRecord())
+    await writeConversationExportFromStore(
+      store,
+      output,
+      new Date('2026-08-19T10:00:00Z'),
+      skipped,
+    )
+  } finally {
+    store.close()
+  }
+
+  const partial = await readConversationExport(output)
+  assert.deepEqual(partial.errors, [])
+  const manifest = partial.manifest
+  if (manifest === undefined)
+    throw new Error('partial export lost its manifest')
+  assert.equal(manifest.complete, false)
+  assert.deepEqual(manifest.skipped, skipped)
+})
+
+void test('a complete export carries no completeness fields', async (context) => {
+  const root = await fs.mkdtemp(
+    join(tmpdir(), 'rocket-conversations-complete-'),
+  )
+  context.after(async () => fs.rm(root, { recursive: true, force: true }))
+  const store = new ConversationCaptureStore(join(root, 'capture.sqlite'))
+  const output = join(root, 'export.jsonl')
+  try {
+    store.mergeFragment(createConversationRecord())
+    await writeConversationExportFromStore(
+      store,
+      output,
+      new Date('2026-08-19T10:00:00Z'),
+    )
+  } finally {
+    store.close()
+  }
+
+  const complete = await readConversationExport(output)
+  assert.deepEqual(complete.errors, [])
+  const manifest = complete.manifest
+  if (manifest === undefined)
+    throw new Error('complete export lost its manifest')
+  assert.equal('complete' in manifest, false)
+  assert.equal('skipped' in manifest, false)
+})
+
 void test('imports are dry-run by default and back up an existing archive on apply', async (context) => {
   const root = await fs.mkdtemp(join(tmpdir(), 'rocket-conversations-import-'))
   context.after(async () => fs.rm(root, { recursive: true, force: true }))

@@ -33,12 +33,14 @@ export const main = async () => {
     process.exitCode = 2
     return
   }
+  const allowPartial = process.argv.includes('--allow-partial')
   const { report, manifest, redactions } = await exportConversations(
     home,
     output,
     selection.sources,
+    allowPartial,
   )
-  if (!report.ok) {
+  if (!report.ok && !allowPartial) {
     console.error(
       JSON.stringify({ ok: false, errors: report.skipped }, null, 2),
     )
@@ -52,11 +54,15 @@ export const main = async () => {
     JSON.stringify(
       {
         ok: true,
+        complete: manifest.complete !== false,
         output,
         records: manifest.records,
         redactions,
         sources: report.sources,
         contentSha256: manifest.contentSha256,
+        ...(manifest.skipped === undefined
+          ? {}
+          : { skipped: manifest.skipped }),
       },
       null,
       2,

@@ -10,6 +10,7 @@ export const exportConversations = async (
   home: string,
   output: string,
   selectedSources?: ReadonlySet<ConversationSource>,
+  allowPartial = false,
 ) => {
   const directory = await mkdtemp(
     join(tmpdir(), 'rocket-agents-conversation-export-'),
@@ -23,12 +24,21 @@ export const exportConversations = async (
         store.mergeFragment(record)
       },
     )
-    if (!report.ok) return { report }
+    // Fail closed by default: a skipped artifact means the export would
+    // silently under-represent a source. --allow-partial is the explicit
+    // recovery mode; the manifest then records complete:false and every skip,
+    // so no partial archive can pass as a full one downstream.
+    if (!report.ok && !allowPartial) return { report }
     const redactions = store.redactions()
     return {
       report,
       redactions,
-      manifest: await writeConversationExportFromStore(store, output),
+      manifest: await writeConversationExportFromStore(
+        store,
+        output,
+        new Date(),
+        report.skipped,
+      ),
     }
   } finally {
     store.close()

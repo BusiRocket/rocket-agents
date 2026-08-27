@@ -11,6 +11,7 @@ export const writeConversationExportFromStore = async (
   store: ConversationCaptureStore,
   output: string,
   now = new Date(),
+  skipped: readonly string[] = [],
 ) => {
   const manifest: ConversationExportManifest = {
     kind: 'rocket-agents-conversation-export',
@@ -18,6 +19,9 @@ export const writeConversationExportFromStore = async (
     createdAt: now.toISOString(),
     records: store.count(),
     contentSha256: hashSerializedConversationRecords(store),
+    ...(skipped.length > 0
+      ? { complete: false as const, skipped: [...skipped] }
+      : {}),
   }
   const temporary = `${output}.tmp-${String(process.pid)}`
   await fs.mkdir(dirname(output), { recursive: true, mode: 0o700 })

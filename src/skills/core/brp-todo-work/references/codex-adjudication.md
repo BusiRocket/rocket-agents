@@ -80,6 +80,7 @@ the working root.
 
 ```bash
 codex exec -C "$PWD" -s read-only \
+  -c 'mcp_servers={}' \
   --output-schema "$DIR/decision.schema.json" \
   -o "$DIR/decision.json" \
   -c model_reasoning_effort=low \
@@ -96,15 +97,23 @@ edit. Leave `-m` out; the account default is configured in
 `~/.codex/config.toml` and a model id copied from a document may not be one the
 account can use.
 
-Flags verified against codex-cli 0.150.1. `--full-auto` and `-a` do not exist on
-`exec`, `--search` is a top-level flag, and `--output-schema` is rejected by
-`codex exec resume` - start a fresh run per adjudication.
+Dropping the MCP servers is what makes the schema dependable: they are what
+silently disables `--output-schema`, and an adjudicator has no use for them.
+
+Flags verified against codex-cli 0.150.1: `--full-auto` and `-a` do not exist on
+`exec`, and `--search` is a top-level flag. Start each adjudication as a fresh
+`exec` rather than a resume - `exec resume` does accept `--output-schema`, but
+one brief is one question and a fresh run keeps the verdict traceable to it.
 
 ## Verdict handling
 
-`--output-schema` is silently ignored when MCP servers are active, so parse
-`decision.json` and check the required keys instead of assuming conformance. A
-non-zero exit code has no documented contract; the payload is the signal.
+Write each adjudication to a path that did not exist before the run, and accept
+the verdict only when the run exited zero and that file now exists and carries
+every required key. A timed-out or failed run that leaves the previous attempt's
+file in place is the one way this contract fails quietly: an older,
+valid-looking verdict then decides a question it never saw. `--output-schema` is
+also silently ignored when MCP servers are active, which is why the command
+above drops them; parse and check rather than assuming conformance.
 
 - Valid verdict: act on it. Record the decision, its rationale in one line, and
   the command in the `TODO_LOG.md` entry for the item.

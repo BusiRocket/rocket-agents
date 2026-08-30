@@ -24,8 +24,11 @@ argument-hint: [scope-or-category]
 - No commit, push, branch, or PR unless the user or project instructions
   authorize it. A standing authorization already on record - in the repository's
   instructions, the user's own instruction files, or project memory - is that
-  authorization. Read those before parking work as needing authority, and never
-  re-ask per run for permission the user has already given once.
+  authorization when its recorded scope covers the action at hand: same
+  repository, same kind of action, same branch or remote. Read those before
+  parking work as needing authority, and do not re-ask per run for permission
+  whose scope plainly still applies. A one-off approval, or a record whose scope
+  is unclear, has expired and does not carry to a different target.
 - Do not stop after one task or one iteration while safe actionable work
   remains. Recover prior context from project memory, current files, Git
   history, and existing plans before asking the user to restate it.
@@ -73,21 +76,33 @@ the declared caps below. Only then ask to approve, approve with changes, or
 decline, and keep the request itself to one sentence.
 
 Approved with changes restates the queue once and starts; declined stops without
-changing anything. This approval covers the whole run: re-approve only when a
-newly discovered action needs authority the run does not have, or scope grows
-well beyond what was presented. Finishing an item, a wave, or the presented
-queue while actionable work remains is not a reason to come back.
+changing anything. The approval covers the listed items and the narrow
+dependencies they cannot be completed without - not the backlog at large. Newly
+discovered peer work goes into `TODO.md` for the next plan unless the user
+approved an explicit wildcard ("everything actionable"). Within that boundary
+the approval lasts the whole run: finishing an item, a wave, or the presented
+queue while approved work remains is not a reason to come back, and only an
+action needing authority the run does not have sends you back to the user.
+
+Name Codex in the plan when the run intends to use it, with a cap on calls, so
+the separate quota is approved with everything else rather than spent silently.
 
 A run-scoped waiver ("execute without asking") skips this gate but never covers
 actions that independently require authority.
 
 ## Deciding instead of asking
 
-Default to deciding. An ambiguous requirement, a missing technical detail, two
-defensible designs, an unclear priority, or an arguable task state is yours to
-settle: take the most reasonable reading, prefer the reversible option, and
-record the assumption next to the item. The authority list above is the
-exception and keeps its precedence.
+Default to deciding whatever preserves observable behaviour and public
+contracts: a missing technical detail, two defensible implementations of the
+same result, an arguable task state. Take the most reasonable reading, prefer
+the reversible option, and record the assumption next to the item.
+
+Ambiguity about what the product should do is not that kind of decision. When
+the fork changes behaviour a user or a caller would notice - a default, an API
+or data contract, what a number means, or which of two materially different
+outcomes the backlog wants - a wrong choice is cheap to revert in Git and
+expensive everywhere else. Park those, and keep the authority list above ahead
+of everything in this section.
 
 Delegate the genuine forks to Codex rather than to the user. Batch a wave's open
 decisions into one brief, run one read-only `codex exec` with a JSON schema, act

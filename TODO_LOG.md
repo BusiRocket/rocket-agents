@@ -6,6 +6,45 @@
 
 ### 2026-08
 
+- [x] 2026-08-30 - **Codex adversarial review of the day's skill changes:**
+      BLOCK with 13 findings, 11 applied.
+  - The review ran under the convergence protocol written earlier the same day:
+    a briefing file, read-only sandbox, JSON schema, and every claim verified
+    locally before applying. It web-searched the codex source to check the CLI
+    facts.
+  - Three of its factual corrections held and were wrong in this repo's files:
+    `codex exec resume` does accept `--output-schema` on 0.150.1; `--add-dir`
+    adds a _writable_ root, not read access, so using it to feed a read-only
+    review its evidence exposed that evidence; and
+    `~/.claude/rules/model-prompting.md` is path-scoped, so the turn-boundary
+    rule added there would never have loaded during a backlog session. That rule
+    moved to an unscoped `~/.claude/rules/turn-discipline.md`.
+  - Unbounded rules were bounded: a standing authorization now has to match the
+    repository, action and target; the approval covers the listed items and
+    their narrow dependencies rather than the backlog at large;
+    decide-by-default is limited to choices that preserve observable behaviour
+    and public contracts; Codex usage and a call cap are named in the plan so
+    the separate quota is approved rather than spent silently.
+  - Two safety fixes in the adjudication contract: the command was missing
+    `-c 'mcp_servers={}'`, the override that keeps `--output-schema` from being
+    ignored, and verdict handling now requires exit zero plus a file that did
+    not exist before the run, so a timed-out retry cannot accept the previous
+    attempt's verdict.
+  - `resume --last` replaced by an explicit session id: three Codex sessions ran
+    simultaneously on this machine today, and `--last` picks whichever finished
+    most recently.
+  - Two findings were consciously not taken as written. The `--yolo` default is
+    the owner's standing decision with documented reasons, so instead of
+    reverting it the precedence is now explicit: read-only work takes
+    `-s read-only`, bounded implementation takes `-s workspace-write`, and what
+    Codex may do inside its run never licenses acting on its output without
+    confirmation. The "delete enumerated rules" guidance got a carve-out for
+    ordered steps that carry authorization, CLI correctness, recovery or
+    validation, rather than being applied to the procedural skills.
+  - One round, not a loop: 11 of 13 applied and 2 scoped deliberately, so a
+    second pass had nothing left to converge on. Gates green, skills relinked,
+    three repositories pushed.
+
 - [x] 2026-08-30 - **Skills audit against a month of transcripts:** the real
       cause of the stopping was the turn boundary, not the approval gate.
   - Corpus: 7,822 transcripts over 31 days. `codex` fired 66 times,

@@ -30,3 +30,7 @@ firebase-debug.log
 # Python bytecode from hook helpers
 __pycache__/
 *.pyc
+
+# Local pnpm content-addressable store, created when a command runs with a
+# repo-local store directory instead of the shared one.
+.pnpm-store/

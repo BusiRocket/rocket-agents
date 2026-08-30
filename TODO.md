@@ -16,6 +16,26 @@
 > verified complete · `[-]` obsolete or superseded. Closed work moves to
 > `TODO_LOG.md`.
 
+## Codex skills budget
+
+- [~] The trim that stops Codex dropping every skill description is a
+  hand-generated block in `~/.codex/config.toml`, and this repository should own
+  it. Codex treats `~/.agents/skills` as a discovery root and finds 314 SKILL.md
+  there (~110k description characters), which overflows its skills context
+  budget: it then strips every description and omits ~12 skills, so it cannot
+  route to any skill at all. Disabling the aggregate parents does nothing
+  because the nested children are discovered independently. Applied 2026-08-30:
+  244 new `enabled = false` entries between the `# BEGIN generated skills trim`
+  markers, derived from the Claude symlink targets (44 curated kept, 270
+  disabled). Verified: warning gone, and a trivial run drops 20,590 to 14,790
+  tokens. Backup at `~/.codex/config.toml.bak-skills-trim-20260830-234626`. The
+  rule that generated it: every `SKILL.md` under `~/.agents/skills` whose
+  directory is not the target of a `~/.claude/skills/*` symlink gets an
+  `enabled = false` entry. Remaining: the list is a snapshot and goes stale
+  whenever the curated set changes, so `skills:link` (or a sibling command)
+  should emit that block for the codex target the same way it links the other
+  IDEs, rewriting between the markers.
+
 ## Skills library cleanup
 
 > Decided 2026-08-17: curate one list and link it to every IDE including
@@ -178,6 +198,43 @@
       dependencies - so the smallest real step is to run it in one frontend when
       that project is next open, and file the result there. Tracked here by the
       2026-08-13 routing decision. Source: `~/p/brain/topics/web-platform.md`.
+
+## Conversations export
+
+- [ ] Canonical event IDs are conversation-local in practice:
+      `scripts/lib/conversations/conversationEventFromRecord.ts:20` derives the
+      event ID from `event_index + text` with no conversation or provider
+      identity, and real cross-conversation collisions were measured on
+      2026-08-27 (OpenCode: 17 collisions across 2,586 records; Cursor: 73
+      across 67,568). Atrium works around it by keying on
+      `sha256(conversation_id, event_id)`; the canonical contract should carry
+      conversation identity in the event ID itself. Filed from
+      `~/p/atrium/TODO.md`.
+- [ ] The Windsurf exporter emits 0 conversations from the 4 database artifacts
+      `conversations:doctor` detects (observed 2026-08-27 during Atrium provider
+      probes). Smallest step: run the exporter against one Windsurf artifact and
+      record whether the gap is parser shape or empty sources. Filed from
+      `~/p/atrium/TODO.md`.
+- [~] Oversized artifacts vs export, two stages. **Interim shipped 2026-08-27**
+  (`bfa54ec`): `--allow-partial` writes the export with a manifest that declares
+  `complete:false` and lists every skip; default stays fail-closed. That
+  unblocked the codex source (4,356 records exported; the two >64 MiB rollouts
+  2026-08-19T21-06-36 and 2026-08-26T13-41-24 remain skipped and declared).
+  **Real fix still open**: stream JSONL artifacts line-by-line so the 64 MiB
+  bound applies per line/record instead of per file
+  (`readTextConversationDocument.ts` slurps whole files), normalize
+  incrementally while hashing the source, and fragment a normalized conversation
+  that exceeds the record cap deterministically. Then the two oversized rollouts
+  get captured instead of skipped and `--allow-partial` returns to being a rare
+  recovery flag. Shape agreed in the 2026-08-27 Atrium design consult; reject
+  raising the limit or truncating files.
+- [ ] The Trae exporter emits VS Code workspace state as conversations: the full
+      `--source trae` export (2026-08-27) holds 2 conversations whose 3 events
+      are role `unknown` with texts `rule`, `code`, `folder`, sourced from
+      `state.vscdb:ItemTable` rows. That is editor metadata, not dialogue;
+      Atrium's admission gate drops all of it. Either the exporter should skip
+      these rows or find Trae's real conversation store. Filed from
+      `~/p/atrium/TODO.md`.
 
 ## Cross-project
 

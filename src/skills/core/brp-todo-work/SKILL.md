@@ -26,10 +26,11 @@ argument-hint: [scope-or-category]
 - Do not stop after one task or one iteration while safe actionable work
   remains. Recover prior context from project memory, current files, Git
   history, and existing plans before asking the user to restate it.
-- Ask only when a missing decision would materially change the solution, or an
-  action is destructive, irreversible, production-affecting, credential-bound,
-  an external communication, changes a recurring automation or remote trigger,
-  or consumes paid or quota-limited resources.
+- Authority list, and the only reason to interrupt the user mid-run: an action
+  that is destructive, irreversible, production-affecting, credential-bound, an
+  external communication, a change to a recurring automation or remote trigger,
+  or a consumer of paid or quota-limited resources. This list overrides the
+  decide-by-default rule below wherever the two meet.
 - Hosted CI runs, cloud builds, paid API or model calls, bulk backfills, and
   scheduled jobs are external side effects. Discover existing budget and
   operating constraints before using them; do not enable a disabled workflow,
@@ -54,23 +55,43 @@ argument-hint: [scope-or-category]
 ## Approval gate
 
 Reconstruction and read-only inspection need no approval. Stop before the first
-write and present: items to execute this run (one line each: task, intended
-outcome, validation), items excluded with the reason, anything needing new
+write and write the plan into the conversation as ordinary visible text, not
+only into a question widget or a todo list: an approval prompt shows its
+options, so a plan that lives only inside it asks the user to approve something
+they never read. The plan is one line per item to execute (task, intended
+outcome, validation), the excluded items with their reason, anything needing new
 authority, an honest estimate of scale (items and files or systems touched), and
-the declared caps below. Then ask to approve, approve with changes, or decline.
+the declared caps below. Only then ask to approve, approve with changes, or
+decline, and keep the request itself to one sentence.
+
 Approved with changes restates the queue once and starts; declined stops without
-changing anything.
-
-Re-approve only on material change: new items outside the approved list, a newly
-discovered action needing authority, or scope growing well beyond what was
-presented.
-
-Escalate mid-run on unclear requirements, missing technical detail, conflicting
-constraints, or unspecified budget or timeline. Do not escalate details already
-covered by the approved plan.
+changing anything. This approval covers the whole run: re-approve only when a
+newly discovered action needs authority the run does not have, or scope grows
+well beyond what was presented. Finishing an item, a wave, or the presented
+queue while actionable work remains is not a reason to come back.
 
 A run-scoped waiver ("execute without asking") skips this gate but never covers
 actions that independently require authority.
+
+## Deciding instead of asking
+
+Default to deciding. An ambiguous requirement, a missing technical detail, two
+defensible designs, an unclear priority, or an arguable task state is yours to
+settle: take the most reasonable reading, prefer the reversible option, and
+record the assumption next to the item. The authority list above is the
+exception and keeps its precedence.
+
+Delegate the genuine forks to Codex rather than to the user. Batch a wave's open
+decisions into one brief, run one read-only `codex exec` with a JSON schema, act
+on the verdict, and log the decision with the item it unblocked. Codex bills a
+separate quota, so an adjudication is cheaper than a round trip through the
+human and far cheaper than a stalled run. Load
+`references/codex-adjudication.md` for the brief, the schema, the exact command,
+and how to handle a malformed or low-confidence verdict.
+
+Questions that genuinely need the user do not stop the run: park the item `[!]`
+with the exact question, continue with everything else, and deliver every
+accumulated question in one block in the final report.
 
 ## Caps
 
@@ -140,8 +161,11 @@ Flaky checks get exactly one retry, so noise does not read as divergence.
 8. Route delegated heavy work to the cheapest capable capacity whenever
    possible: Codex CLI on its own OpenAI quota, Antigravity (Gemini quota, plus
    separate Claude and ChatGPT quotas), or cheaper Claude models (Haiku or
-   Sonnet subagents). Reserve the main session's model for coordination, queue
-   decisions, and result verification.
+   Sonnet subagents). Reserve the main session's model for coordination and
+   result verification. Codex implementation runs take a written brief and
+   `-s workspace-write` scoped to the files the item owns; the same
+   `references/codex-adjudication.md` covers the flags that exist in the
+   installed CLI and the ones that no longer do.
 
 ## Output
 
@@ -150,8 +174,9 @@ Flaky checks get exactly one retry, so noise does not read as divergence.
   and results including pre-existing failures, `TODO_LOG.md` entries added,
   history-index records reused, added, or updated when history was consulted,
   files changed, cross-project items filed with their target repositories,
-  remote or metered actions taken or still needing approval, and tokens spent
-  per completed item.
+  remote or metered actions taken or still needing approval, decisions
+  adjudicated by Codex with the option chosen, every question parked for the
+  user in one block, and tokens spent per completed item.
 - State the remaining `[ ]`, `[~]` and `[!]` counts, and for each remaining
   `[ ]` or `[~]` the concrete reason it could not be advanced. Size, elapsed
   time, context pressure or a preference for a fresh session make a task neither

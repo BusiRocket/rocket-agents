@@ -6,6 +6,31 @@
 
 ### 2026-08
 
+- [x] 2026-08-30 - **Skills audit against a month of transcripts:** the real
+      cause of the stopping was the turn boundary, not the approval gate.
+  - Corpus: 7,822 transcripts over 31 days. `codex` fired 66 times,
+    `brp-todo-work` 50, `brp-todo-create` 22 - the BRP family does fire.
+  - 35 sessions invoking the todo skill produced 454 user turns after the
+    invocation, 68 of them pure nudges. Of the 51 readable cases only 17
+    followed a real question; the rest followed a checkpoint that announced
+    continuation and ended the turn. 102 turn endings in the corpus say "Sigo"
+    or name the next item and stop, and 19 end asking about a push the user had
+    already authorized once.
+  - Fixed in `brp-todo-work`: a turn ends when the run does, a checkpoint
+    proceeds instead of offering a menu, a standing authorization on record is
+    authorization, and Codex is a partner for the whole run rather than only its
+    adjudicator - which is what the user has asked for by hand in about fifteen
+    sessions.
+  - Fixed in the `codex` skill: rule 1 forbade delegating unless the user asked,
+    which contradicted the new adjudication path, so an owning workflow is now
+    an authorized caller. Added the convergence loop (findings to a file,
+    verify, resume with the delta only, stop when a round adds nothing, keep
+    author and reviewer apart).
+  - Correction to an earlier claim in this session: Codex CLI reads
+    `~/.agents/skills/codex/SKILL.md` directly (`~/.codex/config.toml:470`), so
+    the stale `compiled/codex/` tree is consumed by nothing and needed no link.
+  - `pnpm run check` green, `skills:link` re-run, both repositories pushed.
+
 - [x] 2026-08-30 - **brp-todo-work:** the run now shows its plan and decides for
       itself instead of interrupting.
   - Two reported failures: the execution plan reached the user only inside the

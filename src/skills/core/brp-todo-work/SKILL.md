@@ -22,10 +22,18 @@ argument-hint: [scope-or-category]
   the target repository is not accessible, record it in the current `TODO.md`
   under a `Cross-project` category marked with the target repository.
 - No commit, push, branch, or PR unless the user or project instructions
-  authorize it.
+  authorize it. A standing authorization already on record - in the repository's
+  instructions, the user's own instruction files, or project memory - is that
+  authorization. Read those before parking work as needing authority, and never
+  re-ask per run for permission the user has already given once.
 - Do not stop after one task or one iteration while safe actionable work
   remains. Recover prior context from project memory, current files, Git
   history, and existing plans before asking the user to restate it.
+- A turn ends when the run does, not when a report is ready. Never close a turn
+  on "next I will", "continuing with X", or a named remaining item: if the next
+  action is known and safe, take it in the same turn. Status belongs in a brief
+  note between tool calls, and a checkpoint states what happened and proceeds -
+  it never offers the user a menu of what to do next.
 - Authority list, and the only reason to interrupt the user mid-run: an action
   that is destructive, irreversible, production-affecting, credential-bound, an
   external communication, a change to a recurring automation or remote trigger,
@@ -92,6 +100,12 @@ and how to handle a malformed or low-confidence verdict.
 Questions that genuinely need the user do not stop the run: park the item `[!]`
 with the exact question, continue with everything else, and deliver every
 accumulated question in one block in the final report.
+
+Codex is a working partner for the whole run, not only its adjudicator: it takes
+the heavy independent implementation, and it reviews finished waves as a second
+model that never saw this session - the role it is best at, and the one that
+catches what a self-review cannot. Pairing this way is the default posture of a
+backlog run and needs no separate request.
 
 ## Caps
 

@@ -8,6 +8,7 @@ import { CODEX_HOME } from '../lib/link/constants/CODEX_HOME'
 import { IDE_REGISTRY } from '../lib/link/constants/IDE_REGISTRY'
 import { linkAgentsToClaude } from '../lib/link/operations/linkAgentsToClaude'
 import { linkAgentsToCodex } from '../lib/link/operations/linkAgentsToCodex'
+import { writeCodexSkillTrim } from '../lib/link/operations/writeCodexSkillTrim'
 import { SKILLS_DIST_DIR } from './constants/SKILLS_DIST_DIR'
 import { SKILLS_PORTABLE_DIST_DIR } from './constants/SKILLS_PORTABLE_DIST_DIR'
 import { collectSkillNames } from './processors/collectSkillNames'
@@ -65,6 +66,13 @@ export const main = async () => {
   if (linkedCodexAgents.length > 0) {
     console.log(
       `+ codex: ${String(linkedCodexAgents.length)} custom agents linked into ~/.codex/agents/`,
+    )
+  }
+
+  const trim = await writeCodexSkillTrim()
+  if (trim.written) {
+    console.log(
+      `+ codex: ${String(trim.disabled)} non-curated skills disabled in ~/.codex/config.toml`,
     )
   }
 

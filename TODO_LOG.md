@@ -6,6 +6,36 @@
 
 ### 2026-08
 
+- [x] 2026-08-31 - **`skills:link` now generates the Codex skills trim**, and
+      the token saving reported yesterday does not survive measurement.
+  - `writeCodexSkillTrim` rewrites the block between
+    `# BEGIN/END generated skills trim` in `~/.codex/config.toml` after every
+    link, deriving the disabled set from what is actually linked into
+    `~/.claude/skills`: every `SKILL.md` under `~/.agents/skills` whose
+    directory is not a link target. The trim therefore cannot drift from the
+    curated list.
+  - Split into pure units per the repo's rules: `renderCodexSkillTrim` builds
+    the text, `applyCodexSkillTrim` decides what the file becomes, `collect...`
+    reads the two directories, and only `writeCodexSkillTrim` touches disk. It
+    copies the config aside before writing and writes nothing when the block is
+    already current.
+  - Verified against the real config: the generator reproduced the hand-made set
+    exactly - 270 paths, the 244 in yesterday's block plus the 25 legacy
+    duplicates it supersedes - and everything outside the markers came through
+    byte-identical. The 25 now-redundant legacy entries were removed, leaving
+    the generated block as the single owner. Tests cover the four ways this
+    could corrupt a config: no markers, regeneration, a half-written fence, and
+    the curated-set filter.
+  - **Correction to the 2026-08-30 entry:** the "20,590 to 14,790 tokens (-28%)"
+    figure is not reliable. Repeating the identical command across
+    configurations that disable strictly more skills produced 14,790, then
+    19,088, 19,089 and 26,001, and `--strict-config` runs report 453 and 657 -
+    so codex's `tokens used` line carries per-session overhead, not the catalog
+    size. What does reproduce is the warning and the routing: before the trim,
+    `Exceeded skills context budget. All skill descriptions were removed and 12 additional skills were not included`;
+    after it, no warning, and Codex lists the eight `brp-*` skills with their
+    descriptions when asked.
+
 - [x] 2026-08-31 - **Conversation exporters were shipping VS Code editor state
       as dialogue.** Root cause found and fixed; Windsurf answered at the same
       time because it is the same mechanism.

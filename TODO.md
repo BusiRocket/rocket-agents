@@ -18,23 +18,17 @@
 
 ## Codex skills budget
 
-- [~] The trim that stops Codex dropping every skill description is a
-  hand-generated block in `~/.codex/config.toml`, and this repository should own
-  it. Codex treats `~/.agents/skills` as a discovery root and finds 314 SKILL.md
-  there (~110k description characters), which overflows its skills context
-  budget: it then strips every description and omits ~12 skills, so it cannot
-  route to any skill at all. Disabling the aggregate parents does nothing
-  because the nested children are discovered independently. Applied 2026-08-30:
-  244 new `enabled = false` entries between the `# BEGIN generated skills trim`
-  markers, derived from the Claude symlink targets (44 curated kept, 270
-  disabled). Verified: warning gone, and a trivial run drops 20,590 to 14,790
-  tokens. Backup at `~/.codex/config.toml.bak-skills-trim-20260830-234626`. The
-  rule that generated it: every `SKILL.md` under `~/.agents/skills` whose
-  directory is not the target of a `~/.claude/skills/*` symlink gets an
-  `enabled = false` entry. Remaining: the list is a snapshot and goes stale
-  whenever the curated set changes, so `skills:link` (or a sibling command)
-  should emit that block for the codex target the same way it links the other
-  IDEs, rewriting between the markers.
+- [x] Codex skills budget: `skills:link` now generates the trim. Codex treats
+      `~/.agents/skills` as a discovery root and finds 314 `SKILL.md` there,
+      which overflows its skills context budget: it then strips every
+      description and omits skills, so it can route to none of them. Disabling
+      the aggregate parents does nothing because the nested children are
+      discovered independently. `pnpm run skills:link` writes 270
+      `enabled = false` entries between `# BEGIN/END generated skills trim`
+      markers in `~/.codex/config.toml`, derived from what was actually linked
+      into `~/.claude/skills`, so the trim cannot drift from the curated set.
+      See `TODO_LOG.md` for the evidence and for the token measurement that
+      turned out to be unreliable.
 
 ## Skills library cleanup
 

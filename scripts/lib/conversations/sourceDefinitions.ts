@@ -85,6 +85,13 @@ export const sourceDefinitions: readonly ConversationSourceDefinition[] = [
     storage: ['json', 'jsonl'],
   },
   {
+    // Probed 2026-08-31: the roots below hold VS Code editor state and no
+    // dialogue. Trae's assistant history is in
+    // `Library/Application Support/Trae/ModularData/ai-agent/database.db`,
+    // 15 MB and written live, but it has no SQLite header and is opaque -
+    // encrypted at rest - so an exporter is blocked on decryption, not on
+    // discovery. These roots stay because they are where a future plaintext
+    // export would land.
     id: 'trae',
     label: 'Trae',
     roots: [
@@ -101,6 +108,9 @@ export const sourceDefinitions: readonly ConversationSourceDefinition[] = [
     storage: ['json', 'jsonl'],
   },
   {
+    // Probed 2026-08-31: no local dialogue store exists. Every cascade or chat
+    // key in these databases holds UI state under 80 bytes, and `~/.codeium`
+    // carries only `global_rules.md`, so Cascade history is kept server-side.
     id: 'windsurf',
     label: 'Windsurf',
     roots: [

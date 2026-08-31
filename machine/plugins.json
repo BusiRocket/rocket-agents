@@ -89,7 +89,7 @@
     },
     {
       "id": "code-review@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": true,
         "claude-favish": true
@@ -105,7 +105,7 @@
     },
     {
       "id": "commit-commands@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": true,
         "claude-favish": true
@@ -113,7 +113,7 @@
     },
     {
       "id": "context7@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": true,
         "claude-favish": true
@@ -121,7 +121,7 @@
     },
     {
       "id": "feature-dev@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": true,
         "claude-favish": true
@@ -137,7 +137,7 @@
     },
     {
       "id": "firebase@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": false,
         "claude-favish": false
@@ -153,7 +153,7 @@
     },
     {
       "id": "frontend-design@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": true,
         "claude-favish": true
@@ -161,7 +161,7 @@
     },
     {
       "id": "github@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": false,
         "claude-favish": false
@@ -169,7 +169,7 @@
     },
     {
       "id": "hookify@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": true,
         "claude-favish": true
@@ -177,7 +177,7 @@
     },
     {
       "id": "laravel-boost@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": false,
         "claude-favish": false
@@ -185,7 +185,7 @@
     },
     {
       "id": "linear@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": false,
         "claude-favish": false
@@ -195,8 +195,8 @@
       "id": "mempalace@mempalace",
       "version": "3.6.0",
       "enabled": {
-        "claude-personal": true,
-        "claude-favish": true
+        "claude-personal": false,
+        "claude-favish": false
       }
     },
     {
@@ -209,7 +209,7 @@
     },
     {
       "id": "playwright@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": true,
         "claude-favish": true
@@ -265,7 +265,7 @@
     },
     {
       "id": "serena@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": false,
         "claude-favish": false
@@ -273,7 +273,7 @@
     },
     {
       "id": "session-report@claude-plugins-official",
-      "version": "b481c085fd11",
+      "version": "ed404106fcd8",
       "enabled": {
         "claude-personal": true,
         "claude-favish": true

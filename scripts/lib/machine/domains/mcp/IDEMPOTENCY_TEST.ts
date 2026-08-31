@@ -24,7 +24,7 @@ void test('a second apply changes nothing', async () => {
   const afterFirstCodex = await readFile(paths.codex, 'utf8')
   assert.match(
     afterFirstCodex,
-    /\[mcp_servers\.mempalace\]\ncommand = "mempalace-mcp"\nargs = \["--read-only"\]\nrequired = true/,
+    /\[mcp_servers\.atrium\]\ncommand = "[^"]+"\nargs = \[.+\]\nrequired = true\ndefault_tools_approval_mode = "writes"/,
   )
 
   const second = await apply({

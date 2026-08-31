@@ -53,11 +53,18 @@
       "command": "codegraph",
       "args": ["serve", "--mcp"]
     },
-    "mempalace": {
-      "targets": ["codex"],
+    "atrium": {
+      "targets": ["claude-personal", "claude-favish", "codex"],
       "transport": "stdio",
-      "command": "mempalace-mcp",
-      "args": ["--read-only"],
+      "command": "/opt/homebrew/bin/uv",
+      "args": [
+        "run",
+        "--extra",
+        "mcp",
+        "--directory",
+        "/Users/cristiandeluxe/p/atrium",
+        "atrium-mcp"
+      ],
       "required": true,
       "default_tools_approval_mode": "writes"
     }

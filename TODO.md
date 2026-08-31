@@ -107,13 +107,21 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
   when the laptop is next on the network) plus the providers themselves. Unblock
   action when resumed: the per-provider dashboard checklist from the 2026-08-22
   session.
-- [ ] Install `detect-secrets` as a pre-commit hook and enable GitHub secret
-      scanning on the active repos. A leaked AWS key was used 11 minutes after
-      the push in one documented case. Cheap and one-time, but it is a
-      multi-repo change and enabling scanning is a write to GitHub settings, so
-      it needs authorization and a named repo list before anything is installed.
-      Tracked here by the 2026-08-13 routing decision even though execution
-      spans `~/p`. Source: `~/p/brain/topics/app-security.md`.
+- [ ] Turn on GitHub secret scanning and push protection, then close the hook
+      gap. Surveyed 2026-08-31: of 134 repositories under `~/p`, 18 carry a
+      secret hook (all lefthook + gitleaks, this repo among them) and 116 carry
+      none. But the per-repo hook is the weaker lever - it only guards the
+      machine it is installed on. GitHub's own scanning is free on public
+      repositories and can be defaulted for a whole organisation, and it is
+      **disabled**: verified against `BusiRocket/rocket-agents`, which returns
+      `secret_scanning: disabled, push_protection: disabled`. Private
+      repositories return `null` for both, so they need Advanced Security and
+      stay on hooks. The user-owned public surface is 14 repositories under
+      BusiRocket and 18 under CristianDeluxe; Favish and client organisations
+      are not ours to change. Smallest step, and it needs a yes because it
+      writes GitHub settings: enable the organisation default for those two,
+      then add gitleaks to the private repositories that are actually active.
+      Source: `~/p/brain/topics/app-security.md`.
 - [ ] Adopt pnpm 11 supply-chain controls across the other `~/p` repos:
       `minimumReleaseAge: 1440` (24h cooldown defeats the compromised-token
       window) and `blockExoticSubdeps: true`. Needs Node 22 and pnpm 11; check

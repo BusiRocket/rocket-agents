@@ -19,7 +19,7 @@ export const isConversationRecord = (
   const origin = provenance as Record<string, unknown>
 
   return (
-    record.schemaVersion === 1 &&
+    (record.schemaVersion === 1 || record.schemaVersion === 2) &&
     typeof record.id === 'string' &&
     isConversationSource(record.source) &&
     typeof record.sourceId === 'string' &&

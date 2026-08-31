@@ -5,10 +5,13 @@ import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import test from 'node:test'
 import { conversationRecordFromDocument } from './conversationRecordFromDocument'
+import { hashText } from './hashText'
 import { mergeConversationRecordFragments } from './mergeConversationRecordFragments'
 import { readSqliteConversationDocuments } from './readSqliteConversationDocuments'
 import { streamJsonlConversationRecord } from './streamJsonlConversationRecord'
 import type { ConversationArtifact } from './types/ConversationArtifact'
+import type { ConversationRecord } from './types/ConversationRecord'
+import { upgradeConversationRecord } from './upgradeConversationRecord'
 
 void test('VS Code-family adapters normalize tabbed chat data', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'rocket-agents-windsurf-'))
@@ -110,10 +113,13 @@ void test('conversation fragments with the same source session retain every even
   })
   assert.ok(first)
   assert.ok(second)
+  // Sorted, not asserted in fragment order: events carrying no timestamp are
+  // ordered by id, which is deliberately arbitrary but stable, and the point
+  // of the merge is that neither side is dropped.
   assert.deepEqual(
-    mergeConversationRecordFragments(first, second).events.map(
-      ({ text }) => text,
-    ),
+    mergeConversationRecordFragments(first, second)
+      .events.map(({ text }) => text)
+      .toSorted((left, right) => left.localeCompare(right)),
     ['first', 'second'],
   )
 })
@@ -165,4 +171,110 @@ void test('streamed JSONL normalizes to the same record as the whole document', 
   } finally {
     await rm(directory, { recursive: true, force: true })
   }
+})
+
+void test('the same first message in two conversations no longer shares an event id', () => {
+  const opening = JSON.stringify({
+    sessionID: 'session-a',
+    role: 'user',
+    text: 'hello',
+  })
+  const first = conversationRecordFromDocument({
+    contents: opening,
+    relativePath: 'a.json',
+    source: 'opencode',
+    sourceIdHint: 'a',
+  })
+  const second = conversationRecordFromDocument({
+    contents: opening.replace('session-a', 'session-b'),
+    relativePath: 'b.json',
+    source: 'opencode',
+    sourceIdHint: 'b',
+  })
+  assert.ok(first)
+  assert.ok(second)
+  assert.notEqual(first.id, second.id)
+  assert.equal(first.events[0]?.text, second.events[0]?.text)
+  // The collision this fixes: index 0 plus identical text used to be the whole
+  // id, so two unrelated conversations opening the same way collided.
+  assert.notEqual(first.events[0]?.id, second.events[0]?.id)
+})
+
+void test('a version 1 fragment keeps its events when it meets a version 2 capture', () => {
+  const legacy = conversationRecordFromDocument({
+    contents: JSON.stringify({
+      sessionID: 'session-1',
+      role: 'user',
+      text: 'legacy',
+    }),
+    relativePath: 'legacy.json',
+    source: 'opencode',
+    sourceIdHint: 'legacy',
+  })
+  assert.ok(legacy)
+  const current = conversationRecordFromDocument({
+    contents: JSON.stringify({
+      sessionID: 'session-1',
+      role: 'assistant',
+      text: 'current',
+    }),
+    relativePath: 'current.json',
+    source: 'opencode',
+    sourceIdHint: 'current',
+  })
+  assert.ok(current)
+
+  // The rule that would have dropped 'legacy' - letting the newer capture
+  // supersede the older record - loses every event whose source file has since
+  // been rotated away. Upgrading instead keeps both.
+  const merged = mergeConversationRecordFragments(
+    { ...legacy, schemaVersion: 1 },
+    current,
+  )
+  assert.equal(merged.schemaVersion, 2)
+  assert.deepEqual(
+    merged.events
+      .map(({ text }) => text)
+      .toSorted((left, right) => left.localeCompare(right)),
+    ['current', 'legacy'],
+  )
+  // Commutative, whichever side the legacy fragment arrives on.
+  assert.deepEqual(
+    mergeConversationRecordFragments({ ...legacy, schemaVersion: 1 }, current),
+    mergeConversationRecordFragments(current, { ...legacy, schemaVersion: 1 }),
+  )
+})
+
+void test('upgrading a version 1 record reproduces a fresh capture exactly', () => {
+  const contents = JSON.stringify({
+    sessionID: 'session-7',
+    role: 'user',
+    text: 'shared',
+  })
+  const captured = conversationRecordFromDocument({
+    contents,
+    relativePath: 'x.json',
+    source: 'opencode',
+    sourceIdHint: 'x',
+  })
+  assert.ok(captured)
+
+  // What the same document produced before 2026-08-31: the identical record
+  // with unqualified event ids.
+  const legacy: ConversationRecord = {
+    ...captured,
+    schemaVersion: 1,
+    events: captured.events.map((event, index) => ({
+      ...event,
+      id: hashText(`${String(index)}\0${event.text}`),
+    })),
+  }
+
+  const upgraded = upgradeConversationRecord(legacy)
+  assert.deepEqual(upgraded, captured)
+  // So an archive holding both loses nothing when they meet.
+  assert.deepEqual(
+    mergeConversationRecordFragments(legacy, captured).events,
+    captured.events,
+  )
 })

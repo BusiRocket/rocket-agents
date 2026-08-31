@@ -11,6 +11,7 @@ import { forEachLfLine } from './forEachLfLine'
 import { hashText } from './hashText'
 import { isSessionMetadataRecord } from './isSessionMetadataRecord'
 import { parseJsonValue } from './parseJsonValue'
+import { qualifyConversationEventIds } from './qualifyConversationEventIds'
 import type { ConversationArtifact } from './types/ConversationArtifact'
 import type { ConversationEvent } from './types/ConversationEvent'
 import type { ConversationRecord } from './types/ConversationRecord'
@@ -93,6 +94,7 @@ export const streamJsonlConversationRecord = async (
     .toSorted((left, right) => left.localeCompare(right))
   const startedAt = timestamps.at(0)
   const updatedAt = timestamps.at(-1)
+  const id = hashText(`${artifact.source}\0${sourceId}`)
   const workspace =
     workspaceRecord === undefined
       ? undefined
@@ -100,11 +102,11 @@ export const streamJsonlConversationRecord = async (
 
   return {
     schemaVersion: CONVERSATION_SCHEMA_VERSION,
-    id: hashText(`${artifact.source}\0${sourceId}`),
+    id,
     source: artifact.source,
     sourceId,
     title: conversationTitle(events, sourceId),
-    events,
+    events: qualifyConversationEventIds(events, id),
     provenance: {
       contentSha256: hash.digest('hex'),
       relativePath: artifact.relativePath,

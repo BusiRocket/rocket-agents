@@ -1,6 +1,6 @@
 export interface ConversationExportManifest {
   kind: 'rocket-agents-conversation-export'
-  schemaVersion: 1
+  schemaVersion: 1 | 2
   createdAt: string
   records: number
   contentSha256: string

@@ -1,17 +1,26 @@
 import { hashText } from './hashText'
 import type { ConversationRecord } from './types/ConversationRecord'
+import { upgradeConversationRecord } from './upgradeConversationRecord'
 
 export const mergeConversationRecordFragments = (
-  first: ConversationRecord,
-  second: ConversationRecord,
+  firstFragment: ConversationRecord,
+  secondFragment: ConversationRecord,
 ): ConversationRecord => {
   if (
-    first.id !== second.id ||
-    first.source !== second.source ||
-    first.sourceId !== second.sourceId
+    firstFragment.id !== secondFragment.id ||
+    firstFragment.source !== secondFragment.source ||
+    firstFragment.sourceId !== secondFragment.sourceId
   ) {
     throw new Error('cannot merge unrelated conversation fragments')
   }
+  // Both sides are brought onto the current schema before anything is read
+  // off them: a version 1 event id is unqualified, so merging the two as they
+  // are would carry the same event twice under two ids. The upgrade is exact,
+  // so no event is lost on either side.
+  const [first, second] = [
+    upgradeConversationRecord(firstFragment),
+    upgradeConversationRecord(secondFragment),
+  ]
   // Ordered canonically before anything is read off either side, so merging
   // is commutative: two hosts exchanging the same pair of revisions have to
   // reach the same record, whichever one arrives first. Fields taken from a

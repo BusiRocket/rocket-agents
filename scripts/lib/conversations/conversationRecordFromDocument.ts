@@ -4,6 +4,7 @@ import { conversationSourceId } from './conversationSourceId'
 import { conversationTitle } from './conversationTitle'
 import { conversationWorkspace } from './conversationWorkspace'
 import { hashText } from './hashText'
+import { qualifyConversationEventIds } from './qualifyConversationEventIds'
 import { recordsFromConversationDocument } from './recordsFromConversationDocument'
 import type { ConversationDocument } from './types/ConversationDocument'
 import type { ConversationEvent } from './types/ConversationEvent'
@@ -24,6 +25,7 @@ export const conversationRecordFromDocument = (
   if (events.length === 0) return undefined
 
   const sourceId = conversationSourceId(records, document.sourceIdHint)
+  const id = hashText(`${document.source}\0${sourceId}`)
   const timestamps = events.flatMap((event) =>
     event.timestamp === undefined ? [] : [event.timestamp],
   )
@@ -36,11 +38,11 @@ export const conversationRecordFromDocument = (
 
   return {
     schemaVersion: CONVERSATION_SCHEMA_VERSION,
-    id: hashText(`${document.source}\0${sourceId}`),
+    id,
     source: document.source,
     sourceId,
     title: conversationTitle(events, sourceId),
-    events,
+    events: qualifyConversationEventIds(events, id),
     provenance: {
       contentSha256: hashText(document.contents),
       relativePath: document.relativePath,

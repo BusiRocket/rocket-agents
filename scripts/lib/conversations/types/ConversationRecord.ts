@@ -3,7 +3,7 @@ import type { ConversationProvenance } from './ConversationProvenance'
 import type { ConversationSource } from './ConversationSource'
 
 export interface ConversationRecord {
-  schemaVersion: 1
+  schemaVersion: 1 | 2
   id: string
   source: ConversationSource
   sourceId: string

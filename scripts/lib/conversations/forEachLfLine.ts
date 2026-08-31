@@ -5,6 +5,10 @@ import { MAX_CONVERSATION_FILE_BYTES } from './constants/MAX_CONVERSATION_FILE_B
 export const forEachLfLine = async (
   path: string,
   consume: (line: string, terminated: boolean) => void,
+  // Raw decoded chunks, in order, for callers that have to hash the file as it
+  // is on disk: reassembling the bytes from the lines loses the distinction
+  // between a final line that is terminated and one that is not.
+  consumeChunk?: (chunk: string) => void,
 ) => {
   const handle = await fs.open(path, constants.O_RDONLY | constants.O_NOFOLLOW)
   let carry = ''
@@ -16,6 +20,7 @@ export const forEachLfLine = async (
     })) {
       if (typeof chunk !== 'string')
         throw new Error('JSONL stream did not decode as UTF-8 text')
+      consumeChunk?.(chunk)
       const lines = `${carry}${chunk}`.split('\n')
       carry = lines.pop() ?? ''
       for (const line of lines) consume(line, true)

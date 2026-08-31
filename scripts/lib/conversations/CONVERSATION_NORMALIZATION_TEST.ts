@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
@@ -7,6 +7,7 @@ import test from 'node:test'
 import { conversationRecordFromDocument } from './conversationRecordFromDocument'
 import { mergeConversationRecordFragments } from './mergeConversationRecordFragments'
 import { readSqliteConversationDocuments } from './readSqliteConversationDocuments'
+import { streamJsonlConversationRecord } from './streamJsonlConversationRecord'
 import type { ConversationArtifact } from './types/ConversationArtifact'
 
 void test('VS Code-family adapters normalize tabbed chat data', async () => {
@@ -115,4 +116,53 @@ void test('conversation fragments with the same source session retain every even
     ),
     ['first', 'second'],
   )
+})
+
+void test('streamed JSONL normalizes to the same record as the whole document', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'rocket-agents-jsonl-'))
+  const path = join(directory, 'rollout.jsonl')
+  const lines = [
+    JSON.stringify({
+      type: 'session_meta',
+      id: 'session-9',
+      cwd: '/workspace/project',
+    }),
+    '',
+    JSON.stringify({
+      role: 'user',
+      text: 'first',
+      timestamp: '2026-08-19T10:00:00Z',
+    }),
+    JSON.stringify({
+      session_id: 'ignored',
+      role: 'assistant',
+      text: 'second',
+    }),
+  ]
+  // A BOM in front of the first record: valid JSONL that the whole-document
+  // path accepts, and that the streaming path has to accept identically.
+  const contents = `\uFEFF${lines.join('\n')}\n`
+  await writeFile(path, contents, 'utf8')
+
+  try {
+    const artifact: ConversationArtifact = {
+      path,
+      relativePath: 'sessions/rollout.jsonl',
+      source: 'codex',
+      storage: 'jsonl',
+    }
+    const streamed = await streamJsonlConversationRecord(artifact)
+    const whole = conversationRecordFromDocument({
+      contents,
+      relativePath: artifact.relativePath,
+      source: artifact.source,
+      sourceIdHint: artifact.relativePath,
+    })
+    assert.ok(streamed)
+    assert.deepEqual(streamed, whole)
+    assert.equal(streamed.sourceId, 'session-9')
+    assert.equal(streamed.workspace, '/workspace/project')
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
 })

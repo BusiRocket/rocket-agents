@@ -1,5 +1,4 @@
-import { conversationRecordFromDocument } from './conversationRecordFromDocument'
-import { readConversationArtifact } from './readConversationArtifact'
+import { conversationRecordsFromArtifact } from './conversationRecordsFromArtifact'
 import { redactConversationHome } from './redactConversationHome'
 import type { ConversationArtifact } from './types/ConversationArtifact'
 import type { ConversationArtifactCapture } from './types/ConversationArtifactCapture'
@@ -9,13 +8,8 @@ export const captureConversationArtifact = async (
   home: string,
 ): Promise<ConversationArtifactCapture> => {
   try {
-    const records = (await readConversationArtifact(artifact)).flatMap(
-      (document) => {
-        const record = conversationRecordFromDocument(document)
-        return record === undefined
-          ? []
-          : [redactConversationHome(record, home)]
-      },
+    const records = (await conversationRecordsFromArtifact(artifact)).map(
+      (record) => redactConversationHome(record, home),
     )
     return {
       source: artifact.source,

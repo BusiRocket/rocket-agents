@@ -189,13 +189,18 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
       than counts. Found 2026-08-31 while measuring the archive; it made a first
       measurement wrong by 515 records. Owned by the archive-format session
       while it holds `scripts/lib/conversations/`.
-- [ ] Event text contains lone CR, so Node's `readline` - which treats a bare
-      `\r` as a line terminator - reads the 30,741-line archive as 32,434 lines
-      and mangles 1,634 of them into unparseable fragments. `forEachLfLine` is
-      correct because it splits on `\n` only. Nothing in this repository is
-      broken today; the risk is every future consumer, so whatever format
-      replaces the archive should state the LF-exact rule in its spec. Measured
-      2026-08-31 against the live archive.
+- [ ] Event text contains raw U+2028 and U+2029, and Node's `readline` treats
+      both as line terminators while `JSON.parse` accepts them unescaped inside
+      strings. Measured on the live archive: 1,690 U+2028 plus 3 U+2029, so a
+      readline-based reader sees 32,434 lines where the file has 30,741 and
+      mangles 1,634 records into unparseable fragments. Reproduced twice.
+      Nothing in this repository is affected - `forEachLfLine` splits on `\n`
+      alone - and Atrium's archive readers iterate the file handle, which is
+      also safe; Python's `str.splitlines()` would not be. The rule for any new
+      format and any new consumer: split on `\n` only, never `readline` or
+      `splitlines`. A first version of this entry blamed lone CR; the archive
+      contains zero CR bytes, and the corrected cause was found by probing each
+      separator class.
 - [ ] Redaction cannot reach an already-archived record. `contentSha256` hashes
       the source artifact, so `mergeFragment` returns `duplicate` when the
       source is unchanged and an improved redactor never revisits the record;

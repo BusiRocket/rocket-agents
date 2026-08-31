@@ -6,6 +6,48 @@
 
 ### 2026-08
 
+- [x] 2026-08-31 - **Conversation exporters were shipping VS Code editor state
+      as dialogue.** Root cause found and fixed; Windsurf answered at the same
+      time because it is the same mechanism.
+  - Trae's two bogus conversations came from one row per workspace:
+    `icube-ai-chat-storage-mention-search-selected-itemIds`, whose value is
+    `["rule","code"]` and `["folder"]` - the ids the mention picker had
+    selected. The key matched the `%chat%` net in `sqliteConversationQuery.ts`
+    and the array's strings became event texts.
+  - Fix: the `ItemTable`/`cursorDiskKV` query now also requires the value to
+    contain `{`. An event needs a role, a text or a timestamp, and those only
+    exist inside an object, so a bare array of picker ids can no longer qualify.
+    Cursor is unaffected - it returns from its own reader before this query.
+  - Evidence: `--source trae` exported 2 records before and 0 after;
+    `pnpm run conversations:test` 20/20; a new regression test in
+    `CONVERSATION_NORMALIZATION_TEST.ts` inserts the exact observed row beside a
+    real chat payload and asserts only the real one survives.
+  - Windsurf, same question, different answer: its 4 databases hold no
+    conversations at all. `globalStorage/state.vscdb` has 113 `ItemTable` rows
+    and a workspace one has 95 - themes, viewlets, terminal buffer, auth status
+    - with zero keys matching cascade, chat or conversation, and
+      `~/.codeium/windsurf` holds only `memories/global_rules.md` and an empty
+      `skills/`. The exporter's zero was correct, not a parser gap.
+
+- [x] 2026-08-31 - **Weekly library loop:** the unattended catch-up is proven,
+      which was the last open half of the item.
+  - `~/.agents-learning/reports/2026-08-31-library-loop.md` was written at 02:15
+    today with no manual kickstart, seven days after the 2026-08-24 report, so
+    the 6-hourly `--if-due 7` poll does catch up across sleep.
+  - `launchctl print gui/501/com.cristian.library-loop`: `runs = 4`,
+    `last exit code = 0`, service active. The report itself covers 3,451
+    transcripts (2,676 skipped as unchanged), 886 human requests, 31 distinct
+    skills invoked, and 16,399 codex rollouts scanned.
+
+- [x] 2026-08-31 - **`prettier-plugin-css-order`:** closed upstream, nothing
+      left to do here.
+  - The plugin pulled `postcss` into projects with no stylesheet, and Prettier
+    refused to start here with `Cannot find package 'postcss'`.
+    `@busirocket/prettier-config@0.2.0` moved it to the `/frontend` and `/astro`
+    entry points.
+  - Verified in place: `package.json` depends on `^0.2.0`, and `pnpm run check`
+    exits 0 with `prettier --write . --list-different` clean.
+
 - [x] 2026-08-30 - **Codex adversarial review of the day's skill changes:**
       BLOCK with 13 findings, 11 applied.
   - The review ran under the convergence protocol written earlier the same day:

@@ -72,13 +72,6 @@
 > offered to 30. Spec and plan:
 > `docs/superpowers/specs/2026-08-18-skill-library-and-learning-loop-design.md`.
 
-- [~] Verify the second, unattended weekly-loop run: the 6-hourly `--if-due 7`
-  schedule still has to prove it catches up after sleep without a manual
-  kickstart (check `~/.agents-learning/reports/` after 2026-08-31). The
-  judgement half closed 2026-08-24 (see `TODO_LOG.md`): the report's own park
-  proposals were reviewed and endorsed - 11 promoted skills with zero
-  invocations ride the auto-park grace period, and the promotions that fired
-  (frontend-design, computer-use, orca-cli, the core lanes) stay.
 - [!] Exercise patch reapplication against a real fork. Implemented and tested
   for the conflict case, never run for real. Blocked on its own precondition:
   nothing in the library is forked yet, so there is no upstream change to
@@ -209,12 +202,19 @@
       across 67,568). Atrium works around it by keying on
       `sha256(conversation_id, event_id)`; the canonical contract should carry
       conversation identity in the event ID itself. Filed from
-      `~/p/atrium/TODO.md`.
-- [ ] The Windsurf exporter emits 0 conversations from the 4 database artifacts
-      `conversations:doctor` detects (observed 2026-08-27 during Atrium provider
-      probes). Smallest step: run the exporter against one Windsurf artifact and
-      record whether the gap is parser shape or empty sources. Filed from
-      `~/p/atrium/TODO.md`.
+      `~/p/atrium/TODO.md`. **Held for a coordinated change (decided
+      2026-08-31):** changing the ID changes a contract Atrium already consumes,
+      so doing it here alone would duplicate records or break identity
+      continuity on its side. Execute it together with Atrium's migration, in
+      one pass, not as an isolated backlog item here.
+- [ ] Find where Trae and Windsurf actually keep their conversations, if
+      anywhere on this machine. Answered 2026-08-31 for the old question (the
+      exporters were reading VS Code editor state, see `TODO_LOG.md`), and both
+      now export zero records honestly. What is still unknown is whether either
+      product stores dialogue somewhere outside the roots in
+      `sourceDefinitions.ts`. Smallest step: use each app once, then diff the
+      filesystem for what it wrote. Until then their entries in the source
+      catalog are aspirational.
 - [~] Oversized artifacts vs export, two stages. **Interim shipped 2026-08-27**
   (`bfa54ec`): `--allow-partial` writes the export with a manifest that declares
   `complete:false` and lists every skip; default stays fail-closed. That
@@ -228,13 +228,6 @@
   get captured instead of skipped and `--allow-partial` returns to being a rare
   recovery flag. Shape agreed in the 2026-08-27 Atrium design consult; reject
   raising the limit or truncating files.
-- [ ] The Trae exporter emits VS Code workspace state as conversations: the full
-      `--source trae` export (2026-08-27) holds 2 conversations whose 3 events
-      are role `unknown` with texts `rule`, `code`, `folder`, sourced from
-      `state.vscdb:ItemTable` rows. That is editor metadata, not dialogue;
-      Atrium's admission gate drops all of it. Either the exporter should skip
-      these rows or find Trae's real conversation store. Filed from
-      `~/p/atrium/TODO.md`.
 
 ## Cross-project
 
@@ -256,13 +249,6 @@ Adoptados los gates de `@busirocket` en pleno el 2026-08-26.
       alcanzan el resto. La configuracion actual usa las entradas reales -- los
       63 ficheros que invocan los `scripts` del `package.json`, mas los
       `*_TEST.ts` y `golden/` -- y da 80. Borrar fichero y linea a la vez.
-
-- [ ] **`prettier-plugin-css-order` se fue de `@busirocket/prettier-config` por
-      culpa de este repo.** La config base cargaba un plugin de CSS, que
-      arrastra `postcss` a proyectos sin una sola hoja de estilos: aqui Prettier
-      se negaba a arrancar con `Cannot find package 'postcss'`. Arreglado aguas
-      arriba en `@busirocket/prettier-config@0.2.0`, que lo mueve a `/frontend`
-      y `/astro`.
 
 - [~] **La capa ESLint sigue montada a mano y no compone
   `@busirocket/eslint-config`.** Ensambla los mismos plugins uno a uno (js,

@@ -153,18 +153,21 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
 
 ## Conversations export
 
-- [~] Canonical event IDs: the producer side landed 2026-08-31 (`0f7217d`) - an
-  event id is now `sha256(conversation_record_id, old_id)`, schema version 2,
-  and version 1 records still read. Measured on the live Cursor archive: 119
-  cross-conversation collisions under the old rule, 0 under the new one.
-  **Remaining, and it is Atrium's side:** its synthesis registry
-  (`~/.local/share/atrium/synthesis/records/*.json`) durably stores `event_ids`,
-  `episode_id` and job keys, so until it is re-keyed `synthesize` treats
-  unchanged episodes as new and `ingest-synthesis` indexes both generations,
-  silently doubling synthesis results. The re-key is deterministic - the new id
-  is a pure function of the old - so no re-synthesis and no model quota is
-  needed. Running it against `~/.local/share/atrium` is durable-data work and
-  waits for an explicit go.
+- [~] Canonical event IDs. Producer side landed 2026-08-31 (`0f7217d`,
+  `5560479`): the id is `sha256(conversation_record_id, old_id)`, schema version
+  2, version 1 still readable, and records are upgraded at the store's read
+  boundary so a manifest can never outrank the records under it. Measured on the
+  live Cursor archive: 119 cross-conversation collisions under the old rule, 0
+  under the new one. Atrium's side is built too - `atrium rekey-synthesis`
+  (`b76e0ea`, plus the backup in `c6b0b47`) re-keys the 16,148 synthesis records
+  deterministically instead of paying for their output twice; verified here at
+  85 tests passing and a plan of 16,148 with 0 collisions, nothing written.
+  **Remaining, and it needs a window rather than more code:** upgrade the
+  archive records, then `rekey-synthesis --apply`, then `ingest-synthesis`, with
+  the drip loop paused. That is durable-data work on two stores and waits for an
+  explicit go. Exposure is smaller than it looks: `mergeFragment` returns
+  `duplicate` on an unchanged `contentSha256`, so only conversations whose
+  source artifact changes flip to v2 ids.
 - [~] Oversized artifacts vs export. **Streaming shipped 2026-08-31**: a
   `.jsonl` artifact over the 64 MiB bound is now normalized line by line
   (`streamJsonlConversationRecord`), so the bound applies per record instead of

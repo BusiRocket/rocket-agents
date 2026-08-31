@@ -16,20 +16,6 @@
 > verified complete · `[-]` obsolete or superseded. Closed work moves to
 > `TODO_LOG.md`.
 
-## Codex skills budget
-
-- [x] Codex skills budget: `skills:link` now generates the trim. Codex treats
-      `~/.agents/skills` as a discovery root and finds 314 `SKILL.md` there,
-      which overflows its skills context budget: it then strips every
-      description and omits skills, so it can route to none of them. Disabling
-      the aggregate parents does nothing because the nested children are
-      discovered independently. `pnpm run skills:link` writes 270
-      `enabled = false` entries between `# BEGIN/END generated skills trim`
-      markers in `~/.codex/config.toml`, derived from what was actually linked
-      into `~/.claude/skills`, so the trim cannot drift from the curated set.
-      See `TODO_LOG.md` for the evidence and for the token measurement that
-      turned out to be unreliable.
-
 ## Skills library cleanup
 
 > Decided 2026-08-17: curate one list and link it to every IDE including
@@ -253,8 +239,3 @@ Adoptados los gates de `@busirocket` en pleno el 2026-08-26.
   found by the project service", que es exactamente el problema que
   `createBaseConfig` resuelve con `allowDefaultProject` desde eslint-config
   0.6.0. Comparar regla a regla y decidir.
-
-- [x] **`.prettierrc` y `prettier.config.mjs` se contradecian**: uno decia
-      `trailingComma: "all"` y el otro `"es5"`. Uno de los dos estaba muerto y
-      nadie lo sabia. `.prettierrc` borrado; la config ahora reexporta
-      `@busirocket/prettier-config`.

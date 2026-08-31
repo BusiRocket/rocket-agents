@@ -6,6 +6,13 @@
 
 ### 2026-08
 
+- [x] 2026-08-31 - **Baseline gate debt, two entries closed.**
+  - `.prettierrc` and `prettier.config.mjs` contradicted each other on
+    `trailingComma` (`"all"` vs `"es5"`); one of the two was dead and nobody
+    knew which. `.prettierrc` was deleted and the config now re-exports
+    `@busirocket/prettier-config`. Closed when the entry was written; moved out
+    of the backlog today.
+
 - [x] 2026-08-31 - **`skills:link` now generates the Codex skills trim**, and
       the token saving reported yesterday does not survive measurement.
   - `writeCodexSkillTrim` rewrites the block between

@@ -25,13 +25,6 @@ export default tseslint.config(
       '.venv-validate/**',
       'eslint.config.*',
       'prettier.config.*',
-      // Same reason as the two above: a root tool config outside every
-      // tsconfig, which the typed rules cannot parse.
-      'knip.config.ts',
-      // dependency-cruiser loads CommonJS config only, and this file is not in
-      // any tsconfig, so the typed rules this config applies repo-wide fail on
-      // it before any of them can report.
-      '.dependency-cruiser.cjs',
       'rules/**',
       'agents-skills/**',
       'agent-skills/**',
@@ -42,9 +35,17 @@ export default tseslint.config(
   },
   js.configs.recommended,
 
-  // Type-aware linting for TS files
-  ...tseslint.configs.strictTypeChecked,
-  ...tseslint.configs.stylisticTypeChecked,
+  // Type-aware linting, scoped to TypeScript. Unscoped, these rules also load
+  // for `.cjs` and `.mjs` files that no tsconfig covers, and a typed rule with
+  // no type information aborts the whole run instead of reporting.
+  ...tseslint.configs.strictTypeChecked.map((config) => ({
+    ...config,
+    files: ['**/*.{ts,tsx}'],
+  })),
+  ...tseslint.configs.stylisticTypeChecked.map((config) => ({
+    ...config,
+    files: ['**/*.{ts,tsx}'],
+  })),
   codePolicy.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
@@ -56,7 +57,15 @@ export default tseslint.config(
         ...globals.node,
       },
       parserOptions: {
-        projectService: true,
+        // knip.config.ts sits outside every tsconfig, so the project service
+        // rejects it with "was not found by the project service" and the file
+        // used to be dropped from `ignores` entirely - unlinted rather than
+        // unparseable. allowDefaultProject lints it with the default compiler
+        // options instead; entries must not contain `**` and are capped at
+        // eight matched files, both satisfied by this single root glob. The
+        // technique is @busirocket/eslint-config 0.6.0's, adopted on its own
+        // rather than by composing the package (2026-08-31 decision).
+        projectService: { allowDefaultProject: ['knip.config.ts'] },
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -222,6 +231,32 @@ export default tseslint.config(
           'scripts/**/': 'KEBAB_CASE',
         },
       ],
+    },
+  },
+
+  // The default compiler options behind allowDefaultProject do not carry the
+  // real tsconfig's module resolution, so imports here resolve to `error`
+  // types and every typed rule misfires on them - the `as KnipConfiguration`
+  // that keeps knip's types honest reads as an unnecessary assertion.
+  // disableTypeChecked drops only the rules that need type information; the
+  // syntactic ones still apply.
+  {
+    files: ['knip.config.ts'],
+    ...tseslint.configs.disableTypeChecked,
+  },
+
+  // dependency-cruiser loads CommonJS config only, so this file is CJS in an
+  // otherwise ESM project and outside every tsconfig. Declaring its globals is
+  // what lets it be linted at all instead of ignored.
+  {
+    files: ['.dependency-cruiser.cjs'],
+    languageOptions: {
+      globals: {
+        __filename: 'readonly',
+        __dirname: 'readonly',
+        module: 'writable',
+        require: 'readonly',
+      },
     },
   },
 

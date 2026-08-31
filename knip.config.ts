@@ -50,7 +50,7 @@ const config: KnipConfiguration = {
   ],
   // Files nothing reachable from the CLIs imports. Frozen rather than deleted
   // because removing product code is the owner's call; delete a file and its
-  // line here together. Tracked under "Baseline gate debt" in TODO.md.
+  // line here together. Tracked under "Baseline gate debt" in the repository backlog.
   ignore: [
     // A CLI whose single export nothing imports: it is invoked as a command,
     // and the export is the unit boundary this repo enforces.

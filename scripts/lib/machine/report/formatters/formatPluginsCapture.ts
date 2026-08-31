@@ -29,6 +29,14 @@ export const formatPluginsCapture = (
     `cache entries ${String(cache.entries)} stale ${String(cache.stale.length)} orphan ${String(cache.orphanDirectories.length)}`,
   )
 
+  if (cache.stale.length > 0) {
+    // Report only, and deliberately never an action: nothing here proves a
+    // version is unused, because a project-scoped settings file inside any
+    // repository can name it and those cannot be enumerated. Apply prunes
+    // orphan marketplace directories, never a version.
+    lines.push('  (stale = unreferenced by anything this tool can see)')
+  }
+
   for (const entry of cache.stale) {
     lines.push(`  stale  ${entry.marketplace}/${entry.plugin}/${entry.version}`)
   }

@@ -3,6 +3,7 @@ import { DatabaseSync } from 'node:sqlite'
 import { mergeConversationRecordFragments } from './mergeConversationRecordFragments'
 import type { ConversationRecord } from './types/ConversationRecord'
 import type { ConversationStoreChange } from './types/ConversationStoreChange'
+import { upgradeConversationRecord } from './upgradeConversationRecord'
 
 export class ConversationCaptureStore {
   readonly #database: DatabaseSync
@@ -72,12 +73,24 @@ export class ConversationCaptureStore {
     return 'updated'
   }
 
+  /**
+   * Upgraded on the way out, so a reader never meets a record older than the
+   * manifest that introduces it. The export manifest carries the current
+   * schema version by construction; leaving stored records at version 1 made
+   * the header lie about them, which is exactly how a consumer ends up
+   * assuming qualified event ids that are not there. A record already at the
+   * current version is yielded as it was stored, byte for byte, so its
+   * serialization - and the export hash over it - does not move.
+   */
   *serializedRecords() {
     const statement = this.#database.prepare(
       'SELECT record_json FROM records ORDER BY id',
     )
     for (const row of statement.iterate()) {
-      if (typeof row.record_json === 'string') yield row.record_json
+      if (typeof row.record_json !== 'string') continue
+      const stored = JSON.parse(row.record_json) as ConversationRecord
+      const upgraded = upgradeConversationRecord(stored)
+      yield upgraded === stored ? row.record_json : JSON.stringify(upgraded)
     }
   }
 

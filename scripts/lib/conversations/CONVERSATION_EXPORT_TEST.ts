@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { ConversationCaptureStore } from './ConversationCaptureStore'
 import { createConversationRecord } from './fixtures/createConversationRecord'
+import { hashText } from './hashText'
 import { importConversationExport } from './importConversationExport'
 import { readConversationExport } from './readConversationExport'
 import { writeConversationExport } from './writeConversationExport'
@@ -147,4 +148,37 @@ void test('imports are dry-run by default and back up an existing archive on app
   assert.equal(second.duplicates, 1)
   assert.notEqual(second.backup, undefined)
   await fs.access(second.backup ?? '')
+})
+
+void test('an export never carries records older than the manifest that covers them', async (context) => {
+  const root = await fs.mkdtemp(join(tmpdir(), 'rocket-conversations-version-'))
+  context.after(async () => fs.rm(root, { recursive: true, force: true }))
+  const store = new ConversationCaptureStore(join(root, 'capture.sqlite'))
+  const output = join(root, 'export.jsonl')
+  const legacy = { ...createConversationRecord(), schemaVersion: 1 as const }
+  try {
+    store.mergeFragment(legacy)
+    await writeConversationExportFromStore(
+      store,
+      output,
+      new Date('2026-08-31T10:00:00Z'),
+    )
+  } finally {
+    store.close()
+  }
+
+  const written = await readConversationExport(output)
+  assert.deepEqual(written.errors, [])
+  assert.equal(written.manifest?.schemaVersion, 2)
+  // The header used to say 2 while every row underneath was still 1, so a
+  // reader assumed event ids that carried a conversation and got ids that did
+  // not. Measured on the real 4 GB archive on 2026-08-31.
+  assert.deepEqual(
+    written.records.map(({ schemaVersion }) => schemaVersion),
+    [2],
+  )
+  assert.deepEqual(
+    written.records[0]?.events.map(({ id }) => id),
+    legacy.events.map(({ id }) => hashText(`${legacy.id}\0${id}`)),
+  )
 })

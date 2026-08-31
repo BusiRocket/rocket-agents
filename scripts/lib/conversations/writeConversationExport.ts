@@ -5,13 +5,18 @@ import { hashText } from './hashText'
 import { serializeConversationRecords } from './serializeConversationRecords'
 import type { ConversationExportManifest } from './types/ConversationExportManifest'
 import type { ConversationRecord } from './types/ConversationRecord'
+import { upgradeConversationRecord } from './upgradeConversationRecord'
 
 export const writeConversationExport = async (
   records: ConversationRecord[],
   output: string,
   now = new Date(),
 ) => {
-  const payload = serializeConversationRecords(records)
+  // Same rule as the store's read boundary: the manifest states the current
+  // schema version, so the records under it have to be at that version.
+  const payload = serializeConversationRecords(
+    records.map(upgradeConversationRecord),
+  )
   const manifest: ConversationExportManifest = {
     kind: 'rocket-agents-conversation-export',
     schemaVersion: CONVERSATION_SCHEMA_VERSION,

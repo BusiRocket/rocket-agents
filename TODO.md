@@ -181,6 +181,33 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
   line-delimited still fail, and are reported as skips rather than silently
   truncated.
 
+- [ ] `redactSensitiveText` is not idempotent:
+      `Authorization: Bearer     [REDACTED:token]` re-matches its own marker on
+      every pass - the text is stable, the count is not. So
+      `provenance.redactions` inflates on every re-capture of unchanged text,
+      and any "does this still need redaction?" check has to compare text rather
+      than counts. Found 2026-08-31 while measuring the archive; it made a first
+      measurement wrong by 515 records. Owned by the archive-format session
+      while it holds `scripts/lib/conversations/`.
+- [ ] Event text contains lone CR, so Node's `readline` - which treats a bare
+      `\r` as a line terminator - reads the 30,741-line archive as 32,434 lines
+      and mangles 1,634 of them into unparseable fragments. `forEachLfLine` is
+      correct because it splits on `\n` only. Nothing in this repository is
+      broken today; the risk is every future consumer, so whatever format
+      replaces the archive should state the LF-exact rule in its spec. Measured
+      2026-08-31 against the live archive.
+- [ ] Redaction cannot reach an already-archived record. `contentSha256` hashes
+      the source artifact, so `mergeFragment` returns `duplicate` when the
+      source is unchanged and an improved redactor never revisits the record;
+      when the source does change, event ids derive from the redacted text, so
+      the re-redacted event gets a new id and the reducer keeps both variants.
+      Measured 2026-08-31: across all 30,740 records and 1,704,054 events, the
+      current redactor would change nothing, so this is a contingency rather
+      than a live exposure - and the sources themselves are unredacted plaintext
+      on disk, so rotation, not scrubbing, is the control for a leaked
+      credential. The fix in any format is an explicit withdraw-and-republish
+      path; recorded for whichever archive format lands.
+
 ## Cross-project
 
 Nothing open.

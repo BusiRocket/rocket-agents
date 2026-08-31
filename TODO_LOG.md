@@ -6,6 +6,15 @@
 
 ### 2026-08
 
+- [x] 2026-08-31 - **`machine:apply` can converge one domain.**
+      `--domain     <name>`, repeatable, narrows a run; a name outside the
+      profile is refused rather than dropped; a skipped domain keeps the
+      ownership already on record, so an apply that never ran cannot disown what
+      is still installed. Found the same day, when converging plugins would also
+      have written three MCP servers because both profiles include `mcp`.
+      Verified with `machine:apply -- --domain services --json`: that domain
+      alone, converged, and `machine:diff` unchanged afterwards.
+
 - [x] 2026-08-31 - **The 60 files nothing imported are gone, and the gate that
       was supposed to catch them was itself broken.**
   - The `ignore` list in `knip.config.ts` froze them pending the owner's call.

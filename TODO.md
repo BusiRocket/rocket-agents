@@ -71,17 +71,13 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
   `docs/runbooks/claude-connector-authentication.md`, then verify with
   `pnpm run connectors:doctor -- --json` and `pnpm run agents:doctor -- --json`
   on the mini.
-- [ ] Decide whether `context7` should reach gemini and cursor. It is the only
-      real gap `machine:diff` reports after the 2026-08-31 manifest repair: the
-      manifest declares it for codex, gemini and cursor, and only codex has it.
-      Applying writes into two other tools' configuration and needs
-      `CONTEXT7_API_KEY`, so it waits for a yes. Everything else - plugins,
-      security, capabilities, services - is converged.
-- [ ] `machine:apply` has no per-domain scope and no dry run: `--profile full`
-      and `lite` both include `mcp`, so converging one domain silently converges
-      the others. Found 2026-08-31, when applying plugins would also have
-      written three MCP servers nobody asked for. Smallest step: a `--domain`
-      flag, or a `--dry-run` that runs the plan and prints it.
+- [ ] Decide whether `context7` should reach gemini and cursor. Now executable
+      in isolation: `machine:apply -- --domain mcp`. It is the only real gap
+      `machine:diff` reports after the 2026-08-31 manifest repair: the manifest
+      declares it for codex, gemini and cursor, and only codex has it. Applying
+      writes into two other tools' configuration and needs `CONTEXT7_API_KEY`,
+      so it waits for a yes. Everything else - plugins, security, capabilities,
+      services - is converged.
 - [~] Install provenance: the archive half is done (2026-08-24, see
   `TODO_LOG.md` — `agy` 1.1.19 and `herdr` 0.8.0 copied to
   `~/p/_archivar/handmade-binaries/` with SHA-256 sums; `npm ls -g` and

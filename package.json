@@ -6,7 +6,7 @@
   "description": "Agent workflow engine + rules/skills orchestrator for high-quality code across IDEs",
   "scripts": {
     "build": "pnpm run clean:dist && pnpm run rules:compile && pnpm run skills:compile && pnpm run plugins:compile",
-    "check:all": "pnpm run type-check && pnpm run format && pnpm run lint:fix && pnpm run rules:check && pnpm run rules:test && pnpm run skills:validate && pnpm run skills:test && pnpm run agents:test && pnpm run guidance:test && pnpm run connectors:test && pnpm run codex:test && pnpm run conversations:test && pnpm run machine:test && pnpm run library:test && pnpm run link:test && pnpm run hooks:test && pnpm run skills:lint && pnpm run hygiene:test",
+    "check:all": "pnpm run type-check && pnpm run format && pnpm run lint:fix && pnpm run rules:check && pnpm run rules:test && pnpm run skills:validate && pnpm run skills:test && pnpm run agents:test && pnpm run guidance:test && pnpm run connectors:test && pnpm run codex:test && pnpm run conversations:test && pnpm run machine:test && pnpm run library:test && pnpm run link:test && pnpm run hooks:test && pnpm run skills:lint && pnpm run hygiene:test && pnpm run check:quality",
     "check:ci": "pnpm run check:all",
     "check": "pnpm run check:all",
     "format:check": "prettier --check .",
@@ -85,7 +85,7 @@
     "lint:prune": "eslint . --prune-suppressions",
     "dupes": "baseline-dupes . --threshold 1.3",
     "knip": "knip",
-    "deps:graph": "depcruise src",
+    "deps:graph": "depcruise scripts",
     "type-coverage": "baseline-type-coverage",
     "secrets:check": "gitleaks detect --no-banner --redact",
     "audit:check": "pnpm audit --audit-level=high",

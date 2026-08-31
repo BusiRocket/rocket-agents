@@ -123,12 +123,16 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
       then add gitleaks to the private repositories that are actually active.
       Source: `~/p/brain/topics/app-security.md`.
 - [ ] Adopt pnpm 11 supply-chain controls across the other `~/p` repos:
-      `minimumReleaseAge: 1440` (24h cooldown defeats the compromised-token
-      window) and `blockExoticSubdeps: true`. Needs Node 22 and pnpm 11; check
-      per repo. This repository was verified compliant 2026-08-22
-      (`pnpm-workspace.yaml`), so only the cross-project sweep remains and it is
-      out of this repository's scope — file per repo when each is next touched.
-      Source: `~/p/brain/topics/supply-chain-security.md`.
+      `minimumReleaseAge: 1440` (a 24h cooldown defeats the compromised-token
+      window) and `blockExoticSubdeps: true`. Surveyed 2026-08-31: of 135
+      repositories, 44 use pnpm and only 9 declare `minimumReleaseAge` - this
+      repository among them. The other 35 are listed by the survey command
+      below; several are dormant, so the useful cut is the ones still being
+      installed. Executing it here would edit other repositories, so it stays a
+      per-repo action taken when each is next touched. Command:
+      `for d in ~/p/*/; do ... grep minimumReleaseAge ...` (see `TODO_LOG.md`
+      2026-08-31 for the exact sweep). Source:
+      `~/p/brain/topics/supply-chain-security.md`.
 - [!] Add `uv export --format requirements.txt` to any CI that adopts `uv`, as
   the exit ramp now that OpenAI owns it — one line, converts lock-in into a
   preference. Blocked by its own precondition: a 2026-08-22 sweep of

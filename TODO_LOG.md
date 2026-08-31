@@ -6,6 +6,21 @@
 
 ### 2026-08
 
+- [x] 2026-08-31 - **Two backlog items that were waiting on a list now have
+      one.**
+  - Secret scanning: 134 repositories under `~/p`, 18 with a secret hook (all
+    lefthook + gitleaks), 116 without. The stronger lever is GitHub's own
+    scanning, free on public repositories and settable as an organisation
+    default; verified disabled on `BusiRocket/rocket-agents`
+    (`secret_scanning: disabled`, `push_protection: disabled`), while private
+    repositories return `null` and need Advanced Security. User-owned public
+    surface: 14 under BusiRocket, 18 under CristianDeluxe.
+  - pnpm supply-chain controls: 44 of 135 repositories use pnpm and 9 declare
+    `minimumReleaseAge`. Sweep:
+    `for d in ~/p/*/; do r=${d%/}; [ -d "$r/.git" ] || continue; if [ -f "$r/pnpm-lock.yaml" ]; then grep -qE minimumReleaseAge "$r/pnpm-workspace.yaml" "$r/.npmrc" 2>/dev/null || echo "$r"; fi; done`
+  - Neither was executed: enabling scanning writes GitHub settings and the pnpm
+    change edits other repositories.
+
 - [x] 2026-08-31 - **`machine:apply` can converge one domain.**
       `--domain     <name>`, repeatable, narrows a run; a name outside the
       profile is refused rather than dropped; a skipped domain keeps the

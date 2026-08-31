@@ -45,17 +45,17 @@
     directories, 349 MB. Orphan pruning is unchanged.
 
 - [x] 2026-08-31 - **The curated library reaches Antigravity.**
-  - `library:link --target antigravity --into ~/.gemini/config/skills` copied
-    35 curated skills: 20 new, 15 replacing older copies of the same skills, 0
+  - `library:link --target antigravity --into ~/.gemini/config/skills` copied 35
+    curated skills: 20 new, 15 replacing older copies of the same skills, 0
     foreign, 0 missing, 0 symlinks. `core/` and `orchestrator/` were left
     untouched. The previous 17 entries were copied to the session scratchpad
     first.
 
 - [x] 2026-08-31 - **The machine manifests describe the machine that exists.**
   - `machine:diff` reported 18 changes and every one was the declaration being
-    stale. The mcp manifest still declared `mempalace` on codex; Atrium
-    replaced MemPalace on 2026-08-30 and is what both Claude profiles and codex
-    run, while mempalace is configured nowhere. The plugins manifest declared
+    stale. The mcp manifest still declared `mempalace` on codex; Atrium replaced
+    MemPalace on 2026-08-30 and is what both Claude profiles and codex run,
+    while mempalace is configured nowhere. The plugins manifest declared
     thirteen official plugins at `b481c085fd11` against the installed
     `ed404106fcd8` - a pin `claude plugin install` cannot execute in either
     direction - and declared the mempalace plugin enabled where both profiles

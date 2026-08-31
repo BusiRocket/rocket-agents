@@ -31,8 +31,8 @@
 > gaps. They are decisions about that repository's contents, and executing them
 > here would edit another repo. What stays below is the part this engine owns.
 
-Nothing open: the curated list reaches Claude and Antigravity, and the
-remaining content decisions live in `~/p/rocket-agents-library/TODO.md`.
+Nothing open: the curated list reaches Claude and Antigravity, and the remaining
+content decisions live in `~/p/rocket-agents-library/TODO.md`.
 
 ## Skill library and learning loop
 
@@ -179,5 +179,5 @@ Nothing open.
 
 Adoptados los gates de `@busirocket` en pleno el 2026-08-26.
 
-Nada abierto: los 60 ficheros muertos se borraron el 2026-08-31 y `knip`
-entro en `pnpm run check` a traves de `check:quality`.
+Nada abierto: los 60 ficheros muertos se borraron el 2026-08-31 y `knip` entro
+en `pnpm run check` a traves de `check:quality`.

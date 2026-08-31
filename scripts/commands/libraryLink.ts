@@ -9,6 +9,7 @@ import { findLinkCollisions } from '../lib/library/findLinkCollisions'
 import { formatLinkReport } from '../lib/library/formatters/formatLinkReport'
 import { installPlannedLinks } from '../lib/library/installPlannedLinks'
 import { isSkillTarget } from '../lib/library/isSkillTarget'
+import { linkStrategyForTarget } from '../lib/library/linkStrategyForTarget'
 import { planLinks } from '../lib/library/planLinks'
 import { resolveLinkDir } from '../lib/library/resolveLinkDir'
 import { selectFannedOutSkills } from '../lib/library/selectors/selectFannedOutSkills'
@@ -94,7 +95,12 @@ export const main = async () => {
     process.exitCode = 1
     return
   }
-  const installed = await installPlannedLinks({ links, linkDir, dryRun })
+  const installed = await installPlannedLinks({
+    links,
+    linkDir,
+    dryRun,
+    strategy: linkStrategyForTarget(target),
+  })
   const allMissing = [...missing, ...installed.missing]
 
   console.log(

@@ -12,15 +12,19 @@ import { resolveClaudeSettingsPaths } from '../lib/machine/cli/resolveClaudeSett
 import { resolveOwnedPath } from '../lib/machine/cli/resolveOwnedPath'
 import { resolvePluginsPaths } from '../lib/machine/cli/resolvePluginsPaths'
 import { resolveRunsDir } from '../lib/machine/cli/resolveRunsDir'
+import { resolveSelectedDomains } from '../lib/machine/cli/resolveSelectedDomains'
 import { resolveServicesPaths } from '../lib/machine/cli/resolveServicesPaths'
 import { resolveTargetPaths } from '../lib/machine/cli/resolveTargetPaths'
 import { toOwnedByTarget } from '../lib/machine/cli/toOwnedByTarget'
-import { applyCapabilityLinks } from '../lib/machine/domains/capabilities/applyCapabilityLinks'
+import { applySelectedCapabilityLinks } from '../lib/machine/domains/capabilities/applySelectedCapabilityLinks'
 import { planCapabilityLinks } from '../lib/machine/domains/capabilities/planCapabilityLinks'
 import { toCapabilityMessages } from '../lib/machine/domains/capabilities/toCapabilityMessages'
+import { toCapabilityOwned } from '../lib/machine/domains/capabilities/toCapabilityOwned'
 import { apply } from '../lib/machine/domains/mcp/apply'
+import { applySelectedMcp } from '../lib/machine/domains/mcp/applySelectedMcp'
 import { toMcpApplyDomain } from '../lib/machine/domains/mcp/toMcpApplyDomain'
 import { runPluginsApply } from '../lib/machine/domains/plugins/runPluginsApply'
+import { applySelectedClaudeSettings } from '../lib/machine/domains/security/applySelectedClaudeSettings'
 import { planClaudeSettings } from '../lib/machine/domains/security/planClaudeSettings'
 import { readClaudeSettings } from '../lib/machine/domains/security/readClaudeSettings'
 import { writeClaudeSettings } from '../lib/machine/domains/security/writeClaudeSettings'
@@ -37,6 +41,7 @@ import { formatRunReport } from '../lib/machine/report/formatters/formatRunRepor
 import { toFailedRunReport } from '../lib/machine/report/toFailedRunReport'
 import { createRunId } from '../lib/machine/runs/createRunId'
 import { createSnapshot } from '../lib/machine/runs/createSnapshot'
+import type { DomainResult } from '../lib/machine/types/DomainResult'
 import type { RunReport } from '../lib/machine/types/RunReport'
 
 export const main = async () => {
@@ -64,6 +69,27 @@ export const main = async () => {
   }
 
   const profileDomains: readonly string[] = MACHINE_PROFILES[requested]
+  const selection = resolveSelectedDomains({
+    argv: process.argv,
+    profileDomains,
+  })
+
+  if ('errors' in selection) {
+    console.log(
+      formatRunReport(
+        toFailedRunReport({
+          runId: 'apply',
+          profile: requested,
+          messages: selection.errors,
+        }),
+        asJson,
+      ),
+    )
+    process.exitCode = 1
+    return
+  }
+
+  const selected = selection.domains
   const parsed = await loadMcpManifest(instanceDir)
   const security = await loadSecurityManifest(instanceDir)
 
@@ -101,7 +127,7 @@ export const main = async () => {
   ]
 
   const pluginsPaths = resolvePluginsPaths(home)
-  const pluginsManifest = profileDomains.includes('plugins')
+  const pluginsManifest = selected.includes('plugins')
     ? await loadPluginsManifest(instanceDir)
     : undefined
 
@@ -109,7 +135,7 @@ export const main = async () => {
     home,
     platform: process.platform,
   })
-  const servicesManifest = profileDomains.includes('services')
+  const servicesManifest = selected.includes('services')
     ? await loadServicesManifest(instanceDir)
     : undefined
   const servicesUnitPaths = resolveDeclaredUnitPaths({
@@ -139,32 +165,36 @@ export const main = async () => {
     await readClaudeSettings(claudeSettingsPaths),
   )
 
-  const result = await apply({
-    manifest: parsed.manifest,
-    paths,
-    owned: toOwnedByTarget(ownedRecord),
-    env: process.env,
+  // A domain this run does not converge keeps the ownership it already had:
+  // rewriting it from an empty apply would disown servers and links that are
+  // still installed.
+  const result = await applySelectedMcp({
+    selected: selected.includes('mcp'),
+    owned: ownedRecord,
+    run: async () =>
+      apply({
+        manifest: parsed.manifest,
+        paths,
+        owned: toOwnedByTarget(ownedRecord),
+        env: process.env,
+      }),
   })
-  const securityOwned = await writeClaudeSettings({
-    paths: claudeSettingsPaths,
-    policy: security.manifest.claude,
+  const securityOwned = await applySelectedClaudeSettings({
+    selected: selected.includes('security'),
+    owned: ownedRecord,
+    run: async () =>
+      writeClaudeSettings({
+        paths: claudeSettingsPaths,
+        policy: security.manifest.claude,
+      }),
   })
-  const capabilityResults = []
-  for (const target of capabilityTargets) {
-    capabilityResults.push({
-      target,
-      result: await applyCapabilityLinks(target),
-    })
-  }
-
-  const capabilityOwned = Object.fromEntries(
-    capabilityResults
-      .filter(({ result }) => result.status === 'supported')
-      .map(({ target }) => [
-        target.id,
-        target.links.map(({ target: path }) => path),
-      ]),
-  )
+  const capabilityResults = await applySelectedCapabilityLinks({
+    targets: capabilityTargets,
+    selected: selected.includes('capabilities'),
+  })
+  const capabilityOwned = selected.includes('capabilities')
+    ? toCapabilityOwned(capabilityResults)
+    : (ownedRecord.capabilities ?? {})
 
   const pluginsDomain = await runPluginsApply({
     parsed: pluginsManifest,
@@ -202,29 +232,31 @@ export const main = async () => {
     profile: requested,
     domains: selectProfileDomains({
       profile: requested,
-      domains: [
-        toMcpApplyDomain({
-          written,
-          targets: Object.keys(paths).length,
-          missing,
-        }),
-        {
-          domain: 'security',
-          status: securityChanges.length === 0 ? 'converged' : 'changed',
-          changes: securityChanges.length,
-          messages: securityChanges.map(
-            (change) => `updated ${change.key} on ${change.profile}`,
-          ),
-        },
-        {
-          domain: 'capabilities',
-          status: capabilityChanges === 0 ? 'converged' : 'changed',
-          changes: capabilityChanges,
-          messages: toCapabilityMessages(capabilityResults),
-        },
-        pluginsDomain,
-        servicesDomain,
-      ],
+      domains: (
+        [
+          toMcpApplyDomain({
+            written,
+            targets: Object.keys(paths).length,
+            missing,
+          }),
+          {
+            domain: 'security',
+            status: securityChanges.length === 0 ? 'converged' : 'changed',
+            changes: securityChanges.length,
+            messages: securityChanges.map(
+              (change) => `updated ${change.key} on ${change.profile}`,
+            ),
+          },
+          {
+            domain: 'capabilities',
+            status: capabilityChanges === 0 ? 'converged' : 'changed',
+            changes: capabilityChanges,
+            messages: toCapabilityMessages(capabilityResults),
+          },
+          pluginsDomain,
+          servicesDomain,
+        ] satisfies DomainResult[]
+      ).filter((domain) => selected.includes(domain.domain)),
     }),
     ok: pluginsDomain.status !== 'failed' && servicesDomain.status !== 'failed',
   }

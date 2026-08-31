@@ -2,9 +2,12 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { backupConversationArchive } from './backupConversationArchive'
+import { ConversationArchiveChangedError } from './ConversationArchiveChangedError'
 import { ConversationCaptureStore } from './ConversationCaptureStore'
 import { loadConversationExportStore } from './loadConversationExportStore'
+import { readArchiveRevision } from './readArchiveRevision'
 import type { ConversationImportResult } from './types/ConversationImportResult'
+import { withArchiveWriteLock } from './withArchiveWriteLock'
 import { writeConversationExportFromStore } from './writeConversationExportFromStore'
 
 export const importConversationExport = async (options: {
@@ -18,6 +21,11 @@ export const importConversationExport = async (options: {
   )
   const store = new ConversationCaptureStore(join(directory, 'capture.sqlite'))
   try {
+    // Captured before the merge and verified after it. An import reads the
+    // archive, merges for as long as that takes, then writes the result back;
+    // without this, a second writer finishing in between has its conversations
+    // replaced by this one's older view, and nothing says so.
+    const mergedFrom = await readArchiveRevision(options.archive)
     try {
       const existing = await loadConversationExportStore(options.archive, store)
       if (existing.errors.length > 0) {
@@ -57,15 +65,19 @@ export const importConversationExport = async (options: {
 
     let backup: string | undefined
     if (options.apply) {
-      backup = await backupConversationArchive(
-        options.archive,
-        options.now ?? new Date(),
-      )
-      await writeConversationExportFromStore(
-        store,
-        options.archive,
-        options.now,
-      )
+      await withArchiveWriteLock(options.archive, async () => {
+        if ((await readArchiveRevision(options.archive)) !== mergedFrom)
+          throw new ConversationArchiveChangedError(options.archive)
+        backup = await backupConversationArchive(
+          options.archive,
+          options.now ?? new Date(),
+        )
+        await writeConversationExportFromStore(
+          store,
+          options.archive,
+          options.now,
+        )
+      })
     }
     return {
       ok: true,

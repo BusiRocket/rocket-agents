@@ -23,22 +23,34 @@ export class ConversationCaptureStore {
     )
   }
 
-  mergeFragment(record: ConversationRecord) {
+  mergeFragment(record: ConversationRecord): ConversationStoreChange {
     const existing = this.#find.get(record.id)
-    const merged =
-      existing === undefined || typeof existing.record_json !== 'string'
-        ? record
-        : mergeConversationRecordFragments(
-            JSON.parse(existing.record_json) as ConversationRecord,
-            record,
-          )
+    if (existing === undefined || typeof existing.record_json !== 'string') {
+      this.#upsert.run(
+        record.id,
+        JSON.stringify(record),
+        record.provenance.redactions,
+      )
+      return 'added'
+    }
+    const current = JSON.parse(existing.record_json) as ConversationRecord
+    if (current.provenance.contentSha256 === record.provenance.contentSha256)
+      return 'duplicate'
+    const merged = mergeConversationRecordFragments(current, record)
     this.#upsert.run(
       merged.id,
       JSON.stringify(merged),
       merged.provenance.redactions,
     )
+    return 'updated'
   }
 
+  /**
+   * Overwrite rather than merge. Kept for a caller that genuinely knows the
+   * incoming record supersedes the stored one; merging is what an exchange
+   * between two archives needs, because there neither side supersedes the
+   * other and the later arrival is not the better one.
+   */
   replace(record: ConversationRecord): ConversationStoreChange {
     const existing = this.#find.get(record.id)
     if (existing === undefined || typeof existing.record_json !== 'string') {

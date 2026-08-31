@@ -31,17 +31,19 @@
 > gaps. They are decisions about that repository's contents, and executing them
 > here would edit another repo. What stays below is the part this engine owns.
 
-- [ ] Deliver the curated list to Antigravity. Claude is done: it already
-      carries all 42 curated skills natively (verified 2026-08-25,
-      `library:link --target claude` plans 42 with 0 foreign and creates nothing
-      new), so the original framing - "Claude Code sees 13 of 273" - was stale
-      by a week. Antigravity is the real gap and the current tooling cannot fill
-      it: `library:link` symlinks, while Antigravity's registry entry declares
-      `linkStrategy: copy` with `flattenSkills`, and the dedicated
-      `skills:link:antigravity` installs this repo's own `src/skills` rather
-      than the curated library. Smallest next step: teach the Antigravity
-      installer to read the curation manifest, or give `library:link` a copy
-      strategy.
+- [~] Deliver the curated list to Antigravity. The tooling gap is closed
+  (2026-08-31): `library:link` now installs through the strategy its registry
+  entry declares, so `--target antigravity` copies the compiled curated skills
+  instead of symlinking them, and a real run into a temporary directory produced
+  35 skill directories and 0 symlinks, with 0 foreign and 0 missing. What
+  remains is the install itself into `~/.gemini/config/skills`, which is a
+  machine mutation and needs explicit authorization:
+  `pnpm run library:link -- --target antigravity --into     ~/.gemini/config/skills`.
+  `--into` stays required - the registry's paths are baked against the real
+  `HOME`, and the default-destination rule is what stopped foreign skills
+  filling Claude's directory on 2026-08-25. Note the curation itself offers
+  Antigravity 35 skills against Claude's 42; that split is a content decision in
+  `~/p/rocket-agents-library/TODO.md`, not an engine gap.
 
 ## Skill library and learning loop
 
@@ -195,19 +197,18 @@
       `sourceDefinitions.ts`. Smallest step: use each app once, then diff the
       filesystem for what it wrote. Until then their entries in the source
       catalog are aspirational.
-- [~] Oversized artifacts vs export, two stages. **Interim shipped 2026-08-27**
-  (`bfa54ec`): `--allow-partial` writes the export with a manifest that declares
-  `complete:false` and lists every skip; default stays fail-closed. That
-  unblocked the codex source (4,356 records exported; the two >64 MiB rollouts
-  2026-08-19T21-06-36 and 2026-08-26T13-41-24 remain skipped and declared).
-  **Real fix still open**: stream JSONL artifacts line-by-line so the 64 MiB
-  bound applies per line/record instead of per file
-  (`readTextConversationDocument.ts` slurps whole files), normalize
-  incrementally while hashing the source, and fragment a normalized conversation
-  that exceeds the record cap deterministically. Then the two oversized rollouts
-  get captured instead of skipped and `--allow-partial` returns to being a rare
-  recovery flag. Shape agreed in the 2026-08-27 Atrium design consult; reject
-  raising the limit or truncating files.
+- [~] Oversized artifacts vs export. **Streaming shipped 2026-08-31**: a
+  `.jsonl` artifact over the 64 MiB bound is now normalized line by line
+  (`streamJsonlConversationRecord`), so the bound applies per record instead of
+  per file, and the codex source exports `complete: true` with `skipped: 0` and
+  16,424 records - the three oversized rollouts included. `--allow-partial` is
+  back to being a rare recovery flag. **Remaining**: fragmenting a normalized
+  conversation that exceeds the record cap is still unbuilt and, measured on
+  2026-08-31, still unneeded - the largest serialized record in a full codex
+  export is 8.4 MB against a 64 MiB cap. Build it when a real conversation
+  approaches the cap, not before. Files over the bound that are not
+  line-delimited still fail, and are reported as skips rather than silently
+  truncated.
 
 ## Cross-project
 
@@ -230,12 +231,11 @@ Adoptados los gates de `@busirocket` en pleno el 2026-08-26.
       63 ficheros que invocan los `scripts` del `package.json`, mas los
       `*_TEST.ts` y `golden/` -- y da 80. Borrar fichero y linea a la vez.
 
-- [~] **La capa ESLint sigue montada a mano y no compone
-  `@busirocket/eslint-config`.** Ensambla los mismos plugins uno a uno (js,
-  import-x, unicorn, sonarjs, boundaries, code-policy, check-file) mas
-  `check-file`, que el baseline no trae. No se toco porque componer el paquete
-  podria perder reglas. El coste de mantenerla aparte ya se vio en esta
-  adopcion: `knip.config.ts` y `.dependency-cruiser.cjs` fallaban con "was not
-  found by the project service", que es exactamente el problema que
-  `createBaseConfig` resuelve con `allowDefaultProject` desde eslint-config
-  0.6.0. Comparar regla a regla y decidir.
+- [ ] `pnpm run knip` sale con codigo 1 y 29 "configuration hints", y no forma
+      parte de `pnpm run check`, asi que el fallo no lo ve nadie. Preexistente
+      (verificado el 2026-08-31 contra `git stash`, identico antes y despues del
+      trabajo de hoy). Los patrones `src/index.ts`, `src/**/*.ts`,
+      `scripts/golden/**` y `machine/**` no casan con nada, y siete
+      `ignoreDependencies` y varios `ignoreBinaries` ya no hacen falta. Paso
+      minimo: limpiar los patrones muertos y decidir si `knip` entra en la
+      puerta de calidad.

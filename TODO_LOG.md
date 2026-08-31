@@ -6,6 +6,68 @@
 
 ### 2026-08
 
+- [x] 2026-08-31 - **The ESLint layer stays hand-assembled, and the two unlinted
+      root configs are fixed on their own.**
+  - Compared `@busirocket/eslint-config@0.8.0` (unpacked, not installed) rule by
+    rule against this repo's `eslint.config.mjs`. Composing it would add
+    promise/regexp/security rule sets, `eqeqeq`, `no-console`,
+    `consistent-type-definitions: 'type'`, `prefer-readonly`,
+    `promise-function-async`, `max-lines`, `max-depth`, `max-params` and
+    `sonarjs/cognitive-complexity`; it would drop the unicorn extras, the full
+    sonarjs recommended set, the boundaries policies, the check-file naming
+    conventions, and it would swap `import-x` for `import`.
+  - Measured adoption cost in 1,330 files: 173 `export interface` declarations
+    against `consistent-type-definitions: 'type'`, 18 non-test files over the
+    100-line `max-lines` budget, and every `*_TEST.ts` file judged by the
+    production code-policy rules, because this repo's test naming does not match
+    the baseline's test globs.
+  - Decision (Codex adjudication, `codex exec -s read-only`, verdict "B", high
+    confidence): keep the local layer, adopt only the baseline's
+    `allowDefaultProject` + `disableTypeChecked` technique. `knip.config.ts` and
+    `.dependency-cruiser.cjs` left `ignores` and are linted for the first time;
+    the type-aware presets are now scoped to `**/*.{ts,tsx}` so a typed rule can
+    no longer abort the run on a `.cjs` file it has no types for. Linting them
+    found two real reports, both fixed.
+  - Evidence: `npx eslint knip.config.ts .dependency-cruiser.cjs` is clean, and
+    `pnpm run check` is green.
+
+- [x] 2026-08-31 - **Oversized JSONL conversations are captured by streaming
+      instead of being skipped.**
+  - `readTextConversationDocument` rejected any artifact over 64 MiB, so three
+    real codex rollouts (116 MB, 70 MB, 63 MB) never reached an export.
+    `streamJsonlConversationRecord` now normalizes such a file line by line: the
+    bound applies to a single record, the source hash is computed over the
+    chunks as they arrive, and only the three records that can still decide
+    identity are retained and replayed into `conversationSourceId` and
+    `conversationWorkspace` in their original order.
+  - Files within the bound keep the whole-document path, which unwraps
+    containers and tolerates pretty-printed artifacts; only oversized ones
+    stream. `forEachLfLine` grew an optional raw-chunk callback so the hash is
+    taken from the bytes on disk rather than from reassembled lines.
+  - Evidence: `pnpm run check` green; a full codex export reports `ok: true`,
+    `complete: true`, `skipped: 0`, 16,424 records, and all three rollouts
+    appear by `relativePath`. Largest serialized record measured at 8.4 MB
+    against the 64 MiB cap, which is why record fragmentation stays unbuilt.
+  - Codex adjudication (`codex exec -s read-only`, medium effort) reviewed the
+    change and returned one defect: the streaming path parsed the raw line while
+    the whole-document path parses `line.trim()`, so a BOM-prefixed file would
+    have failed only when large enough to stream. Fixed, and the parity test now
+    carries a BOM.
+
+- [x] 2026-08-31 - **`library:link` installs by the strategy the IDE registry
+      declares, which unblocks Antigravity.**
+  - Antigravity's registry entry has declared `linkStrategy: copy` all along,
+    but `installPlannedLinks` only ever symlinked, and the dedicated
+    `skills:link:antigravity` installs this repo's own `src/skills` rather than
+    the curated library. `installCopiedSkill` copies a compiled skill over a
+    destination it owns - absent, or a directory that already holds a
+    `SKILL.md` - and reports anything else as foreign rather than deleting it.
+  - Evidence: `pnpm run library:test` 217 pass, including the new copy test;
+    `library:link --target antigravity --into <tmp>` produced 35 skill
+    directories, 0 symlinks, 0 foreign, 0 missing. The install into
+    `~/.gemini/config/skills` is a machine mutation and was deliberately not
+    run.
+
 - [x] 2026-08-31 - **Baseline gate debt, two entries closed.**
   - `.prettierrc` and `prettier.config.mjs` contradicted each other on
     `trailingComma` (`"all"` vs `"es5"`); one of the two was dead and nobody

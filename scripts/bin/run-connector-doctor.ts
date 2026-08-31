@@ -1,6 +1,6 @@
 import { main } from '../commands/connectorDoctor'
+import { reportUnexpectedFailure } from '../lib/reportUnexpectedFailure'
 
-main().catch(() => {
-  console.error('connector doctor failed unexpectedly')
-  process.exitCode = 2
+main().catch((error: unknown) => {
+  reportUnexpectedFailure('connector doctor failed unexpectedly', error)
 })

@@ -31,19 +31,8 @@
 > gaps. They are decisions about that repository's contents, and executing them
 > here would edit another repo. What stays below is the part this engine owns.
 
-- [~] Deliver the curated list to Antigravity. The tooling gap is closed
-  (2026-08-31): `library:link` now installs through the strategy its registry
-  entry declares, so `--target antigravity` copies the compiled curated skills
-  instead of symlinking them, and a real run into a temporary directory produced
-  35 skill directories and 0 symlinks, with 0 foreign and 0 missing. What
-  remains is the install itself into `~/.gemini/config/skills`, which is a
-  machine mutation and needs explicit authorization:
-  `pnpm run library:link -- --target antigravity --into     ~/.gemini/config/skills`.
-  `--into` stays required - the registry's paths are baked against the real
-  `HOME`, and the default-destination rule is what stopped foreign skills
-  filling Claude's directory on 2026-08-25. Note the curation itself offers
-  Antigravity 35 skills against Claude's 42; that split is a content decision in
-  `~/p/rocket-agents-library/TODO.md`, not an engine gap.
+Nothing open: the curated list reaches Claude and Antigravity, and the
+remaining content decisions live in `~/p/rocket-agents-library/TODO.md`.
 
 ## Skill library and learning loop
 
@@ -82,37 +71,17 @@
   `docs/runbooks/claude-connector-authentication.md`, then verify with
   `pnpm run connectors:doctor -- --json` and `pnpm run agents:doctor -- --json`
   on the mini.
-- [ ] Plugins apply against this machine is the only step left, and it needs
-      explicit authorization. Everything else is done and verified (2026-08-22
-      and 2026-08-24, see `TODO_LOG.md`): `machine/plugins.json` declares all 37
-      plugins and diffs `converged`, so an apply today would be a no-op. The
-      reason to run one is the next change, not this state. Note the one manual
-      case the CLI forces: a version pin is reported, never executed, because
-      `claude plugin install` has no version flag.
-- [~] Plugin cache hygiene: the one-off sweep is done (2026-08-22, 2.5 GB to 271
-  MB) and the recurring policy is decided (2026-08-24):
-  `machine:apply -- --prune-cache` removes cache directories belonging to no
-  known marketplace, opt-in rather than automatic. Stale _version_ entries
-  inside known marketplaces are deliberately still not pruned, because capture
-  does not resolve `settings.json` references and a `statusLine` can point into
-  a version that reads as stale. Remaining: teach capture to resolve those
-  references, then decide whether version pruning can be safe. The `realpath`
-  constraint (13 of 37 plugins are recorded through the
-  `~/.claude-favish/plugins` symlink) is already honoured by `toRealPath`. The
-  accumulation rate is confirmed rather than assumed: `machine:capture:plugins`
-  reported 19 orphan directories on 2026-08-24, two days after the sweep that
-  took the cache to zero.
-- [ ] Services: `machine/services.json` now describes
-      `com.cristian.library-loop`, and the schema grew interval schedules to
-      make that possible - the loop polls on `StartInterval` because a calendar
-      slot the machine sleeps through is never caught up, and the schema had
-      only calendar slots (2026-08-24, see `TODO_LOG.md`). `machine:diff`
-      reports one `update` for it, and that update is cosmetic: `plutil` parses
-      the rendered unit and the installed plist to identical JSON, so the
-      difference is XML escaping of quotes only. Two things remain, both needing
-      authorization: run an apply to canonicalise that one file, and decide
-      whether the other 24 hand-written LaunchAgents get described here. Apply
-      never removes an undeclared unit, so leaving them undeclared is safe.
+- [ ] Decide whether `context7` should reach gemini and cursor. It is the only
+      real gap `machine:diff` reports after the 2026-08-31 manifest repair: the
+      manifest declares it for codex, gemini and cursor, and only codex has it.
+      Applying writes into two other tools' configuration and needs
+      `CONTEXT7_API_KEY`, so it waits for a yes. Everything else - plugins,
+      security, capabilities, services - is converged.
+- [ ] `machine:apply` has no per-domain scope and no dry run: `--profile full`
+      and `lite` both include `mcp`, so converging one domain silently converges
+      the others. Found 2026-08-31, when applying plugins would also have
+      written three MCP servers nobody asked for. Smallest step: a `--domain`
+      flag, or a `--dry-run` that runs the plan and prints it.
 - [~] Install provenance: the archive half is done (2026-08-24, see
   `TODO_LOG.md` — `agy` 1.1.19 and `herdr` 0.8.0 copied to
   `~/p/_archivar/handmade-binaries/` with SHA-256 sums; `npm ls -g` and
@@ -189,14 +158,6 @@
       so doing it here alone would duplicate records or break identity
       continuity on its side. Execute it together with Atrium's migration, in
       one pass, not as an isolated backlog item here.
-- [ ] Find where Trae and Windsurf actually keep their conversations, if
-      anywhere on this machine. Answered 2026-08-31 for the old question (the
-      exporters were reading VS Code editor state, see `TODO_LOG.md`), and both
-      now export zero records honestly. What is still unknown is whether either
-      product stores dialogue somewhere outside the roots in
-      `sourceDefinitions.ts`. Smallest step: use each app once, then diff the
-      filesystem for what it wrote. Until then their entries in the source
-      catalog are aspirational.
 - [~] Oversized artifacts vs export. **Streaming shipped 2026-08-31**: a
   `.jsonl` artifact over the 64 MiB bound is now normalized line by line
   (`streamJsonlConversationRecord`), so the bound applies per record instead of
@@ -212,30 +173,11 @@
 
 ## Cross-project
 
-- [ ] `~/p/RocketUpdater` (no TODO.md there yet): commit or discard its
-      untracked `.serena/` state — already named in `~/p/osseus/TODO.md`'s
-      `.serena` entry, which can carry it; smallest action is closing it from
-      the Osseus entry when either repo is next touched.
+Nothing open.
 
 ## Baseline gate debt
 
 Adoptados los gates de `@busirocket` en pleno el 2026-08-26.
 
-- [ ] **80 ficheros que nada alcanzable desde los CLIs importa**, congelados en
-      `ignore` dentro de `knip.config.ts`. El numero depende de que se declare
-      como entry, y las dos configuraciones obvias mienten: con `scripts/**`
-      entero como entry cada helper es su propia raiz y **nada** se reporta
-      nunca (escondia 47 exports muertos); con solo `bin/` y `commands/` salian
-      **298** ficheros muertos falsos, porque los verificadores `*_TEST.ts`
-      alcanzan el resto. La configuracion actual usa las entradas reales -- los
-      63 ficheros que invocan los `scripts` del `package.json`, mas los
-      `*_TEST.ts` y `golden/` -- y da 80. Borrar fichero y linea a la vez.
-
-- [ ] `pnpm run knip` sale con codigo 1 y 29 "configuration hints", y no forma
-      parte de `pnpm run check`, asi que el fallo no lo ve nadie. Preexistente
-      (verificado el 2026-08-31 contra `git stash`, identico antes y despues del
-      trabajo de hoy). Los patrones `src/index.ts`, `src/**/*.ts`,
-      `scripts/golden/**` y `machine/**` no casan con nada, y siete
-      `ignoreDependencies` y varios `ignoreBinaries` ya no hacen falta. Paso
-      minimo: limpiar los patrones muertos y decidir si `knip` entra en la
-      puerta de calidad.
+Nada abierto: los 60 ficheros muertos se borraron el 2026-08-31 y `knip`
+entro en `pnpm run check` a traves de `check:quality`.

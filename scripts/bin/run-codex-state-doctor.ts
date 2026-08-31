@@ -1,6 +1,6 @@
 import { main } from '../commands/codexStateDoctor'
+import { reportUnexpectedFailure } from '../lib/reportUnexpectedFailure'
 
-main().catch(() => {
-  console.error('Codex state doctor failed unexpectedly')
-  process.exitCode = 2
+main().catch((error: unknown) => {
+  reportUnexpectedFailure('Codex state doctor failed unexpectedly', error)
 })

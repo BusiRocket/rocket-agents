@@ -1,4 +1,5 @@
 import { promises as fs } from 'node:fs'
+import { dirname } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
 /**
@@ -20,6 +21,13 @@ export const withArchiveWriteLock = async <T>(
   const staleAfterMs = 60_000
   const retryMs = 100
   const lock = `${archive}.write-lock`
+  // The lock sits beside the archive, so on a host that has never held one the
+  // directory does not exist yet and taking the lock fails before the writer
+  // ever gets to create it. That made the first --apply on a freshly
+  // provisioned peer impossible: it reported ENOENT for the lock path while
+  // the missing thing was the directory. The archive's own mkdir runs inside
+  // this section, which is too late to help the lock.
+  await fs.mkdir(dirname(archive), { recursive: true, mode: 0o700 })
   const deadline = Date.now() + 120_000
   for (;;) {
     try {

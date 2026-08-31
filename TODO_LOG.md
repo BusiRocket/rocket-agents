@@ -6,6 +6,81 @@
 
 ### 2026-08
 
+- [x] 2026-08-31 - **The 60 files nothing imported are gone, and the gate that
+      was supposed to catch them was itself broken.**
+  - The `ignore` list in `knip.config.ts` froze them pending the owner's call.
+    Verified closed as a subgraph - twelve are imported, every importer is
+    itself in the set - by parsing every relative specifier across all 1,330
+    files, and independently by a second model (`codex exec -s read-only`,
+    verdict "delete all 60", high confidence, TypeScript-AST scan plus
+    repository-wide searches). Deleted with their ignore lines.
+  - The gate around them was broken three ways. Terminal output had been pasted
+    into the ignore array in `0bd3259` (`Refine`, `entry`, `pattern`, `(no`,
+    `matches)` as literal entries); the entry globs named `scripts/golden/` and
+    `machine/`, which hold no TypeScript; and eight binaries knip resolves fine
+    were in `ignoreBinaries`. So `knip` exited 1 on 29 hints and nobody saw it,
+    because `knip` was not in `check`. It now exits 0 and runs in `check`
+    through `check:quality`. The nine remaining hints are baseline-owned and
+    documented there as not to be silenced consumer-side.
+  - `depcruise` was cruising `src` - 0 modules, 0 dependencies - while the code
+    is under `scripts/`. Pointed at `scripts`: 1,289 modules, 3,313
+    dependencies, no violations.
+  - Evidence: `pnpm run check` green with the new gates included;
+    `pnpm run knip` exits 0; 985 lines deleted across 62 files.
+
+- [x] 2026-08-31 - **Plugin cache hygiene closed: references resolved, pruning
+      deliberately not built.**
+  - Capture now reads `settings.json`, `settings.local.json` and `.claude.json`
+    under both profiles, in all three spellings of the cache root, and counts a
+    version a settings file points into as referenced. The case is real on this
+    machine: both profiles' `statusLine` names
+    `plugins/cache/caveman/caveman/<version>/src/hooks/caveman-statusline.sh`.
+  - Version pruning stays a report and never becomes an action (Codex
+    adjudication, verdict "B", high confidence): a project-scoped settings file
+    inside any repository can name a version, those cannot be enumerated, and a
+    deleted version breaks a hook silently for disk space that costs nothing.
+    The report says so in as many words, so nobody reads "stale" as "safe to
+    delete".
+  - Measured after the change: 104 cache entries, 67 stale, 27 orphan
+    directories, 349 MB. Orphan pruning is unchanged.
+
+- [x] 2026-08-31 - **The curated library reaches Antigravity.**
+  - `library:link --target antigravity --into ~/.gemini/config/skills` copied
+    35 curated skills: 20 new, 15 replacing older copies of the same skills, 0
+    foreign, 0 missing, 0 symlinks. `core/` and `orchestrator/` were left
+    untouched. The previous 17 entries were copied to the session scratchpad
+    first.
+
+- [x] 2026-08-31 - **The machine manifests describe the machine that exists.**
+  - `machine:diff` reported 18 changes and every one was the declaration being
+    stale. The mcp manifest still declared `mempalace` on codex; Atrium
+    replaced MemPalace on 2026-08-30 and is what both Claude profiles and codex
+    run, while mempalace is configured nowhere. The plugins manifest declared
+    thirteen official plugins at `b481c085fd11` against the installed
+    `ed404106fcd8` - a pin `claude plugin install` cannot execute in either
+    direction - and declared the mempalace plugin enabled where both profiles
+    have it off. Applying would have resurrected a retired tool.
+  - After the repair: plugins, security, capabilities and services all
+    converged; the two remaining mcp changes are a real gap (context7 on gemini
+    and cursor) and stay in `TODO.md` for a deliberate yes.
+  - No `machine:apply` was run. It has no per-domain scope and no dry run, so
+    converging plugins would also have written the MCP servers; that gap is now
+    its own backlog item.
+
+- [x] 2026-08-31 - **Where Trae and Windsurf keep dialogue, answered.**
+  - Trae: `Library/Application Support/Trae/ModularData/ai-agent/database.db`,
+    15 MB, written live, no SQLite header - opaque at rest. An exporter is
+    blocked on decryption, not on discovery.
+  - Windsurf: no local dialogue store exists. Every cascade or chat key in its
+    databases is UI state under 80 bytes, and `~/.codeium` holds only
+    `global_rules.md`; Cascade history is server-side. Both findings are
+    recorded next to the source definitions.
+
+- [x] 2026-08-31 - **`~/p/RocketUpdater`'s `.serena` state, closed.** The
+      directory now carries its own `.gitignore` (written 2026-08-31) and
+      `git status` there reports no `.serena` entry, so there is nothing left to
+      commit or discard.
+
 - [x] 2026-08-31 - **The ESLint layer stays hand-assembled, and the two unlinted
       root configs are fixed on their own.**
   - Compared `@busirocket/eslint-config@0.8.0` (unpacked, not installed) rule by

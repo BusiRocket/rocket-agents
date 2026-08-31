@@ -1,6 +1,6 @@
 import { main } from '../commands/agentDoctor'
+import { reportUnexpectedFailure } from '../lib/reportUnexpectedFailure'
 
-main().catch(() => {
-  console.error('agent doctor failed unexpectedly')
-  process.exitCode = 2
+main().catch((error: unknown) => {
+  reportUnexpectedFailure('agent doctor failed unexpectedly', error)
 })

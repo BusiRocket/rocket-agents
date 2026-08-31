@@ -1,6 +1,6 @@
 import { main } from '../commands/auditSkillPortability'
+import { reportUnexpectedFailure } from '../lib/reportUnexpectedFailure'
 
-main().catch(() => {
-  console.error('skill portability audit failed unexpectedly')
-  process.exitCode = 2
+main().catch((error: unknown) => {
+  reportUnexpectedFailure('skill portability audit failed unexpectedly', error)
 })

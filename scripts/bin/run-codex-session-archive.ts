@@ -1,6 +1,6 @@
 import { main } from '../commands/codexSessionArchive'
+import { reportUnexpectedFailure } from '../lib/reportUnexpectedFailure'
 
-main().catch(() => {
-  console.error('Codex session archive failed unexpectedly')
-  process.exitCode = 2
+main().catch((error: unknown) => {
+  reportUnexpectedFailure('Codex session archive failed unexpectedly', error)
 })

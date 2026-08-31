@@ -1,6 +1,6 @@
 import { main } from '../commands/conversationsRender'
+import { reportUnexpectedFailure } from '../lib/reportUnexpectedFailure'
 
-main().catch(() => {
-  console.error('Conversation render failed unexpectedly')
-  process.exitCode = 2
+main().catch((error: unknown) => {
+  reportUnexpectedFailure('Conversation render failed unexpectedly', error)
 })

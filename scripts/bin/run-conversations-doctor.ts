@@ -1,6 +1,6 @@
 import { main } from '../commands/conversationsDoctor'
+import { reportUnexpectedFailure } from '../lib/reportUnexpectedFailure'
 
-main().catch(() => {
-  console.error('Conversation doctor failed unexpectedly')
-  process.exitCode = 2
+main().catch((error: unknown) => {
+  reportUnexpectedFailure('Conversation doctor failed unexpectedly', error)
 })

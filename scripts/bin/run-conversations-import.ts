@@ -1,6 +1,6 @@
 import { main } from '../commands/conversationsImport'
+import { reportUnexpectedFailure } from '../lib/reportUnexpectedFailure'
 
-main().catch(() => {
-  console.error('Conversation import failed unexpectedly')
-  process.exitCode = 2
+main().catch((error: unknown) => {
+  reportUnexpectedFailure('Conversation import failed unexpectedly', error)
 })

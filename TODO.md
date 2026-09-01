@@ -153,6 +153,21 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
 
 ## Conversations export
 
+- [ ] **The `[HOME]` redaction misses some conversations, and it leaks the
+      username.** Measured 2026-09-01 from atrium's index: 29 projects appear
+      under both `[HOME]/p/x` and `/Users/<name>/p/x`, with 4,053 conversations
+      carrying the unredacted absolute path in their `workspace` field. Two
+      consequences. First, privacy: the redaction exists to clear exactly that,
+      and the real home path is being archived. Second, retrieval: anything
+      prefix-matching the canonical `[HOME]` form sees only half of such a
+      project -- 1,331 of intelifactu's conversations, a third of it, were
+      unreachable from project-scoped recall until atrium started normalizing at
+      ingest (`canonical_workspace`, atrium `54fa859`). That normalization is a
+      workaround in a derived index; the archive still holds the unredacted
+      values. Smallest step: find which exporter path skips the home redaction
+      on `workspace` and close it, then decide whether existing archived records
+      get rewritten or left as history.
+
 - [ ] Remote-export adapter family (ChatGPT, Grok): design spiked 2026-09-01 at
       `~/p/atrium/docs/designs/remote-export-adapter-family.md` — inbox
       directory of vendor ZIPs content-addressed on arrival, vendor parser,

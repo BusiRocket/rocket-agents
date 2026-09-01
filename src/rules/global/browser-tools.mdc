@@ -16,3 +16,8 @@ snapshots and element interaction (click, fill, hover), network request
 inspection, console messages, screenshots, performance traces, and dialog
 handling. Starting a devtools session for something `chrome-cli list tabs`
 or `chrome-cli source` answers is the mistake this rule exists to prevent.
+
+This routing is for the user's real Chrome. Orca's embedded browser is
+driven through the `orca-cli` skill, and desktop app windows or webviews
+outside Chrome through the `computer-use` skill — load the matching skill
+instead of pointing chrome-cli or the devtools MCP at them.

@@ -153,6 +153,16 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
 
 ## Conversations export
 
+- [ ] Remote-export adapter family (ChatGPT, Grok): design spiked 2026-09-01 at
+      `~/p/atrium/docs/designs/remote-export-adapter-family.md` — inbox
+      directory of vendor ZIPs content-addressed on arrival, vendor parser,
+      shared redaction and manifest path, `complete:false` with per-source
+      `exportedAt` staleness. Both vendors ship official JSON account exports
+      (ChatGPT Settings -> Data Controls; Grok `accounts.x.ai/data`); no
+      scraping. Smallest next step: request both exports, drop them in the inbox
+      layout, write the ChatGPT `conversations.json` parser against the real
+      file.
+
 - [~] Canonical event IDs. Producer side landed 2026-08-31 (`0f7217d`,
   `5560479`): the id is `sha256(conversation_record_id, old_id)`, schema version
   2, version 1 still readable, and records are upgraded at the store's read

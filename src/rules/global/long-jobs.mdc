@@ -1,0 +1,46 @@
+---
+description: "Verify progress, not liveness"
+alwaysApply: true
+---
+
+# Long-running processes: check progress, not liveness
+
+Unscoped on purpose: long jobs get launched from any session, whatever the
+files in scope are.
+
+On 2026-09-01 an `igir` hash pass was left running against a ROM library. It
+was checked several times over 19 hours and reported as healthy every time,
+because the checks asked the wrong question: the process was alive and burning
+80% CPU. It had in fact been looping on one 495 MB file since minute five - a
+file a plain `dd` reads end to end in 29 seconds. Nineteen hours of CPU, no
+output, and every status report said it was fine.
+
+A process being alive says nothing. `%CPU` says nothing: a tight loop pegs the
+CPU exactly like real work does. Elapsed time says nothing on its own. Before
+reporting a long job as healthy, name the artifact that moved since the last
+check:
+
+- the output file or cache grew, or its mtime advanced
+- the log gained lines
+- the file currently open (`lsof -p <pid>`) is not the one open last time
+- a counter the job itself prints went up
+
+If nothing moved, the job is stalled, however busy it looks. Say so instead of
+reporting progress, and diagnose before relaunching: read the input the job
+was chewing on with an independent tool, so a bug in the job is not mistaken
+for a corrupt file or a failing disk.
+
+Arm the check when launching, not after something looks wrong. A job expected
+to run for hours needs a stall detector from the start - a watcher comparing
+the open file or the output mtime across intervals - or it can burn a whole
+night unobserved. Cap the cost of a single pathological input where the job
+allows it.
+
+## Counting is a progress signal too, and shell globs lie
+
+A shell glob silently produces nothing once the match list is long enough to
+overflow the argument list. On the same day, `ls dir/*.spc | wc -l` printed 0
+while 16,401 matching files were still sitting there, which read exactly like
+"the move finished". Count with `find <dir> -name '<pattern>' | wc -l`
+instead, and treat a sudden clean zero from a glob as suspect until `find`
+confirms it.

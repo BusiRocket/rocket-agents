@@ -1,0 +1,15 @@
+/**
+ * The code versions a cached capture result is only valid under.
+ *
+ * A fingerprint says the bytes on disk did not change. It says nothing about
+ * whether this build would still turn them into the same records -- a new
+ * redaction pattern or a changed event-id rule produces different fragments
+ * from identical input. Bumping the matching number here invalidates every
+ * cached artifact and forces one honest full pass, which is cheap next to
+ * shipping fragments that two builds disagree about.
+ */
+export const CONVERSATION_CAPTURE_VERSIONS = {
+  normalizer: 2,
+  redactor: 1,
+  adapter: 1,
+}

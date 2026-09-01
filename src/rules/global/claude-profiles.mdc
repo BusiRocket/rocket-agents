@@ -1,0 +1,62 @@
+---
+description: "The two Claude Code profiles"
+alwaysApply: true
+---
+
+# Claude Code profiles — two accounts, one shared configuration
+
+Two profiles, no more. Two Anthropic accounts means two quotas; everything
+that is not credentials or session state is shared between them by symlink.
+Background and repair history: `~/p/brain/topics/claude-code-profiles.md`.
+
+| profile | account | how to start it | its config file |
+| --- | --- | --- | --- |
+| **busirocket** (personal, the default) | `info@busirocket.com` | plain `claude` | `~/.claude.json` |
+| **favish** | `cristian@favish.com` | `CLAUDE_CONFIG_DIR=~/.claude-favish claude` | `~/.claude-favish/.claude.json` |
+
+## Never set `CLAUDE_CONFIG_DIR=~/.claude`
+
+It looks like the way to name the personal profile and it is not. Claude Code
+keeps its config at `$HOME/.claude.json` when the variable is unset, but at
+`$CLAUDE_CONFIG_DIR/.claude.json` when it is set — so pointing it at
+`~/.claude` starts a *third*, empty profile at `~/.claude/.claude.json`, with
+its own login and none of the MCP servers. It fails silently: servers simply do
+not appear, and `claude mcp get` reports them as not configured.
+
+One such file was found on 2026-08-31 holding a single project, one server and
+an `oauthAccount` binding `info@busirocket.com` to Favish's organization. It is
+parked at `~/.claude-retired/`, not deleted, because it carries auth. The
+personal profile is plain `claude`, with no variable set.
+
+## What is shared, and what must never be
+
+- Edit global config only in `~/.claude`: `CLAUDE.md`, `rules/`, `skills/`,
+  `agents/`, `commands/`, `plugins/`, `settings.json` are shared by symlink.
+  Editing a file under `~/.claude-favish/` directly is a bug: either it belongs
+  in `~/.claude` and should be linked, or it is session state — leave it alone.
+- Never link the per-profile files: credentials, `sessions/`, `history.jsonl`,
+  caches, and each profile's `.claude.json` (it carries the auth — linking it
+  collapses both quotas into one login). Keep the MCP server lists inside the
+  two `.claude.json` identical by hand, with one deliberate exception:
+  `openseo` (`seo.busirocket.com`) is a BusiRocket service and belongs to the
+  personal profile only. That difference is the email-separation rule holding,
+  not drift to repair. Never print their `env` values.
+- An MCP `command` must be an absolute path. A host spawns servers with a
+  minimal PATH, so `command: "uv"` fails silently — the server is listed as
+  enabled and its tools never appear. Use `/opt/homebrew/bin/uv`.
+- Connectors are authorised server-side per account — connect each one in each
+  account, nothing to mirror.
+- Hook paths in `settings.json` must be absolute; a relative path silently
+  breaks the Favish profile.
+- Update plugins from one session at a time (shared tree; concurrent updates
+  clobber `installed_plugins.json`).
+
+## Verify, do not assume
+
+After adding global config, prove the other profile loads it — a resolving
+symlink proves existence, not loading:
+
+    CLAUDE_CONFIG_DIR=~/.claude-favish claude -p "<question only the new config can answer>"
+
+For the personal profile, use `env -u CLAUDE_CONFIG_DIR claude ...` so an
+inherited variable cannot send the check to the wrong profile.

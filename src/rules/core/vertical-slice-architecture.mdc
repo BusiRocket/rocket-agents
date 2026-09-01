@@ -1,6 +1,6 @@
 ---
 globs: "**/*.ts,**/*.tsx,**/*.js,**/*.jsx,**/*.mjs,**/*.cjs,**/*.py,**/*.php,**/*.rs,**/*.go,**/*.vue,**/*.svelte,**/*.astro,**/*.java,**/*.kt,**/*.rb"
-description: Vertical-slice folder structure, strict public API, and refactor stewardship for React + TypeScript modules.
+description: Vertical-slice folders, strict public API, refactor stewardship
 alwaysApply: false
 ---
 

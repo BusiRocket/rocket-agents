@@ -27,6 +27,33 @@ current user-selected branch; never rewrite shared history.
 - Generated output under `dist/` is ignored. Edit canonical sources under `src/`
   and `scripts/`.
 
+## Shipping a rule or skill change
+
+Standing owner authorization: run this whole sequence, including the link step,
+without asking again. It is the only pre-authorized use of a link command; every
+other machine mutation listed above still needs its own approval.
+
+```bash
+git pull --ff-only origin main   # other sessions commit here concurrently
+pnpm run rules:compile           # or pnpm run build for skills/plugins too
+pnpm run check                   # must exit 0 - check the exit code, not the tail
+git add <specific paths>         # never git add -A
+git commit
+git push origin main
+pnpm run rules:link              # or skills:link / hooks:link to match the change
+```
+
+Pull first and re-run the gate after it: rules share one generated index with a
+hard size budget, so a rule committed by another session can push the index over
+the limit and break a build that passed minutes earlier. When that happens, buy
+the space back from verbose descriptions rather than raising the budget, and
+keep the keywords that route each rule.
+
+Verify the link landed instead of trusting its summary. `claude` reports
+`unchanged` on a rule addition because it resolves a symlink into `dist/`, which
+`rules:compile` already refreshed; confirm with
+`ls ~/.claude/rules/rocket-agents/global/`.
+
 ## Smoke test
 
 Verified commands:

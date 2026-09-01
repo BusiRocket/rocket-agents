@@ -1,6 +1,6 @@
 ---
 globs: "**/widget/**,**/configuration/**"
-description: Staffbase platform – widgets, APIs/SDK, build and runtime (use when working on Staffbase projects)
+description: Staffbase platform - widgets, APIs/SDK, build and runtime
 alwaysApply: false
 ---
 

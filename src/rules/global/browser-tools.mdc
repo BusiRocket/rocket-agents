@@ -1,0 +1,18 @@
+---
+description: "chrome-cli before devtools MCP"
+alwaysApply: true
+---
+
+# Browser control: chrome-cli first
+
+Owner preference (2026-09-01): drive the user's real Chrome with `chrome-cli`
+(`/opt/homebrew/bin/chrome-cli`) whenever it can do the job — list, open,
+close and activate tabs and windows, navigate, reload, read a page
+(`source`), run JavaScript in a tab (`execute`), window size and position.
+One Bash call, no MCP session to stand up.
+
+Use the chrome-devtools MCP only for what chrome-cli cannot do: DOM
+snapshots and element interaction (click, fill, hover), network request
+inspection, console messages, screenshots, performance traces, and dialog
+handling. Starting a devtools session for something `chrome-cli list tabs`
+or `chrome-cli source` answers is the mistake this rule exists to prevent.

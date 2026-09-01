@@ -212,6 +212,33 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
       on disk, so rotation, not scrubbing, is the control for a leaked
       credential. The fix in any format is an explicit withdraw-and-republish
       path; recorded for whichever archive format lands.
+- [~] Segment archive, stage 2 (`8cc2849`). Landed: atomic content-addressed
+  publication (temp write, file fsync, hard link, directory fsync), the
+  generation manifest and its base sentinel, one disposable SQLite state holding
+  segments, fragments, materialized records, artifact fingerprints and pending
+  Atrium deliveries, incremental capture keyed by
+  `(source, relativePath, storageKind)` over an `O_NOFOLLOW` fingerprint, a
+  chunked v1 migration, a verifier that builds its own state, and
+  `conversations:capture|migrate-segments|verify-segments|benchmark-segments`.
+  Measured on 25,000 synthetic artifacts, one process per pass: warm no-op 1.91s
+  reading 0 bytes and writing no segment; one changed artifact 1.72s reading
+  only its 2,096 bytes; one new conversation 1.59s; peak RSS 261 MB on the
+  changed pass. Against the measured v1 baselines of 226.91s and 132.36s that is
+  132x and 83x. **Remaining, and it is stage 3:** erasure apply/verify, object
+  transport between installations, handing the pending slice to
+  `atrium ingest --partial`, and the scheduler/hook freeze sentinel. Nothing is
+  pointed at `~/.local/share/rocket-agents` yet.
+- [ ] JSONL suffix resume is deliberately unbuilt. A changed artifact is
+      recaptured whole. Measured at 25,000 artifacts the changed pass costs
+      1.72s against a 22.691s bound, so the checkpoint machinery - prefix chunk
+      hashes, a cached normalized accumulator, an incomplete-tail boundary - is
+      correctness surface nobody is paying for yet. Build it when a real
+      artifact misses the bound, not before.
+- [ ] A capture publishes at most 2,000 fragments per segment
+      (`CONVERSATION_SEGMENT_FRAGMENT_LIMIT`). The bound exists because staged
+      fragments live in memory: at 25,000 artifacts in one segment, peak RSS
+      reached 602 MB and the segment was 44 MB. The number is a guess informed
+      by one measurement; revisit it when the first real seeding pass runs.
 
 ## Cross-project
 

@@ -153,6 +153,30 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
 
 ## Conversations export
 
+- [ ] **Both Macs must be able to reference every conversation, and the archive
+      is already the place for that — the brain just does not read it.** Owner's
+      direction, 2026-09-03, after the brain had to hand-rsync the Mac mini's
+      stores to render them. Measured that day: `sync-all-safe` step 3c
+      replicates `~/.local/share/rocket-agents/conversations/archive.jsonl`
+      (43,019 records, 5.1 GB) to the mini two-way every day, and
+      `sourceDefinitions.ts` already walks `.claude/projects` and the Cowork
+      store, so the canonical archive on each Mac holds both machines'
+      conversations. Three gaps stop the brain from using it. (1) No record says
+      which machine it came from: `provenance` carries `relativePath`,
+      `contentSha256` and `redactions` only, so a reader cannot tell a mini
+      session from a MacBook one — add `provenance.host` at capture. (2) The
+      Claude root list names `Library/Application Support/Claude/` only; the
+      Favish desktop profile writes `Claude-favish/local-agent-mode-sessions`
+      (231 files on the MacBook, same account uuid) and is not captured. (3)
+      `~/p/brain/tools/sessions/convert.py` renders from the raw stores plus a
+      gitignored rsync mirror (`sources/agent-sessions/hosts/macmini/`), which
+      is a second sync of the same data — once (1) lands, point it at the
+      archive and retire the mirror. Two facts the design should keep: the
+      Cowork local-mode store is account-synced (506 of 506 files byte-identical
+      on both Macs), and 1,895 of the mini's 2,288 `.claude/projects` files are
+      identical copies of MacBook sessions, cause unmeasured. Smallest step:
+      (1), one field, then re-export and count records per host.
+
 - [ ] **The `[HOME]` redaction misses some conversations, and it leaks the
       username.** Measured 2026-09-01 from atrium's index: 29 projects appear
       under both `[HOME]/p/x` and `/Users/<name>/p/x`, with 4,053 conversations

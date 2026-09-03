@@ -14,22 +14,29 @@ and is unusable for any logged-in site, so do not launch one for that.
 1. **chrome-cli first** (`/opt/homebrew/bin/chrome-cli`) for anything it
    answers: list, open, close and activate tabs and windows across every
    profile, navigate, reload, `source`, `execute <js>`. One Bash call, no MCP
-   session. Wrap `execute` in `timeout 20`.
-2. **Attach to the running Chrome for the rest**: DOM snapshots and element
-   interaction, screenshots, network, console, traces, dialogs. Remote
-   debugging is user-enabled in `chrome://inspect/#remote-debugging`
-   (Chrome 144+, on since 2026-09-02), so chrome-devtools MCP runs with
-   `--autoConnect` and Playwright MCP or CLI connect with `--extension`
-   (Playwright MCP Bridge, installed per profile) or `--browser chrome`.
-   Chrome shows a permission dialog on connect; that is the user's click, not
-   a failure. Claude in Chrome only acts inside its own tab group and needs a
-   manual Connect per profile, so it is the last of these, not the first.
+   session. Wrap `execute` in `timeout 20`. With two Chrome instances running
+   (a Playwright-launched one beside the real one) AppleScript may resolve
+   "Google Chrome" to the wrong process; chrome-cli still hits the real one.
+2. **`playwright-chrome` MCP for the rest**: DOM snapshots and element
+   interaction, screenshots, network, console on a real tab. It is Playwright
+   MCP in `--extension` mode, connected through the Playwright Extension
+   installed in the Default, Favish and BusiRocket profiles; its env carries the
+   profile's connection token, so it attaches with no dialog. It works on one
+   selected tab at a time: `browser_tabs` lists what is reachable, and other
+   tabs join by being dragged into its tab group. The `chrome-devtools` MCP
+   launches its own persistent profile instead; keep it for our own apps and
+   for traces, not for logged-in sites. Do not attach it to the real Chrome
+   with `--autoConnect`: it auto-attaches to every one of the ~400 open tabs
+   and never answers. Claude in Chrome only acts inside its own tab group and
+   needs a manual Connect per profile, so it is the last of these.
 3. **A separate browser only when unavoidable** (parallel runs, tests of our
    own app that must not touch real sessions), and then always a persistent
-   per-identity profile under `~/.agent-chrome/<identity>` on the real Google
-   Chrome binary, with the 1Password extension installed there once. Never
-   `--isolated`, a tmp user-data-dir, or bundled Chromium for a logged-in
-   site. CDP on the default user-data-dir needs the toggle above; on any other
-   directory it needs `--user-data-dir` (Chrome 136+).
+   profile on the real Google Chrome binary with the 1Password extension
+   installed there once: the `chrome-devtools` MCP's own profile, or
+   `~/.agent-chrome/<identity>`. Never `--isolated`, a tmp user-data-dir, or
+   bundled Chromium for a logged-in site. CDP on the default user-data-dir
+   needs the `chrome://inspect/#remote-debugging` toggle (on since 2026-09-02)
+   and a permission dialog per client; on any other directory it needs
+   `--user-data-dir` (Chrome 136+).
 4. Orca's embedded browser is driven through the `orca-cli` skill, and desktop
    app windows or webviews outside Chrome through `computer-use`.

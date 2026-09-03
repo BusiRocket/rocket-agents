@@ -17,13 +17,18 @@ and is unusable for any logged-in site, so do not launch one for that.
    session. Wrap `execute` in `timeout 20`. With two Chrome instances running
    (a Playwright-launched one beside the real one) AppleScript may resolve
    "Google Chrome" to the wrong process; chrome-cli still hits the real one.
-2. **`playwright-chrome` MCP for the rest**: DOM snapshots and element
-   interaction, screenshots, network, console on a real tab. It is Playwright
-   MCP in `--extension` mode, connected through the Playwright Extension
-   installed in the Default, Favish and BusiRocket profiles; its env carries the
-   profile's connection token, so it attaches with no dialog. It works on one
-   selected tab at a time: `browser_tabs` lists what is reachable, and other
-   tabs join by being dragged into its tab group. The `chrome-devtools` MCP
+2. **Playwright `--extension` MCP for the rest**: DOM snapshots and element
+   interaction, screenshots, network, console on a real tab, connected through
+   the Playwright Extension installed in the Default, Favish and BusiRocket
+   profiles. Each server's env carries one profile's connection token, so it
+   attaches with no dialog, and the server name says which Chrome profile it
+   reaches: in the personal Claude profile `playwright-chrome` is the Default
+   (djcristiandeluxe) Chrome profile and `playwright-busirocket` the
+   BusiRocket one; in the Favish Claude profile `playwright-chrome` is the
+   Favish one. The three tokens are recorded in the brain's access map
+   (`business/access-map.md`, Chrome profiles section). Each server works on
+   one selected tab at a time: `browser_tabs` lists what is reachable, and
+   other tabs join by being dragged into its tab group. The `chrome-devtools` MCP
    launches its own persistent profile instead; keep it for our own apps and
    for traces, not for logged-in sites. Do not attach it to the real Chrome
    with `--autoConnect`: it auto-attaches to every one of the ~400 open tabs

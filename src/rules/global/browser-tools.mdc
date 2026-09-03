@@ -1,23 +1,35 @@
 ---
-description: "chrome-cli before devtools MCP"
+description: "attach to real Chrome first"
 alwaysApply: true
 ---
 
-# Browser control: chrome-cli first
+# Browser control: the real Chrome, never a fresh profile
 
-Owner preference (2026-09-01): drive the user's real Chrome with `chrome-cli`
-(`/opt/homebrew/bin/chrome-cli`) whenever it can do the job — list, open,
-close and activate tabs and windows, navigate, reload, read a page
-(`source`), run JavaScript in a tab (`execute`), window size and position.
-One Bash call, no MCP session to stand up.
+Owner preference (2026-09-01, extended 2026-09-03). The user's real Chrome
+carries what an automation browser cannot reproduce: 18 authenticated
+profiles, the 1Password extension in each, and the trusted-device state banks
+demand. A browser launched with a temporary or isolated profile has none of it
+and is unusable for any logged-in site, so do not launch one for that.
 
-Use the chrome-devtools MCP only for what chrome-cli cannot do: DOM
-snapshots and element interaction (click, fill, hover), network request
-inspection, console messages, screenshots, performance traces, and dialog
-handling. Starting a devtools session for something `chrome-cli list tabs`
-or `chrome-cli source` answers is the mistake this rule exists to prevent.
-
-This routing is for the user's real Chrome. Orca's embedded browser is
-driven through the `orca-cli` skill, and desktop app windows or webviews
-outside Chrome through the `computer-use` skill — load the matching skill
-instead of pointing chrome-cli or the devtools MCP at them.
+1. **chrome-cli first** (`/opt/homebrew/bin/chrome-cli`) for anything it
+   answers: list, open, close and activate tabs and windows across every
+   profile, navigate, reload, `source`, `execute <js>`. One Bash call, no MCP
+   session. Wrap `execute` in `timeout 20`.
+2. **Attach to the running Chrome for the rest**: DOM snapshots and element
+   interaction, screenshots, network, console, traces, dialogs. Remote
+   debugging is user-enabled in `chrome://inspect/#remote-debugging`
+   (Chrome 144+, on since 2026-09-02), so chrome-devtools MCP runs with
+   `--autoConnect` and Playwright MCP or CLI connect with `--extension`
+   (Playwright MCP Bridge, installed per profile) or `--browser chrome`.
+   Chrome shows a permission dialog on connect; that is the user's click, not
+   a failure. Claude in Chrome only acts inside its own tab group and needs a
+   manual Connect per profile, so it is the last of these, not the first.
+3. **A separate browser only when unavoidable** (parallel runs, tests of our
+   own app that must not touch real sessions), and then always a persistent
+   per-identity profile under `~/.agent-chrome/<identity>` on the real Google
+   Chrome binary, with the 1Password extension installed there once. Never
+   `--isolated`, a tmp user-data-dir, or bundled Chromium for a logged-in
+   site. CDP on the default user-data-dir needs the toggle above; on any other
+   directory it needs `--user-data-dir` (Chrome 136+).
+4. Orca's embedded browser is driven through the `orca-cli` skill, and desktop
+   app windows or webviews outside Chrome through `computer-use`.

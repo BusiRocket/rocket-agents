@@ -1,0 +1,15 @@
+interface:
+  display_name: Favish Weekly Review
+  short_description: Friday status of every Favish task, with the week's hours reconciled in Everhour.
+  default_prompt:
+    Collect this week's Favish work from Jira, Slack, Gmail meeting notes, git and the brain, write
+    the Monday script and the waiting-on list, and reconcile the hours in Everhour.
+  brand_color: '#0F766E'
+policy:
+  allow_implicit_invocation: true
+busirocket:
+  skill_class: workflow
+  requires_references: true
+  failure_mode:
+    Escalate to the user when a source is unreachable, when hours have no evidence behind them, or
+    before anything is posted to Slack or Jira.

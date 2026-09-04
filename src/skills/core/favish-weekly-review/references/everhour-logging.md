@@ -41,8 +41,11 @@ file in the scratchpad and read it from there; never echo it.
 ## Reconcile
 
 1. Build the evidence per day: Claude sessions (the script in `sources.md`),
-   commits, Slack messages and huddles, calendar and meeting notes. A night
-   session belongs to the day it started.
+   commits classified by remote owner, GitHub events, Slack messages, huddles
+   with the durations read from the Huddles pane, calendar and meeting notes. A
+   night session belongs to the day it started. Meetings are logged at their
+   real length: the Google Meet invite length for calls, the huddle pane
+   duration for huddles, both rounded to the nearest quarter hour.
 2. Subtract what is already in Everhour for the week.
 3. Propose one entry per day and task with a comment that names the artifact
    (the PR, the Jira comment, the meeting). Keep the comment under 90

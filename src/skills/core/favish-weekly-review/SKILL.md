@@ -40,9 +40,10 @@ argument-hint: [week-start-date]
    notes email) so Monday does not repeat it.
 2. Collect this week, Monday to today, from every source in
    `references/sources.md`: Jira issues touched and comments addressed to
-   Cristian, PR reviews and comments, Slack DMs with Phil, James and Cole plus
-   the team channels, meeting notes (Gemini, Fathom) and calendar events,
-   commits and unpushed branches across the Favish repos, Claude session
+   Cristian, GitHub events and pull-request review threads, Slack DMs with Phil,
+   James and Cole plus the team channels, huddles with their real durations,
+   meeting notes (Gemini, Fathom) and calendar events, commits and local-only
+   branches across every repo whose remote belongs to Favish, and Claude session
    activity per day.
 3. Per task, write four lines: what was done (with the artifact), where it is
    now, who it waits on and since when, and the next action with its owner.

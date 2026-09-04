@@ -20,9 +20,25 @@ Searches that worked, through the claude.ai Slack connector:
   page.
 - a DM: `slack_read_channel` with the DM id and `oldest` as a Unix epoch **of
   the right year** (a 2025 epoch silently returns year-old messages).
-- huddles: the DM history shows `Slackbot: A huddle started`; the search keyword
-  `huddle` finds nothing. Duration is not recorded; estimate 30 to 60 minutes
-  from the surrounding messages.
+- huddles: the DM history shows `Slackbot: A huddle started`, which gives the
+  start time; the search keyword `huddle` finds nothing.
+
+**Huddle durations exist, and they are billable time.** The connector does not
+carry them, but Slack's own **Huddles** pane does: sidebar Huddles, section
+"Recent huddles", one row per huddle with participant, relative day and exact
+duration ("3 days ago · 49 minutes"). Read that pane rather than estimating — a
+week with Phil ranges from under a minute to over an hour, so an estimate is
+wrong by hours across a month. Two ways to get it, in order:
+
+1. Drive the real Chrome (never a fresh profile) at `app.slack.com` and read the
+   Huddles pane, per the browser-tools rule: `chrome-cli` for navigation, the
+   Playwright extension server for the snapshot.
+2. Ask Cristian for a screenshot of the pane; he has it open in seconds.
+
+Map each row's relative day onto a date, then cross-check the start times
+against the `A huddle started` lines in the DM. Measured 2026-09-04 with Phil:
+Mon 31 Aug 6 min, Tue 1 Sep 49 min, Thu 3 Sep 12 min plus one under a minute;
+the week before, Fri 28 Aug 1 h 01, Mon 24 Aug 31 min twice.
 
 ## Jira (favish.atlassian.net, cloudId `de54f569-7c48-4be0-9f7c-37f053d93a18`)
 
@@ -49,24 +65,60 @@ Searches that worked, through the claude.ai Slack connector:
 - Calendar: `list_events` Monday to Sunday. Standup 16:30 CEST daily (Phil),
   Weekly Favish All-Hands Monday 18:00 CEST, linked to `FAV-272`.
 
-## Code
+## Code: local commits
 
-- Favish repos under `~/p`: `cbs-execed`, `cbs-alumni-edge`, `atc-intranet`,
-  `atc-prototype`, `kitco-*`, `staffbase-*`, `thewealthadvisor`, `zerohedge-*`,
-  `favish-gateway`, `favish-talk`.
-- Per repo: `git fetch --all --prune`, then
-  `git log --all --author=Cristian --since=<monday> --format='%ad %h %s' --date=short`,
-  `git for-each-ref --sort=-committerdate refs/heads` for unpushed branches,
-  `gh pr list --author @me --state all` and `gh pr view <n> --json comments` for
-  review comments (inline threads need the GraphQL `reviewThreads` query).
-- One loop over every repo, keeping only the Favish ones:
+Do not start from a list of Favish repos; start from every repo that moved and
+classify it by its remote owner. `favish`, `InteliFactu`, `BusiRocket`,
+`CristianDeluxe`, `pixel-potion`, `VexaMail` and `DJ-Rocket` are different
+employers or none, and only `favish` (plus `pixel-potion` for Phil's Pixel
+Potion work, which bills elsewhere) is Everhour time.
 
 ```bash
 for r in ~/p/*/; do
+  [ -d "$r/.git" ] || continue
   n=$(git -C "$r" log --all --author=Cristian --since=<monday> --oneline 2>/dev/null | wc -l | tr -d ' ')
-  [ "$n" != 0 ] && echo "$n $r"
-done
+  [ "$n" = 0 ] && continue
+  org=$(git -C "$r" remote get-url origin 2>/dev/null | sed -E 's#.*[:/]([^/]+)/[^/]+$#\1#')
+  printf '%-4s %-14s %s\n' "$n" "$org" "$(basename "$r")"
+done | sort -rn
 ```
+
+Then, per Favish repo: `git fetch --all --prune`,
+`git log --all --author=Cristian --since=<monday> --format='%ad %h %s' --date=short`,
+and the local-only check, which is the one that finds work nobody else can see:
+
+```bash
+up=$(git -C "$r" rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)
+git -C "$r" rev-list --count ${up:+@{u}..HEAD} ${up:-HEAD --not --remotes}
+```
+
+A branch with commits and no remote is finished work that is invisible to the
+team; it belongs in the report as "done, not pushed", never as "delivered".
+Measured 2026-09-04: `cbs-execed` carried four CEERP2-1286 commits locally while
+GitHub showed no cbs-execed activity at all that week.
+
+## Code: GitHub
+
+- Own activity, private repos included, through the `CristianDeluxe` token:
+  `gh api "users/CristianDeluxe/events?per_page=100" --jq '.[] | select(.created_at >= "<monday>") | "\(.created_at[0:16]) \(.type) \(.repo.name)"'`.
+  Push events carry no usable commit payload here (`payload.commits` is null),
+  so use them to say **which repo and when**, and take the content from the
+  local git log.
+- Pull requests:
+  `gh search prs --owner favish --author CristianDeluxe --limit 20` for what was
+  opened, and `--involves CristianDeluxe --updated ">=<monday>"` for reviews and
+  mentions on other people's PRs.
+- On one PR: `gh pr view <n> --json comments,reviews,reviewDecision,mergeable`;
+  inline review threads need the GraphQL query, since a reviewer's design
+  proposal often lands as one long inline comment rather than a review body.
+
+```bash
+gh api graphql -f query='query{repository(owner:"favish",name:"<repo>"){pullRequest(number:<n>){reviewThreads(first:30){nodes{isResolved path line comments(first:5){nodes{author{login} createdAt body}}}}}}}'
+```
+
+- Compare the two sides. GitHub activity without local commits means someone
+  else moved the branch; local commits without GitHub activity means unpushed
+  work, which is the case that changes what to say on Monday.
 
 ## Brain and memory
 

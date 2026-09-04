@@ -153,6 +153,16 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
 
 ## Conversations export
 
+- [ ] `run-conversations-import.ts --apply` leaves a full 5.2 GB
+      `archive.jsonl.backup-<timestamp>` behind on every run and nothing prunes
+      them: on 2026-09-04 the conversations directory held the live archive plus
+      two same-day backups (14:36 and 15:20, 5.19 GB each) and a 2.97 GB
+      `archive.jsonl.tmp-28652` from the run still in progress, 15 GB of copies
+      of one file. Keep one backup (the previous generation) and delete the
+      older ones at the end of a successful apply, or write the backup as a hard
+      link when the archive is append-only. Found while clearing the Claude
+      scratchpads (`~/p/TODO.md`, Machines).
+
 - [ ] **Both Macs must be able to reference every conversation, and the archive
       is already the place for that — the brain just does not read it.** Owner's
       direction, 2026-09-03, after the brain had to hand-rsync the Mac mini's

@@ -83,6 +83,35 @@ shell loop with `wait -n`, which reaps its own children, does not have this
 failure. A zero-byte or otherwise degenerate input is the usual trigger: check
 the one item still in flight before blaming the disk.
 
+## The guard must not match itself
+
+`pgrep -f <pattern>` matches full command lines, so a guard that greps for the
+job it watches also matches **its own** command line, and any shell whose
+arguments quote that pattern. On 2026-09-05 two guards and a waiter, all
+searching for `git repack`, kept reporting the repack alive for eight minutes
+after it had finished: the pack file was written and already read-only. Had the
+stall threshold fired, the guard would have resolved a pgid from that false
+match and signalled the session that launched it.
+
+The failure is silent in both directions. A self-matching guard never sees the
+job end, so it can kill the wrong process group; a guard whose pattern is too
+narrow never sees the job at all and exits at once, leaving the job unguarded
+while the launch report claims otherwise. The second happened the same day: a
+wrapper that `exec`s its payload is replaced by it, so a guard grepping for the
+wrapper's name finds nothing a second after launch.
+
+Watch the pid, not a name. Capture `$!` when you launch, pass it to the guard,
+and test with `kill -0 "$pid"`. Where a pattern is unavoidable, exclude self
+and the shell (`pgrep -f "$pat" | grep -v "^$$\$"`), match the payload rather
+than the wrapper, and prove the guard both sees the running job and stops when
+it ends before trusting it.
+
+Progress signals plateau before a job is done. A pack, an archive or an image
+reaches full size while the tool is still building its index, so a size-only
+watcher reads a finished write as a stall. Pair the size with a second signal -
+the process still existing, a log line, the temporary file still present - and
+confirm the job is really gone before acting on idleness.
+
 ## Killing a stuck job: signal the group
 
 `kill -TERM <script-pid>` does nothing to a shell script blocked in a pipeline.

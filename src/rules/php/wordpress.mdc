@@ -1,6 +1,6 @@
 ---
 globs: "**/*.php"
-description: WordPress standards (WPCS, hooks/APIs, nonces, escaping, and safe persistence)
+description: WordPress standards (WPCS, hooks/APIs, nonces, escaping, persistence)
 alwaysApply: false
 ---
 

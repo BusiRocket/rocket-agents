@@ -1,6 +1,6 @@
 ---
 globs: "**/*.ts,**/*.tsx,**/*.js,**/*.jsx,**/*.py,**/*.php,**/*.rs,**/*.go,**/*.vue,**/*.svelte"
-description: Git workflow defaults for solo projects (trunk-based, no speculative branches/worktrees)
+description: Git workflow defaults, solo projects (trunk-based, no speculative branches)
 alwaysApply: false
 ---
 

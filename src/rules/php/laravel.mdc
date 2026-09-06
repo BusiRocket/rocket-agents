@@ -1,6 +1,6 @@
 ---
 globs: "**/*.php"
-description: Laravel standards (framework-native validation, authz, queues, and API boundaries)
+description: Laravel standards (validation, authz, queues, API boundaries)
 alwaysApply: false
 ---
 

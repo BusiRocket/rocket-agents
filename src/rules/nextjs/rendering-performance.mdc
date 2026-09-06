@@ -1,6 +1,6 @@
 ---
 globs: "**/*.ts,**/*.tsx"
-description: Next.js rendering and performance defaults (RSC-first, dynamic imports, web vitals)
+description: Next.js rendering and performance (RSC-first, dynamic imports, web vitals)
 alwaysApply: false
 ---
 

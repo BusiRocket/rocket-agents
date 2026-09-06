@@ -1,6 +1,6 @@
 ---
 globs: "**/*.ts,**/*.tsx"
-description: Next.js data fetching strategy (RSC-first, caching intent, waterfall prevention)
+description: Next.js data fetching (RSC-first, caching intent, waterfall prevention)
 alwaysApply: false
 ---
 

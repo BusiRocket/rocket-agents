@@ -1,6 +1,6 @@
 ---
 globs: "**/*.ts,**/*.tsx,**/*.js,**/*.jsx,**/*.py,**/*.php,**/*.rs,**/*.go,**/*.vue,**/*.svelte"
-description: Design pattern selection by pain point (Builder, Factory, Adapter, Strategy, and related patterns)
+description: Design pattern selection by pain point (Builder, Factory, Adapter, Strategy)
 alwaysApply: false
 ---
 

@@ -190,18 +190,55 @@ first and poll — the code can take a couple of minutes to arrive.
 `chrome-cli` reaches the real browser but only runs JavaScript, and other apps
 hold the foreground. This combination fills everything except a trusted click:
 
+**Every evaluated expression must return a string.** `chrome-cli` hard-crashes
+with `NSInvalidArgumentException: -[__NSCFNumber UTF8String]` when the result is
+a number, and with `-[__NSDictionaryM UTF8String]` when it is a Promise — so an
+`async` function or a bare `.length` kills the call (2026-09-06, HiveMQ). Wrap
+the value: `''+x`, and for async work assign to `window.__x` inside `.then()`
+and poll it with a second call.
+
 - **Text fields:** focus the element, then
   `document.execCommand("insertText", false, text)`. It fires native
   `beforeinput`/`input` events that React accepts, unlike a value setter. Send
   **one field per call**: a single call carrying two long answers exceeded the
-  argument limit and failed silently with no output at all.
+  argument limit and failed silently with no output at all. Clear the old value
+  with `select()`, not `setSelectionRange()` — the latter throws
+  `InvalidStateError` on `input[type=email]` and `[type=number]`, which also
+  presents as a silent empty result.
 - **File uploads:** build a `File` from base64 in the page, add it to a
   `DataTransfer`, assign `input.files`, then dispatch `change`. No native picker
-  and no focus needed. Generate the base64 into a temp file and pass it with
-  `$(cat …)` so it never enters the transcript.
+  and no focus needed. A whole PDF will not fit in one argument (a 88KB file is
+  117KB of base64), so `split -b 6000`, append the chunks into `window.__b64`
+  across calls, and assert the final `length` before decoding with `atob`. Do
+  **not** try to `fetch` the file from a localhost server instead: the board's
+  CSP `connect-src` blocks it and the page reports only
+  `TypeError: Failed to fetch`.
 - **Yes/No buttons:** synthetic events set `aria-pressed` but Ashby may still
   report the field missing. Try No then Yes first; if one still fails it needs a
   trusted event, which means a real keypress or the owner's own click.
+- **React state settles asynchronously.** A click that reports
+  `aria-pressed=false` immediately afterwards is often correct two seconds
+  later. Sleep before believing a read-back.
+
+### Synthetic clicks clobber the control you set previously
+
+On HiveMQ's Ashby form (2026-09-06) each synthetic `.click()` re-rendered the
+question group and reset the _previous_ answer. Setting the optional consent
+checkbox flipped "Do you require Visa sponsorship?" from No back to Yes, and
+re-fixing the visa answer cleared the checkbox again. Neither change announced
+itself; both were caught only by re-dumping every field.
+
+Two consequences:
+
+1. **Re-read the whole form after every interaction, not just the field you
+   touched.** This is the same discipline the Chrome-autofill note below
+   demands, for a different cause.
+2. **Set the highest-stakes control last**, then stop interacting. Where two
+   controls clobber each other under synthetic clicks and no trusted event is
+   available, an optional field left in the wrong state is an acceptable loss; a
+   wrong answer on eligibility, sponsorship, or compensation is not. Say in the
+   handover which optional field was sacrificed so the owner can set it with a
+   real click.
 
 ### Never send a keystroke without checking what is in front
 
@@ -240,10 +277,21 @@ then hand the confirming click to the owner in their own browser.
 
 ### Browser choice
 
-Public application forms need no login, so the `chrome-devtools` MCP with its
-own profile is the right tool and avoids touching real sessions. Anything
-requiring the owner's logged-in identity (LinkedIn) goes through `chrome-cli` or
-the Playwright extension against the real Chrome. See the global browser rule.
+Prefer the owner's real Chrome through `chrome-cli` for Ashby boards. The spam
+gate below blocks automation profiles per tenant, and the real browser has now
+cleared both boards that rejected or were expected to reject one (LocalStack
+2026-09-06, HiveMQ 2026-09-06). Starting there costs one extra `chrome-cli`
+session and saves a full re-fill.
+
+The `chrome-devtools` MCP with its own profile remains fine for non-Ashby public
+forms and avoids touching real sessions. Note it holds a single browser per
+profile directory: if another Claude session already launched it, every call
+fails with "The browser is already running for .../chrome-profile". That other
+browser belongs to a live session — check `ps` ancestry before killing anything,
+and switch to `chrome-cli` rather than taking someone else's browser down.
+Anything requiring the owner's logged-in identity (LinkedIn) goes through
+`chrome-cli` or the Playwright extension against the real Chrome. See the global
+browser rule.
 
 ## Phase 6 — Close the loop
 

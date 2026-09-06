@@ -52,6 +52,27 @@ bun run /Users/cristiandeluxe/p/ai-job-search/.agents/skills/linkedin-search/cli
 5. Verdicts 55-74: log with `next_action` = the one cheap question (recruiter
    DM, eligibility check). No deliverables until resolved.
 
+## Search scope
+
+Query `-l "Spain"` with `--remote remote`, across **both** Senior and
+Staff/Principal titles. Two findings from the 2026-09-06 sweep:
+
+- An `-l "European Union"` sweep returned 20 roles, every one pinned to a hub
+  city and none Spain-eligible. LinkedIn's EU-wide remote filter selects on
+  company location, not on where a person may be hired. Not worth the query
+  budget; run it quarterly at most.
+- Spain-located "Staff Software Engineer" postings skew JVM/.NET. The TypeScript
+  and Node roles sit one level down under Senior titles, so filtering by
+  seniority alone finds the wrong stack or the wrong level.
+
+## Checking the mail side of the pipeline
+
+`vexa messages` sorts **oldest arrival first**, so a bare `--limit` returns
+months-old mail and looks like an empty inbox. Always pass `--since YYYY-MM-DD`,
+and note the default limit is 20. `vexa search` accepts no `--since` and ranks
+by relevance, which buries a recent ATS confirmation under years of newsletters
+— filter a dated `messages` dump with `grep` instead of searching.
+
 ## Sources feeding this pipeline
 
 - This CLI (proactive search).

@@ -1,3 +1,6 @@
 import { main } from '../commands/linkRulesGlobal'
 
-main().catch(console.error)
+main().catch((error: unknown) => {
+  console.error(error)
+  process.exit(1)
+})

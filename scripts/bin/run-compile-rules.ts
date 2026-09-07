@@ -1,3 +1,6 @@
 import { main } from '../commands/compileRules'
 
-main().catch(console.error)
+main().catch((error: unknown) => {
+  console.error(error)
+  process.exit(1)
+})

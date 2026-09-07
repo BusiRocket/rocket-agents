@@ -12,6 +12,18 @@ export const writeConversationExportFromStore = async (
   output: string,
   now = new Date(),
   skipped: readonly string[] = [],
+  /**
+   * Last chance to refuse the publication, called with the replacement fully
+   * written and still under its temporary name.
+   *
+   * Serializing an archive of this size takes tens of minutes, so the caller's
+   * pre-flight revision check is that far out of date by the time the rename
+   * happens. Re-checking here costs one line of one file and turns a lost
+   * update -- another writer's records silently absent afterwards -- into a
+   * refusal the caller can retry. Throwing discards the temporary file and
+   * leaves the archive exactly as it was found.
+   */
+  beforeRename?: () => Promise<void>,
 ) => {
   const manifest: ConversationExportManifest = {
     kind: 'rocket-agents-conversation-export',
@@ -33,6 +45,7 @@ export const writeConversationExportFromStore = async (
     }
     stream.end()
     await finished(stream)
+    await beforeRename?.()
     await fs.rename(temporary, output)
     return manifest
   } catch (error) {

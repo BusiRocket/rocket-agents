@@ -182,3 +182,57 @@ void test('an export never carries records older than the manifest that covers t
     legacy.events.map(({ id }) => hashText(`${legacy.id}\0${id}`)),
   )
 })
+
+void test('the store yields current records verbatim and older ones upgraded', async (context) => {
+  const root = await fs.mkdtemp(join(tmpdir(), 'rocket-conversations-store-'))
+  context.after(async () => fs.rm(root, { recursive: true, force: true }))
+  const store = new ConversationCaptureStore(join(root, 'capture.sqlite'))
+  context.after(() => {
+    store.close()
+  })
+
+  // The schema version is a column now, so the read path can skip parsing a
+  // record that is already current. That shortcut must not skip the upgrade a
+  // version 1 record still needs: an archive holds years of them, and a
+  // manifest declaring version 2 over version 1 records is a lie a consumer
+  // acts on.
+  const current = { ...createConversationRecord(), id: 'current' }
+  const older = {
+    ...createConversationRecord(),
+    id: 'older',
+    schemaVersion: 1 as const,
+    events: [
+      {
+        id: 'bare',
+        kind: 'message' as const,
+        role: 'user' as const,
+        text: 'one',
+      },
+    ],
+  }
+  store.mergeFragment(current)
+  store.mergeFragment(older)
+
+  const yielded = [...store.serializedRecords()].map(
+    (line) => JSON.parse(line) as { id: string; schemaVersion: number },
+  )
+  assert.deepEqual(
+    yielded.map((record) => record.schemaVersion),
+    [2, 2],
+    'every record leaves the store at the version the manifest declares',
+  )
+  const passedThrough = [...store.serializedRecords()].find((line) =>
+    line.includes('"id":"current"'),
+  )
+  assert.equal(
+    passedThrough,
+    JSON.stringify(current),
+    'a record already at the current version is not reserialized',
+  )
+  const upgraded = yielded.find((record) => record.id === 'older')
+  assert.notEqual(
+    (upgraded as unknown as { events: { id: string }[] }).events[0]?.id,
+    'bare',
+    'a version 1 event id is qualified on the way out',
+  )
+})

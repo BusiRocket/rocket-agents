@@ -76,6 +76,14 @@ export const importConversationExport = async (options: {
           store,
           options.archive,
           options.now,
+          [],
+          // Writing the replacement takes as long as the merge did, so the
+          // check above has aged by a whole publication before the rename.
+          // Take it again against the archive as it is now.
+          async () => {
+            if ((await readArchiveRevision(options.archive)) !== mergedFrom)
+              throw new ConversationArchiveChangedError(options.archive)
+          },
         )
       })
     }

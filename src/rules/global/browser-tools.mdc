@@ -26,6 +26,12 @@ and is unusable for any logged-in site, so do not launch one for that.
    shape is: open the URL in the right identity, raise that window, then call
    `execute` bare.
 
+   **`open -na` does not open a new window.** It reuses an existing window of
+   that profile and adds a tab to it, so the window you think you created is the
+   user's, with their tabs in it. On 2026-09-08 two windows that looked like
+   throwaways held **22 and 10 tabs**. Never close a Chrome window by id to tidy
+   up after yourself: count its tabs first, and prefer leaving it open.
+
    ```bash
    open -na "Google Chrome" --args --profile-directory="Profile 2" "<url>"
    osascript -e 'tell application "Google Chrome"

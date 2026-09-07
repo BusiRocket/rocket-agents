@@ -41,11 +41,27 @@ only what is stable; never mirror a rule that produces a TODO.
 }
 ```
 
-- `match` takes `from` (exact address), `domain`, or `subject` (substring). The
-  most specific match wins; `_global.json` loses to the account file.
+- `match` takes `from` (exact address), `domain`, or `subject` (substring).
+  **Precedence is `subject`, then `from`, then `domain`**, and `_global.json`
+  loses to the account file. A subject rule exists precisely to carve an
+  exception out of a sender rule, which is the common shape: one sender that
+  mostly means one thing and occasionally means another.
 - `folder` is the wire path, exactly as `vexa folders list` prints it.
-- `todo` is `null` for pure filing, or names the repository that owns the work
-  and the section its entries belong under.
+- `todo` is `null` for pure filing, a `{repo, section}` object naming the
+  repository that owns the work, or the string `"judge"` when neither is
+  honest - the alert matters sometimes and the deciding fact is inside the
+  message. `"judge"` means read this one and decide; it is not permission to
+  file 100 identical TODOs, and it is not permission to ignore the sender.
+
+  Reach for `"judge"` sparingly, and only after trying to split the rule by
+  subject first. Worked example, and the reason the field exists: Cloudflare
+  notifications on `info@busirocket.com` are 319 messages. Most are our own
+  invoices, domain renewals and certificate transparency, which are plainly
+  ours. But 115 of them are one Durable Objects quota alert on a **partner
+  agency's** account - their Cloudflare, their Worker, so their code fix - and
+  we host their sites, so an outage that reaches something we host is still
+  ours. Neither `null` nor a repository is true for that rule.
+
 - `why` is not decoration. A rule whose reason nobody can reconstruct is a rule
   nobody dares change.
 

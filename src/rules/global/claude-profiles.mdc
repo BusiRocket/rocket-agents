@@ -34,6 +34,14 @@ personal profile is plain `claude`, with no variable set.
   `agents/`, `commands/`, `plugins/`, `settings.json` are shared by symlink.
   Editing a file under `~/.claude-favish/` directly is a bug: either it belongs
   in `~/.claude` and should be linked, or it is session state — leave it alone.
+- **A missing MCP server reads as a broken browser.** On 2026-09-08 the Favish
+  profile had 5 servers against the personal profile's 7: `openseo`, correctly,
+  and `playwright-busirocket`, by accident. A Favish session then had no route
+  to the BusiRocket Chrome profile at all, because `playwright-chrome` means the
+  *Favish* Chrome there - and the symptom looked like Chrome misbehaving rather
+  than a config gap. Compare the two lists first when a browser task fails for
+  want of an identity. Adding the server does not help the session that added
+  it: MCP servers are read at startup.
 - Never link the per-profile files: credentials, `sessions/`, `history.jsonl`,
   caches, and each profile's `.claude.json` (it carries the auth — linking it
   collapses both quotas into one login). Keep the MCP server lists inside the

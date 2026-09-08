@@ -151,27 +151,6 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
       that project is next open, and file the result there. Tracked here by the
       2026-08-13 routing decision. Source: `~/p/brain/topics/web-platform.md`.
 
-- [ ] **No rule arbitrates between concurrent agent sessions on one machine, so
-      they starve each other.** Routed from `~/p/TODO.md` on 2026-09-08, where
-      the measurement was taken and stays; the fix belongs here because it has
-      to be a global rule every session reads, not one repository's backlog.
-      Measured on the Mac mini (8 cores, 16 GB): a load average of 100-200 all
-      day with `djrocket enrich` on 5 cores for ~13 h writing a 6.9 GB
-      `library.db`, `igir copy zip` and up to four parallel `chdman`, a
-      `shasum`/`tar` pass over Datos18TB, and Backblaze, Time Machine and
-      Spotlight indexing everything those jobs wrote. Swap ran 8.3 of 9.2 GB
-      with 285 MB free, `spindump` was active for 31 minutes, and the night left
-      hang reports for `rsync`, `node`, `Orca` and `unzip`; the 03:23 reboot was
-      almost certainly this. Two concrete harms already, and both are the kind a
-      rule prevents: a peer session lost a headless Chrome to the OOM killer and
-      reported it as a test failure, and a session triaging load by pausing a
-      job killed it outright. Smallest step: an admission rule for disk-bound
-      work - one heavy volume-touching job at a time, or `renice` for anything
-      launched detached - written as a global rule so every session loads it.
-      Note the constraint that makes this harder than it looks: sessions cannot
-      see each other, so the rule has to work from something on disk that a
-      session can check before starting heavy work, not from cooperation.
-
 ## Conversations export
 
 - [ ] **Publishing the archive costs a full rewrite, and the archive is 6.3

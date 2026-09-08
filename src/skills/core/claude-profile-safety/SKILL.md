@@ -17,10 +17,10 @@ Two profiles, no more. Two Anthropic accounts means two quotas; everything that
 is not credentials or session state is shared between them by symlink.
 Background and repair history: `~/p/brain/topics/claude-code-profiles.md`.
 
-| profile                                | account               | how to start it                             | its config file                 |
-| -------------------------------------- | --------------------- | ------------------------------------------- | ------------------------------- |
-| **busirocket** (personal, the default) | `info@busirocket.com` | plain `claude`                              | `~/.claude.json`                |
-| **favish**                             | `cristian@favish.com` | `CLAUDE_CONFIG_DIR=~/.claude-favish claude` | `~/.claude-favish/.claude.json` |
+| profile                                | account               | how to start it                                   | its config file                 |
+| -------------------------------------- | --------------------- | ------------------------------------------------- | ------------------------------- |
+| **busirocket** (personal, the default) | `info@busirocket.com` | plain `claude`                                    | `~/.claude.json`                |
+| **favish**                             | `cristian@favish.com` | `CLAUDE_CONFIG_DIR="$HOME/.claude-favish" claude` | `~/.claude-favish/.claude.json` |
 
 ## Never set `CLAUDE_CONFIG_DIR=~/.claude`
 
@@ -67,7 +67,15 @@ does not say is here.
 After adding global config, prove the other profile loads it — a resolving
 symlink proves existence, not loading:
 
-    CLAUDE_CONFIG_DIR=~/.claude-favish claude -p "<question only the new config can answer>"
+    CLAUDE_CONFIG_DIR="$HOME/.claude-favish" claude -p "<question only the new config can answer>"
+
+Quote `$HOME`, never a bare `~`. A tilde is only expanded by an interactive
+shell in an assignment it recognises; passed through a script, a heredoc or a
+tool that does not expand it, `CLAUDE_CONFIG_DIR` keeps the literal string and
+Claude Code creates `./~/.claude-favish/` relative to the working directory - a
+third, empty profile with its own login and none of the MCP servers, in a
+directory named `~`. That is exactly what happened in `~/p` on 2026-09-04
+(`~/p/~/.claude-favish/.claude.json`, a 403-byte stub).
 
 For the personal profile, use `env -u CLAUDE_CONFIG_DIR claude ...` so an
 inherited variable cannot send the check to the wrong profile.

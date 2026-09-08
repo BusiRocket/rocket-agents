@@ -6,8 +6,11 @@ alwaysApply: true
 # Claude Code profiles: two accounts, one shared configuration
 
 Two profiles, two Anthropic accounts, two quotas. **busirocket** (personal, the
-default) is plain `claude`; **favish** is `CLAUDE_CONFIG_DIR=~/.claude-favish
-claude`. Everything that is not credentials or session state is shared by
+default) is plain `claude`; **favish** is `CLAUDE_CONFIG_DIR="$HOME/.claude-favish"
+claude` - write `$HOME`, never a bare `~`, because an unexpanded tilde makes
+Claude Code create `./~/.claude-favish/` under the current directory: that is
+how a directory literally named `~` appeared in `~/p` on 2026-09-04, holding a
+third empty profile. Everything that is not credentials or session state is shared by
 symlink. The full map — what is linked, what must never be, and how to prove a
 profile loaded new config — is in the `claude-profile-safety` skill.
 

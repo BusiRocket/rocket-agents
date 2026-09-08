@@ -153,6 +153,36 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
 
 ## Conversations export
 
+- [ ] **Publishing the archive costs a full rewrite, and the archive is 6.3
+      GB.** Routed from `~/p/TODO.md` on 2026-09-08 (measured there the same day
+      while diagnosing a four-hour stall). The archive holds **44,685 records in
+      6,301,948,913 bytes** - 140 KB average, largest single record 21.7 MB -
+      and every applied import republishes all of it: hash the whole store to
+      build the manifest, copy the archive to a backup, serialize the whole
+      store again to a temporary file, rename. A parse-and-hash pass measures
+      **32 MB/s (231 records/s)**, so one pass is ~3.2 minutes and a publication
+      is three full traversals plus a 6.3 GB copy, all inside the write lock.
+      Five publications a day - four in `sync-conversations sync`, one an hour
+      from `atrium-refresh` when it wins the lock - is over 30 GB of rewriting a
+      day to append a few hours of conversation, and while a publication runs
+      nothing else can update the index, which is what makes the corpus go
+      stale. The worst constant factor is already gone (records are no longer
+      JSON-parsed on the read path) and concurrent publications are safe, but
+      the shape is still O(archive) per import. Smallest next step: measure a
+      publication end to end with the parse removed, then decide between an
+      append-only segment layout (the machinery already exists in
+      `scripts/lib/conversations/publishConversationCapture.ts`) and keeping the
+      store's content hash incrementally so the manifest costs no traversal at
+      all.
+
+- [ ] **`CONVERSATION_SEGMENT_MIGRATION_TEST` failed once under disk
+      contention.** Routed from `~/p/TODO.md` on 2026-09-08. On 2026-09-08 the
+      case "a v1 archive becomes a chunked base, never one object" failed while
+      a 6 GB import was saturating the disk, and passed on its own and in two
+      consecutive full runs afterwards. Not diagnosed. Worth a look before it
+      fails in CI and gets rerun into silence: a test that only fails when the
+      machine is busy is a test with a timing assumption in it.
+
 - [ ] `run-conversations-import.ts --apply` leaves a full 5.2 GB
       `archive.jsonl.backup-<timestamp>` behind on every run and nothing prunes
       them: on 2026-09-04 the conversations directory held the live archive plus

@@ -174,6 +174,20 @@ from brain reading. Moved verbatim with their sources.
       measure with `/caveman-stats` alongside; the interventions may overlap.
       Source: `~/p/brain/topics/agent-token-economy.md`.
 
+- [!] **`paused-job-guard.sh` ships in `src/hooks/hooks.json` but nothing
+  invokes it, so the guard that shipped with `5327577` is not enforcing
+  anything.** Found 2026-09-08 by `pnpm run check`, which fails on exactly two
+  assertions and only these: _"declared in src/hooks/hooks.json but nothing
+  would invoke them: paused-job-guard.sh"_ and _"~/.agents/hooks has drifted
+  from src/hooks: hooks.json, paused-job-guard.sh"_. The linked copies under
+  `~/.agents/hooks/` are still the 2026-09-04 set, so the hook exists in git and
+  nowhere else. The gate is red for this reason alone - the rule and skill
+  change committed the same day passed formatting, the rules compiled, and both
+  link steps ran clean. Fix is one command,
+  `pnpm run build && pnpm run hooks:link`, but it is a machine mutation for a
+  change this session did not write, so it waits for the owner or for whoever
+  shipped the hook.
+
 ## Conversations export
 
 - [ ] **Publishing the archive costs a full rewrite, and the archive is 6.3

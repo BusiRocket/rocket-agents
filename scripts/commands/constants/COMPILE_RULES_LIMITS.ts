@@ -1,27 +1,35 @@
 /**
- * `CLAUDE_MAX_CHARS` bounds the generated always-on bootstrap index. It exists
- * because that file is loaded into EVERY session on every machine, so each
- * character is paid for on every turn; the number encodes the "under 200 lines
- * in each always-loaded CLAUDE.md" target from the Claude Code overlay.
+ * `CLAUDE_MAX_CHARS` bounds `dist/markdown/CLAUDE.md`, the generated bootstrap
+ * index — 78% of which is the rules router, a flat list of all 117 rules.
  *
- * Raised from 15,000 to 15,500 on 2026-09-08, deliberately and once: the index
- * had reached 14,979 with 21 characters of headroom, so the next always-on rule
- * anyone wrote overflowed it — and until the same day that overflow was
- * invisible, because the compile printed its error and exited 0 while
- * `clean:dist` had already deleted every global rule. The rule that hit it was
- * `global/process-hygiene`, which is operational safety rather than optional
- * guidance.
+ * CORRECTED 2026-09-08. An earlier version of this comment claimed the file is
+ * "loaded into EVERY session on every machine". It is not, and that error is
+ * worth keeping visible: `IDE_RULE_TARGETS` links `dist/global/.claude/rules`
+ * for Claude Code and deliberately does NOT link this file, so as not to
+ * clobber the lean hand-written `~/.claude/CLAUDE.md`. Cursor, Codex,
+ * Antigravity and Windsurf each take a different artifact. Nothing installs
+ * this one; only the golden-master verifier reads it.
  *
- * The alternative was trimming the router's per-rule descriptions, and it was
- * rejected on purpose: those parentheticals are the routing signal that tells a
- * model when to load a rule, so shortening them to buy space degrades the thing
- * the index exists for.
+ * So this budget guards a build artifact, not a context cost, and it was raised
+ * from 15,000 to 15,500 on 2026-09-08 to admit one rule entry. That raise was
+ * defensible only because the number governs nothing a model loads — had it
+ * been the real cost, the right answer would have been to retire a rule.
  *
- * If this needs raising again, that is the signal to retire rules rather than
- * to add another 500 — the budget is the forcing function, not the obstacle.
+ * The cost that IS paid on every turn is `ALWAYS_ON_MAX_CHARS` below, which
+ * until the same day had no budget at all. That is the one to defend.
  */
 export const COMPILE_RULES_LIMITS = {
   CLAUDE_MAX_CHARS: 15_500,
+  /**
+   * The bytes Claude Code loads into EVERY session: the unscoped rule bodies
+   * under `dist/global/.claude/rules/global`. Enforced by
+   * `assertAlwaysOnRuleBudget`, and the budget that actually costs tokens —
+   * see the note on CLAUDE_MAX_CHARS for why the other one does not.
+   *
+   * Set on 2026-09-08 at 38,000 against a measured 36,103, so the next rule
+   * has room and the one after that has to justify itself.
+   */
+  ALWAYS_ON_MAX_CHARS: 38_000,
   ALL_RULES_MAX_CHARS_WARN: 2_000_000,
   RULE_MAX_CHARS_WARN: 30_000,
 } as const

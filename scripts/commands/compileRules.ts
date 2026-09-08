@@ -18,6 +18,7 @@ import { syncAntigravityRules } from '../lib/rules/syncers/syncAntigravityRules'
 import { syncClaudeRules } from '../lib/rules/syncers/syncClaudeRules'
 import { syncCursorRules } from '../lib/rules/syncers/syncCursorRules'
 import { syncWindsurfRules } from '../lib/rules/syncers/syncWindsurfRules'
+import { assertAlwaysOnRuleBudget } from './assertAlwaysOnRuleBudget'
 import { COMPILE_RULES_LIMITS } from './constants/COMPILE_RULES_LIMITS'
 import { COMPILE_RULES_PATHS } from './constants/COMPILE_RULES_PATHS'
 
@@ -130,6 +131,8 @@ export const main = async () => {
   await fs.writeFile(p.GEMINI_PATH, nextGemini, 'utf8')
   await fs.writeFile(p.WINDSURF_PATH, nextWindsurf, 'utf8')
   await fs.writeFile(p.ALL_RULES_PATH, nextAllRules, 'utf8')
+
+  await assertAlwaysOnRuleBudget(p.CLAUDE_RULES_DIR)
 
   if (nextAllRules.length > l.ALL_RULES_MAX_CHARS_WARN) {
     console.warn(

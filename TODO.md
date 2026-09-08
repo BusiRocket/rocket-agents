@@ -151,6 +151,29 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
       that project is next open, and file the result there. Tracked here by the
       2026-08-13 routing decision. Source: `~/p/brain/topics/web-platform.md`.
 
+### Four harness experiments routed from `~/p/TODO.md`, 2026-09-08
+
+Each is a change to how a session is prompted, budgeted or measured, which is
+this repository's subject; the meta backlog only held them because they arrived
+from brain reading. Moved verbatim with their sources.
+
+- [ ] Audit tool/prompt churn for cache economics: cache hits cost 10% of input
+      price but need an exact stable prefix, so mid-session tool changes or
+      naive compaction silently destroy it. `/cost` cache-hit % is the
+      diagnostic. Source: `~/p/brain/topics/claude-code-practice.md`.
+- [ ] Try prompt contracts (Goal / Constraints / Output Format / Failure
+      Conditions) plus a session-opening CLAUDE.md handshake on one real task;
+      failure conditions turn vague quality bars into rejection tests. Source:
+      `~/p/brain/topics/claude-code-practice.md`.
+- [ ] Watch the Advisor Tool (`advisor-tool-2026-03-01`) out of beta: a Sonnet
+      or Haiku executor consulting Opus in a single request is the supported
+      form of the codex/agy offload used here, and the published numbers are
+      cheaper and better on two benchmarks. Source:
+      `~/p/brain/topics/claude-code-practice.md`.
+- [ ] Try RTK (Rust command-output filter, 63k stars) on one real session and
+      measure with `/caveman-stats` alongside; the interventions may overlap.
+      Source: `~/p/brain/topics/agent-token-economy.md`.
+
 ## Conversations export
 
 - [ ] **Publishing the archive costs a full rewrite, and the archive is 6.3

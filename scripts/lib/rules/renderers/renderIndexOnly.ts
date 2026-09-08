@@ -19,6 +19,12 @@ export function renderIndexOnly(
   bundle: RuleItem[],
   options: RenderIndexOnlyOptions = {},
 ) {
+  // The default mirrors COMPILE_RULES_LIMITS.CLAUDE_MAX_CHARS rather than
+  // importing it, because this renderer is the leaf every caller passes an
+  // explicit budget to. Two literals of the same budget in two files is how the
+  // golden-master verifier kept enforcing 15,000 after the compiler moved to
+  // 15,500 — a caller that forgets to pass one should fail conservatively, not
+  // silently at a different number than the one on the tin.
   const maxChars =
     typeof options.maxChars === 'number' ? options.maxChars : 15_000
 

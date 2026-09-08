@@ -4,6 +4,7 @@ import { listFilesRecursive } from '../lib/fs/operations/listFilesRecursive'
 import { readIfExists } from '../lib/fs/operations/readIfExists'
 import { generateBundle } from '../lib/rules/generators/generateBundle'
 import { renderClaudeIndexOnly } from '../lib/rules/renderers/renderClaudeIndexOnly'
+import { COMPILE_RULES_LIMITS } from './constants/COMPILE_RULES_LIMITS'
 
 /**
  * Assert CLAUDE.md on disk is byte-identical to freshly generated output (golden master).
@@ -15,7 +16,7 @@ export async function verifyClaudeGoldenMaster() {
 
     const bundle = await generateBundle(sourceFiles, SOURCE_DIR)
     const generated = renderClaudeIndexOnly(bundle, {
-      maxChars: 15_000,
+      maxChars: COMPILE_RULES_LIMITS.CLAUDE_MAX_CHARS,
       includeShortSummary: false,
     })
     const onDisk = await readIfExists(CLAUDE_PATH)

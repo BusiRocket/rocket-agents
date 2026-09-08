@@ -3,6 +3,7 @@ import { CLAUDE_PATH } from '../constants/CLAUDE_PATH'
 import { GEMINI_PATH } from '../constants/GEMINI_PATH'
 import { WINDSURF_PATH } from '../constants/WINDSURF_PATH'
 import { readIfExists } from '../lib/fs/operations/readIfExists'
+import { COMPILE_RULES_LIMITS } from './constants/COMPILE_RULES_LIMITS'
 import { verifyClaudeGoldenMaster } from './verifyClaudeGoldenMaster'
 import { verifyIndexOnlyOutput } from './verifyIndexOnlyOutput'
 
@@ -20,7 +21,7 @@ export async function main() {
   }
 
   for (const [name, filePath, maxChars] of [
-    ['CLAUDE.md', CLAUDE_PATH, 15_000],
+    ['CLAUDE.md', CLAUDE_PATH, COMPILE_RULES_LIMITS.CLAUDE_MAX_CHARS],
     ['AGENTS.md', AGENTS_PATH, 50_000],
     ['GEMINI.md', GEMINI_PATH, 50_000],
     ['WINDSURF.md', WINDSURF_PATH, 50_000],

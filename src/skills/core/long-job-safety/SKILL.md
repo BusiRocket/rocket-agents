@@ -1,0 +1,144 @@
+---
+name: long-job-safety
+description:
+  Launching, backgrounding, supervising, restarting or killing a long-running
+  job, and deciding whether one is actually progressing. Trigger when a job
+  expected to run for minutes or hours is about to start, when one is about to
+  be reported healthy or relaunched after a stall, and before any process group
+  is signalled. Do not use for short foreground commands or for ordinary test
+  runs.
+allowed-tools: Read, Grep, Glob, Bash
+---
+
+# Long-running jobs: verify progress, not liveness
+
+Unscoped on purpose: long jobs get launched from any session, whatever the files
+in scope are.
+
+On 2026-09-01 an `igir` hash pass was checked several times over 19 hours and
+called healthy every time, because the checks asked whether the process was
+alive rather than whether anything had moved. It had been looping on one 495 MB
+file since minute five - a file `dd` reads end to end in 29 seconds.
+
+This is the known failure mode, not a local quirk: a process shown as running by
+`ps` can be fully deadlocked with zero useful work happening, and a tight loop
+pegs `%CPU` exactly like real work. Elapsed time, liveness and CPU are all
+worthless as progress signals. This is why CI platforms time out on **silence
+rather than duration** - CircleCI's "Too long with no output" defaults to 10
+minutes - and why a heartbeat (the link is up) is a different instrument from a
+watchdog (the task is advancing).
+
+## Before calling a long job healthy
+
+Name the artifact that moved since the previous check:
+
+- output or cache file grew, or its mtime advanced (`stat -f %m` on macOS,
+  `stat -c %Y` on Linux)
+- the log gained lines
+- the file held open (`lsof -p <pid>`) differs from last time
+- a counter the job prints went up
+
+If nothing moved, it is stalled however busy it looks. Say so rather than
+reporting progress, and diagnose before relaunching: read the input the job was
+chewing on with an independent tool, so a bug in the job is not misdiagnosed as
+a corrupt file or a failing disk.
+
+## Arm the guard at launch
+
+**A background job is not launched until its guard is launched.** Both go in the
+same turn, and the guard is part of the report: say which artifact it watches
+and what threshold kills the job, or do not claim the job is running.
+"Relaunched with `nohup`" is an unguarded job and the next check is a manual one
+that may not come for hours.
+
+This is the step that gets skipped. On 2026-09-03 the rule was loaded in the
+session, a stall guard already existed in the repo, and a PSX conversion was
+still relaunched bare - it then held one worker for 1h47m and was caught only
+because the owner asked. Having the guard is not using it.
+
+A job expected to run for hours needs its stall detector from the start, not
+after something looks wrong; otherwise it can burn a whole night unobserved.
+Bound the blast radius of one pathological input with
+`timeout <duration> --kill-after=10s` (exit code 124 means it fired) - per work
+item, not only around the run as a whole, so one bad input dies instead of the
+batch. Size the stall threshold at 3-5x the expected interval between progress
+signs so ordinary slowness does not trip it, and poll on the order of minutes -
+polling a long job every few seconds only adds contention. Where the job prints
+nothing for long stretches, have it emit a periodic timestamp so silence itself
+becomes measurable.
+
+A guard is generic and belongs outside the job it watches: a process group, a
+stall threshold, and the artifacts that must move. Welding one to a single tool
+means the next long job runs bare, which is exactly what happened above.
+
+    nohup ./the-job.sh > /dev/null 2>&1 &
+    nohup ./watch-progress.sh <pgid> 1800 <artifact> [...] >> watch.log 2>&1 &
+
+## Partial progress is still a stall
+
+A job that converted 539 items and then stopped looks nothing like a hang: the
+log is long, the outputs are real, and the process list is full. Compare the
+progress artifact's mtime against **now**, not against zero. If a counter that
+moved every few minutes has not moved in an hour, the run is stalled even though
+most of it succeeded.
+
+Suspect the supervisor as readily as the work. `xargs -P` lost its worker count
+when one child hung: seven of eight slots stayed empty, the feeding process
+blocked on the pipe, and nothing ever ended. When workers are fewer than the
+requested parallelism and the feeder is still alive, the pool is broken - a
+shell loop with `wait -n`, which reaps its own children, does not have this
+failure. A zero-byte or otherwise degenerate input is the usual trigger: check
+the one item still in flight before blaming the disk.
+
+## The guard must not match itself
+
+`pgrep -f <pattern>` matches full command lines, so a guard that greps for the
+job it watches also matches **its own** command line, and any shell whose
+arguments quote that pattern. On 2026-09-05 two guards and a waiter, all
+searching for `git repack`, kept reporting the repack alive for eight minutes
+after it had finished: the pack file was written and already read-only. Had the
+stall threshold fired, the guard would have resolved a pgid from that false
+match and signalled the session that launched it.
+
+The failure is silent in both directions. A self-matching guard never sees the
+job end, so it can kill the wrong process group; a guard whose pattern is too
+narrow never sees the job at all and exits at once, leaving the job unguarded
+while the launch report claims otherwise. The second happened the same day: a
+wrapper that `exec`s its payload is replaced by it, so a guard grepping for the
+wrapper's name finds nothing a second after launch.
+
+Watch the pid, not a name. Capture `$!` when you launch, pass it to the guard,
+and test with `kill -0 "$pid"`. Where a pattern is unavoidable, exclude self and
+the shell (`pgrep -f "$pat" | grep -v "^$$\$"`), match the payload rather than
+the wrapper, and prove the guard both sees the running job and stops when it
+ends before trusting it.
+
+Progress signals plateau before a job is done. A pack, an archive or an image
+reaches full size while the tool is still building its index, so a size-only
+watcher reads a finished write as a stall. Pair the size with a second signal -
+the process still existing, a log line, the temporary file still present - and
+confirm the job is really gone before acting on idleness.
+
+## Killing a stuck job: signal the group
+
+`kill -TERM <script-pid>` does nothing to a shell script blocked in a pipeline.
+Bash defers the trap until the foreground command returns, and the stuck
+pipeline is precisely what will not return. Signal the whole process group,
+which also reaches the workers a `pkill -f <script-name>` never matches:
+
+    ps -eo pid,pgid,command | grep <job>     # read the pgid
+    kill -TERM -<pgid>                       # note the leading dash
+    kill -KILL -<pgid>                       # if it is still there
+
+Then verify by pgid that nothing survived, and clear the run's lock and any
+`.partial` files before relaunching - an orphaned worker plus a fresh run
+writing the same destination is how one earlier attempt produced 120 bogus
+duplicate outputs.
+
+## Shell globs lie when the match list is long
+
+A glob silently expands to nothing once the argument list overflows. The same
+day, `ls dir/*.spc | wc -l` printed 0 while 16,401 matching files were still
+there, which read exactly like "the move finished". Count with
+`find <dir> -name '<pattern>' | wc -l`, and treat a sudden clean zero from a
+glob as suspect until `find` agrees.

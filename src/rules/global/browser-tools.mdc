@@ -5,81 +5,26 @@ alwaysApply: true
 
 # Browser control: the real Chrome, never a fresh profile
 
-Owner preference (2026-09-01, extended 2026-09-03). The user's real Chrome
-carries what an automation browser cannot reproduce: 18 authenticated
-profiles, the 1Password extension in each, and the trusted-device state banks
-demand. A browser launched with a temporary or isolated profile has none of it
-and is unusable for any logged-in site, so do not launch one for that.
+Owner preference. The user's real Chrome carries what an automation browser
+cannot reproduce: 18 authenticated profiles, 1Password in each, and the
+trusted-device state banks demand. The routing — chrome-cli first, then the
+Playwright extension MCP, a separate browser only when unavoidable — and the
+traps that cost whole sessions are in the `browser-session-safety` skill.
 
-1. **chrome-cli first** (`/opt/homebrew/bin/chrome-cli`) for anything it
-   answers: list, open, close and activate tabs and windows across every
-   profile, navigate, reload, `source`, `execute <js>`. One Bash call, no MCP
-   session. Wrap `execute` in `timeout 25`.
+What must be in mind before that skill is reached:
 
-   **Never pass `-t <tab-id>` to `execute`.** It fails with "No matching
-   handler found" every time; without the flag the identical script on the
-   identical tab returns its value (measured 2026-09-08). The error names
-   nothing real, so it reads like a permissions or multi-instance problem and
-   sends you chasing "Permitir JavaScript desde Eventos de Apple", stray Chrome
-   processes and CDP ports - a whole session was lost to that once. `execute`
-   runs against the **active tab of the frontmost window**, so the working
-   shape is: open the URL in the right identity, raise that window, then call
-   `execute` bare.
+**A browser launched with a temporary or isolated profile is unusable for any
+logged-in site.** Never substitute one, and never copy cookies between profiles
+to fake a session.
 
-   **`open -na` does not open a new window.** It reuses an existing window of
-   that profile and adds a tab to it, so the window you think you created is the
-   user's, with their tabs in it. On 2026-09-08 two windows that looked like
-   throwaways held **22 and 10 tabs**. Never close a Chrome window by id to tidy
-   up after yourself: count its tabs first, and prefer leaving it open.
+**Two sessions share one browser.** `chrome-cli execute` acts on the active tab
+of the frontmost window, so another session's work is one raise away from being
+clicked. Confirm the identity and the target tab before acting, and never close
+a window to tidy up after yourself without counting whose tabs are in it.
 
-   ```bash
-   open -na "Google Chrome" --args --profile-directory="Profile 2" "<url>"
-   osascript -e 'tell application "Google Chrome"
-     activate
-     repeat with i from 1 to count of windows
-       if id of window i is <WINDOW-ID> then set index of window i to 1
-     end repeat
-   end tell'
-   timeout 25 chrome-cli execute 'document.body.innerText.slice(0,2000)'
-   ```
+**A missing identity is usually a config gap, not a broken browser** — compare
+the profiles' MCP server lists before debugging Chrome.
 
-   This reads and drives **SPAs**, which is what makes it worth preferring:
-   `source` returns the served shell, `execute` sees the rendered DOM, so an
-   Angular console like Google Play answers the second and not the first. Read
-   with `innerText`, find controls by their text, and click them with
-   `.click()` rather than coordinates. Three routes that look plausible for SPA
-   work and are not: Chrome does not expose its accessibility tree unless an
-   assistive technology is attached, no CDP port listens by default, and
-   copying a profile's cookies into another Chrome profile does not carry a
-   Google session - those are bound to the device and profile on purpose, and
-   moving them around is session handling you should not be doing anyway. With two Chrome instances running
-   (a Playwright-launched one beside the real one) AppleScript may resolve
-   "Google Chrome" to the wrong process; chrome-cli still hits the real one.
-2. **Playwright `--extension` MCP for the rest**: DOM snapshots and element
-   interaction, screenshots, network, console on a real tab, connected through
-   the Playwright Extension installed in the Default, Favish and BusiRocket
-   profiles. Each server's env carries one profile's connection token, so it
-   attaches with no dialog, and the server name says which Chrome profile it
-   reaches: in the personal Claude profile `playwright-chrome` is the Default
-   (djcristiandeluxe) Chrome profile and `playwright-busirocket` the
-   BusiRocket one; in the Favish Claude profile `playwright-chrome` is the
-   Favish one. The three tokens are recorded in the brain's access map
-   (`business/access-map.md`, Chrome profiles section). Each server works on
-   one selected tab at a time: `browser_tabs` lists what is reachable, and
-   other tabs join by being dragged into its tab group. The `chrome-devtools` MCP
-   launches its own persistent profile instead; keep it for our own apps and
-   for traces, not for logged-in sites. Do not attach it to the real Chrome
-   with `--autoConnect`: it auto-attaches to every one of the ~400 open tabs
-   and never answers. Claude in Chrome only acts inside its own tab group and
-   needs a manual Connect per profile, so it is the last of these.
-3. **A separate browser only when unavoidable** (parallel runs, tests of our
-   own app that must not touch real sessions), and then always a persistent
-   profile on the real Google Chrome binary with the 1Password extension
-   installed there once: the `chrome-devtools` MCP's own profile, or
-   `~/.agent-chrome/<identity>`. Never `--isolated`, a tmp user-data-dir, or
-   bundled Chromium for a logged-in site. CDP on the default user-data-dir
-   needs the `chrome://inspect/#remote-debugging` toggle (on since 2026-09-02)
-   and a permission dialog per client; on any other directory it needs
-   `--user-data-dir` (Chrome 136+).
-4. Orca's embedded browser is driven through the `orca-cli` skill, and desktop
-   app windows or webviews outside Chrome through `computer-use`.
+Invoke `browser-session-safety` before the first browser command of a task, and
+before any browser troubleshooting. If it cannot load, do not drive a logged-in
+session.

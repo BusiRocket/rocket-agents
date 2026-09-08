@@ -26,7 +26,11 @@ export const COMPILE_RULES_LIMITS = {
    * `assertAlwaysOnRuleBudget`, and the budget that actually costs tokens —
    * see the note on CLAUDE_MAX_CHARS for why the other one does not.
    *
-   * Set on 2026-09-08 at 26,000 against a measured 24,608.
+   * Set on 2026-09-08 at 16,000 against a measured 14,326, after long-jobs and
+   * browser-tools moved their procedures into skills and kept only a tripwire
+   * always-on. Both moves were measured, not assumed: with the reduced rule in
+   * place, the skill was invoked in 3/3 and 2/2 triggering scenarios and in
+   * 0/4 non-triggering ones.
    *
    * The first version of this budget said 38,000 against 36,103, because it
    * counted every file in the directory. Three of the ten carry `paths:` and
@@ -34,7 +38,7 @@ export const COMPILE_RULES_LIMITS = {
    * were never paid on an ordinary turn. A budget measuring the wrong set is
    * the same failure as CLAUDE_MAX_CHARS above, one directory further in.
    */
-  ALWAYS_ON_MAX_CHARS: 26_000,
+  ALWAYS_ON_MAX_CHARS: 16_000,
   ALL_RULES_MAX_CHARS_WARN: 2_000_000,
   RULE_MAX_CHARS_WARN: 30_000,
 } as const

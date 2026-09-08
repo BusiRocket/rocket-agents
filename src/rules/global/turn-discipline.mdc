@@ -8,12 +8,9 @@ alwaysApply: true
 Unscoped on purpose: this has to be loaded in the sessions it governs, which are
 ordinary working sessions, not prompt-authoring ones.
 
-Measured over a month of transcripts on 2026-08-30: 102 turns ended by
-announcing continuation - "Sigo", "continuing with X", naming the next item -
-and then stopping, which produced 68 pure "adelante" / "termina lo que queda"
-nudges. Only about a third of the interruptions followed a real question.
-Nineteen more turns ended asking about a `git push` that had been authorized
-before.
+Measured over a month of transcripts: 102 turns ended by announcing a
+continuation and then stopping, and 19 more ended asking about a `git push`
+already authorized.
 
 A turn ends when the work does, not when a report is ready. Never close a turn
 on "next I will" or by naming the remaining item: if the next action is known

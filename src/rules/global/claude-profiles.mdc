@@ -30,34 +30,29 @@ personal profile is plain `claude`, with no variable set.
 
 ## What is shared, and what must never be
 
-- Edit global config only in `~/.claude`: `CLAUDE.md`, `rules/`, `skills/`,
-  `agents/`, `commands/`, `plugins/`, `settings.json` are shared by symlink.
-  Editing a file under `~/.claude-favish/` directly is a bug: either it belongs
+`CLAUDE.md` already states the general shape: the canonical directory, what may
+be symlinked, what stays per-profile, aligning the MCP lists without printing
+env values, absolute hook paths, and serialising plugin updates. Only what it
+does not say is here.
+
+- Editing a file under `~/.claude-favish/` directly is a bug: either it belongs
   in `~/.claude` and should be linked, or it is session state — leave it alone.
-- **A missing MCP server reads as a broken browser.** On 2026-09-08 the Favish
-  profile had 5 servers against the personal profile's 7: `openseo`, correctly,
-  and `playwright-busirocket`, by accident. A Favish session then had no route
-  to the BusiRocket Chrome profile at all, because `playwright-chrome` means the
-  *Favish* Chrome there - and the symptom looked like Chrome misbehaving rather
-  than a config gap. Compare the two lists first when a browser task fails for
-  want of an identity. Adding the server does not help the session that added
-  it: MCP servers are read at startup.
-- Never link the per-profile files: credentials, `sessions/`, `history.jsonl`,
-  caches, and each profile's `.claude.json` (it carries the auth — linking it
-  collapses both quotas into one login). Keep the MCP server lists inside the
-  two `.claude.json` identical by hand, with one deliberate exception:
-  `openseo` (`seo.busirocket.com`) is a BusiRocket service and belongs to the
-  personal profile only. That difference is the email-separation rule holding,
-  not drift to repair. Never print their `env` values.
+- **A missing MCP server reads as a broken browser.** A profile missing
+  `playwright-busirocket` has no route to that Chrome identity at all, because
+  `playwright-chrome` names a different profile's Chrome in each config — and
+  the symptom looks like Chrome misbehaving rather than a config gap. Compare
+  the two lists first when a browser task fails for want of an identity. Adding
+  the server does not help the session that added it: MCP servers are read at
+  startup.
+- Linking a profile's `.claude.json` collapses both quotas into one login.
+- `openseo` (`seo.busirocket.com`) is a BusiRocket service and belongs to the
+  personal profile ONLY. That difference is the email-separation rule holding,
+  not drift to repair.
 - An MCP `command` must be an absolute path. A host spawns servers with a
   minimal PATH, so `command: "uv"` fails silently — the server is listed as
   enabled and its tools never appear. Use `/opt/homebrew/bin/uv`.
 - Connectors are authorised server-side per account — connect each one in each
   account, nothing to mirror.
-- Hook paths in `settings.json` must be absolute; a relative path silently
-  breaks the Favish profile.
-- Update plugins from one session at a time (shared tree; concurrent updates
-  clobber `installed_plugins.json`).
 
 ## Verify, do not assume
 

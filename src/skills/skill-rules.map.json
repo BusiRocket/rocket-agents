@@ -79,6 +79,9 @@
         "@rules/core/boundaries.mdc"
       ]
     },
+    "claude-profile-safety": {
+      "rules": ["@rules/core/security-baseline.mdc"]
+    },
     "favish-weekly-review": {
       "rules": [
         "@rules/core/agent-discipline.mdc",
@@ -131,12 +134,18 @@
         "@rules/core/text-hygiene.mdc"
       ]
     },
+    "orphan-process-cleanup": {
+      "rules": ["@rules/core/security-baseline.mdc"]
+    },
     "project-continuation": {
       "rules": [
         "@rules/core/general.mdc",
         "@rules/core/agent-discipline.mdc",
         "@rules/core/git-workflow.mdc"
       ]
+    },
+    "reference-coverage": {
+      "rules": ["@rules/core/agent-discipline.mdc"]
     },
     "repo-onboarding-map": {
       "rules": [

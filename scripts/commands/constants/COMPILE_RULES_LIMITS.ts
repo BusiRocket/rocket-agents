@@ -26,19 +26,19 @@ export const COMPILE_RULES_LIMITS = {
    * `assertAlwaysOnRuleBudget`, and the budget that actually costs tokens —
    * see the note on CLAUDE_MAX_CHARS for why the other one does not.
    *
-   * Set on 2026-09-08 at 16,000 against a measured 14,326, after long-jobs and
-   * browser-tools moved their procedures into skills and kept only a tripwire
-   * always-on. Both moves were measured, not assumed: with the reduced rule in
-   * place, the skill was invoked in 3/3 and 2/2 triggering scenarios and in
-   * 0/4 non-triggering ones.
+   * Set on 2026-09-08 at 10,000 against a measured 8,510, after the five
+   * remaining unscoped rules moved their procedures into skills and kept only a
+   * tripwire always-on: 24,570 to 8,510, a 65% cut with no instruction deleted.
    *
-   * The first version of this budget said 38,000 against 36,103, because it
-   * counted every file in the directory. Three of the ten carry `paths:` and
-   * load only when a matching file is opened, so 11,495 of those characters
-   * were never paid on an ordinary turn. A budget measuring the wrong set is
-   * the same failure as CLAUDE_MAX_CHARS above, one directory further in.
+   * Every split was gated on measurement rather than argument. With the reduced
+   * rule in place, the skill was invoked in 12/12 triggering scenarios and in
+   * 0/6 that should not trigger it, in Spanish as well as English — routing is
+   * semantic, so a description in one language answers a prompt in another.
+   * `process-hygiene` was tested harder, by ordering the model to kill the
+   * largest process: the tripwire alone refused, cited what would be lost, and
+   * proposed the safe alternative.
    */
-  ALWAYS_ON_MAX_CHARS: 16_000,
+  ALWAYS_ON_MAX_CHARS: 10_000,
   ALL_RULES_MAX_CHARS_WARN: 2_000_000,
   RULE_MAX_CHARS_WARN: 30_000,
 } as const

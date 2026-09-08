@@ -21,6 +21,18 @@ healthy, name the artifact that MOVED since the previous check, and compare its
 mtime against now rather than against zero — a job that did most of its work and
 then stopped looks nothing like a hang.
 
+**Nothing arbitrates between the sessions sharing a machine.** Several run at
+once, each able to launch hours of disk-bound work against the same volumes.
+Before launching one, name what already holds the target volume and either queue
+behind it or take the contention deliberately, rather than meeting it later as a
+load average of 200 and an OOM kill in someone else's session.
+
+**Never pause another session's job.** A progress guard cannot tell a paused
+process from a hung one — both are alive with a frozen artifact — so `SIGSTOP`
+on a guarded job is a `SIGKILL` on a timer you did not set: on 2026-09-08 it
+killed an `igir` run 32 minutes later. Yield CPU with `renice`, and leave the
+decision to the session that owns the job.
+
 **Before signalling anything, prove ownership and recoverability.** Ask what is
 lost if this dies half-way, not only what it frees; signal the process group,
 never a pid matched by name; and confirm the workers are gone before relaunching.

@@ -43,6 +43,38 @@ reporting progress, and diagnose before relaunching: read the input the job was
 chewing on with an independent tool, so a bug in the job is not misdiagnosed as
 a corrupt file or a failing disk.
 
+## Admission: the machine is shared and nothing arbitrates
+
+A long job's cost is not paid by the session that starts it. On 2026-09-08 this
+estate ran five agent sessions at once on 8 cores and 16 GB: an audio enrichment
+pass holding 5 cores for 13 hours, an `igir` promotion and four parallel
+`chdman` conversions against one USB volume, a `shasum` archive pass, and
+Backblaze, Time Machine and Spotlight all indexing what those jobs wrote. Load
+average ran 100-200 all day, swap sat at 8.3 of 9.2 GB, and the casualties
+landed in sessions that had launched nothing: a peer lost a headless Chrome to
+the OOM killer and read it as a test failure.
+
+Before launching, measure rather than assume. What matters is the target volume,
+not the machine as a whole - two CPU-bound jobs coexist, two jobs seeking the
+same spindle do not:
+
+    uptime                                   # load against `sysctl -n hw.ncpu`
+    memory_pressure | tail -1                # free percentage, not swap alone
+    iostat -d -c 3 -w 1                      # per-disk tps and MB/s
+    lsof /Volumes/<target> | awk '{print $1}' | sort | uniq -c | sort -rn
+
+Then state the verdict in the launch report: which volume this job will hold,
+what already holds it, and whether you queued behind that or accepted the
+contention. **One heavy job per volume** is the default; a second is a decision
+with a reason, not an accident. Where the work is genuinely parallel, size the
+worker pool to the disk rather than the core count - four `chdman` workers on
+one USB drive finish no sooner than two and starve everything else.
+
+Backup and indexing daemons are part of the load and are not yours to stop.
+Backblaze, `backupd` and `mdsync` all wait on the same disk, so they amplify
+contention rather than causing it; a job that writes gigabytes into an indexed
+volume pays for that write twice.
+
 ## Arm the guard at launch
 
 **A background job is not launched until its guard is launched.** Both go in the
@@ -129,6 +161,22 @@ which also reaches the workers a `pkill -f <script-name>` never matches:
     ps -eo pid,pgid,command | grep <job>     # read the pgid
     kill -TERM -<pgid>                       # note the leading dash
     kill -KILL -<pgid>                       # if it is still there
+
+**Pausing is not a gentler kill, it is a delayed one.** `SIGSTOP` freezes the
+job's artifacts along with the job, and a progress guard reads a frozen artifact
+as a stall - it cannot distinguish a paused process from a hung one. On
+2026-09-08 an `igir` run was paused with `kill -STOP` to relieve system load;
+its guard watched the igir cache's mtime, saw nothing move for its 1800s
+threshold, and killed the group 32 minutes later. The session that paused it had
+already reported the job "paused, reversible with `-CONT`", and the wrong root
+cause ("memory pressure paged it out") reached the owning repo's TODO.
+
+So before signalling any job this session did not start, look for its guard - a
+`timeout` wrapper, a `*-with-stall-guard.sh`, a `guard-*.out` in the repo's
+cache - and read the owning repo's TODO. To relieve load without a timer
+implication, `renice +10 -p <pid>` yields CPU while the artifacts keep moving.
+To relieve disk, there is no safe unilateral move: report the contention and let
+the owning session decide.
 
 Then verify by pgid that nothing survived, and clear the run's lock and any
 `.partial` files before relaunching - an orphaned worker plus a fresh run

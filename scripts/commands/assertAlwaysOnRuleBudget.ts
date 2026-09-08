@@ -22,18 +22,25 @@ export async function assertAlwaysOnRuleBudget(
 ): Promise<void> {
   const globalDir = path.join(claudeRulesDir, 'global')
   const names = await fs.readdir(globalDir).catch(() => [])
-  const sizes = await Promise.all(
+  const measured = await Promise.all(
     names
       .filter((name) => name.endsWith('.md'))
       .map(async (name) => {
         const body = await fs.readFile(path.join(globalDir, name), 'utf8')
-        return { name, chars: body.length }
+        return { name, chars: body.length, scoped: /^paths:/m.test(body) }
       }),
   )
+  // A rule with `paths:` is loaded only when a matching file is opened, so it
+  // costs nothing on an ordinary turn and must not be billed here. Counting the
+  // whole directory made the first version of this check overstate the cost by
+  // 11,495 characters — three of ten rules are already scoped — which is the
+  // same mistake as budgeting a file no IDE loads: measure the set that is
+  // actually paid for, not the set that is easy to list.
+  const sizes = measured.filter((entry) => !entry.scoped)
   const total = sizes.reduce((sum, entry) => sum + entry.chars, 0)
   if (total <= COMPILE_RULES_LIMITS.ALWAYS_ON_MAX_CHARS) {
     console.log(
-      `Always-on rules: ${String(total)} chars across ${String(sizes.length)} files (budget ${String(COMPILE_RULES_LIMITS.ALWAYS_ON_MAX_CHARS)}).`,
+      `Always-on rules: ${String(total)} chars across ${String(sizes.length)} unscoped files (budget ${String(COMPILE_RULES_LIMITS.ALWAYS_ON_MAX_CHARS)}); ${String(measured.length - sizes.length)} scoped files load lazily and are not counted.`,
     )
     return
   }

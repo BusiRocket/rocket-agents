@@ -26,10 +26,15 @@ export const COMPILE_RULES_LIMITS = {
    * `assertAlwaysOnRuleBudget`, and the budget that actually costs tokens —
    * see the note on CLAUDE_MAX_CHARS for why the other one does not.
    *
-   * Set on 2026-09-08 at 38,000 against a measured 36,103, so the next rule
-   * has room and the one after that has to justify itself.
+   * Set on 2026-09-08 at 26,000 against a measured 24,608.
+   *
+   * The first version of this budget said 38,000 against 36,103, because it
+   * counted every file in the directory. Three of the ten carry `paths:` and
+   * load only when a matching file is opened, so 11,495 of those characters
+   * were never paid on an ordinary turn. A budget measuring the wrong set is
+   * the same failure as CLAUDE_MAX_CHARS above, one directory further in.
    */
-  ALWAYS_ON_MAX_CHARS: 38_000,
+  ALWAYS_ON_MAX_CHARS: 26_000,
   ALL_RULES_MAX_CHARS_WARN: 2_000_000,
   RULE_MAX_CHARS_WARN: 30_000,
 } as const

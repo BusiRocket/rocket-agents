@@ -188,6 +188,110 @@ from brain reading. Moved verbatim with their sources.
   change this session did not write, so it waits for the owner or for whoever
   shipped the hook.
 
+### Serena's scoped keep, and the read-to-edit measurement, routed from `~/p/TODO.md`, 2026-09-09
+
+Both measure how a session navigates and edits code, and the rule that gives
+serena its two jobs lives here (`src/rules/global/code-navigation.md`); the meta
+backlog only held them because the numbers were read from `~/.claude/projects`.
+Moved verbatim.
+
+- [~] Serena: **keep it, scoped** — decided 2026-09-01 after two rounds of
+  head-to-head testing against codegraph. The 2026-08-08 trial found 0 real tool
+  calls since 2026-07-24. Re-measured 2026-09-01 across the **entire transcript
+  store, 4,782 conversations**: **0 calls ever**, of any of its tools — and
+  `.serena/` project dirs exist in **95 repos**, so the setup cost was already
+  paid everywhere and it still never won a call. **Live comparison run
+  2026-09-01** on `intelifactu`, on serena's best case — "who references
+  `ShortcutHint`", a component created that day and not committed, i.e. exactly
+  the working-tree slot the global CLAUDE.md reserves for a language server.
+  Ground truth by grep: **3 files** reference it (`PurchaseDocumentPager.tsx`,
+  `PurchaseDocumentToolbar.tsx`, and `ShortcutHint.test.tsx`).
+  - serena: 4 round-trips (`initial_instructions` ~1.4k tokens, then
+    `activate_project`, `find_symbol`, `find_referencing_symbols`). Answer was
+    compact and well-shaped (~600 tokens) — but it returned **only 2 of the 3
+    files. It silently missed every reference in the test file**, with no
+    warning that its view was partial.
+  - codegraph: **1 call**. Found all three, named `ShortcutHint.test.tsx`
+    explicitly as the test covering it, plus the blast radius, the
+    dynamic-dispatch edges and the verbatim source of 8 files. Cost ~5k tokens
+    and a 3-call-per-project budget, so it is the more verbose of the two.
+    **Second round, 2026-09-01, four harder tests — and the verdict flipped from
+    "retire" to "keep, but scoped".** Serena is not redundant; it wins two
+    things outright and loses find-references badly in monorepos.
+  - **Test 1, new uncommitted component** (`ShortcutHint`, ground truth 3
+    files): serena 2/3, silently missing the test file. **Cause diagnosed and it
+    is not serena's bug** — `apps/web/tsconfig.json` excludes `**/*.test.tsx`,
+    so test files are genuinely not in the TypeScript program. codegraph 3/3 and
+    named the test as coverage.
+  - **Test 2, the hard one — same symbol name in two packages, consumed through
+    an aliased cross-package import** (`assignInvoiceCompany` in `packages/core`
+    vs the server action of the same name in `apps/web`; ground truth: **5
+    files** reference the core one, one of them as
+    `import { assignInvoiceCompany as assign }` and used as `assign(` — a usage
+    no text search can attribute). **serena found 1 of 5**, the barrel re-export
+    only: the LSP program that owns `packages/core` does not include `apps/web`,
+    so cross-package references are invisible to it, with no warning.
+    **codegraph surfaced all 5** and uniquely found
+    `apps/worker/src/assignInvoiceCompanyCli.ts`, which a grep of `apps/web`
+    also misses — **but it attributed three of them to the wrong one of the two
+    same-named symbols**. So neither is trustworthy alone for a rename here; the
+    failure modes differ in cost, and codegraph's (over-inclusive, wrong
+    grouping) is far safer than serena's (under-inclusive, silent).
+  - **Test 3, diagnostics — serena wins outright.** A deliberate
+    `const x: number = 'not a number'` injected into
+    `sumPurchaseRegisterMoney.ts` came back instantly as TS **2322** with the
+    exact message, range and owning symbol, **without running a build**.
+    codegraph has no equivalent. (File restored; tree clean.)
+  - **Test 4, Python — serena wins on setup.** `max_lane_call` in `atrium`,
+    ground truth 2 references including one **function-local import**: serena
+    found both and named the enclosing function `_synthesize` (354-453), which
+    is more useful than grep's bare line number. **`atrium` has no codegraph
+    index at all**, so codegraph could not answer; serena needed no indexing
+    step. **Conclusion:** keep serena for the two jobs it actually wins —
+    **diagnostics without a build**, and **single-package or unindexed repos** —
+    and never trust its find-references inside the pnpm monorepos. **Acted on
+    the same day, on the owner's instruction, and this half is done:**
+  - [x] Root cause of the 0 calls found: **both** `~/.claude/rules/serena.md`
+        and `~/.claude/rules/codegraph.md` had been deleted and neither existed
+        any more. Codegraph survived only because `CLAUDE.md` names it; serena
+        had nothing pointing at it, so it never won a call. `~/.claude/` is
+        unversioned, so there is no history to recover them from — the second
+        time that has bitten and an argument for the open item about versioning
+        it.
+  - [x] Replacement written: **`~/.claude/rules/code-navigation.md`**, covering
+        both tools, the three silent-failure modes, and a verify-before-refactor
+        rule (confirm any reference list with an independent `grep -rn` before a
+        rename; treat one tool's list as a lower bound). **Verified loading in
+        both profiles** by print-mode query, not assumed.
+  - [x] Index coverage closed: was 89 both / 3 codegraph-only / 5 serena-only /
+        **39 with neither**; now **123 repos with source carry both**, zero
+        gaps, via the new idempotent `bin/index-all-repos.sh` (13 repos with no
+        source files are skipped by design). Both index dirs were already in the
+        global gitignore, so no repo was polluted.
+  - [x] Findings written to the brain: `topics/codegraph.md`, new section
+        "CodeGraph vs Serena, measured head-to-head here", plus two corrections
+        to that page's stale claims that every repo was indexed and that
+        `~/.claude/rules/codegraph.md` recorded the division.
+  - [ ] **Re-measure serena's call count around 2026-10-01.** The whole point of
+        the rule is to give it the two jobs it wins; if it is still at 0 calls
+        with the rule in place and loading, the experiment is over and it goes.
+        Detail stale on 2026-09-04: `~/p/atrium/.codegraph` now exists (from
+        `index-all-repos.sh`), so "atrium has no codegraph index" no longer
+        holds; the 2026-10-01 re-measure stands. Coverage re-checked 2026-09-07
+        across the 139 git repositories directly under `~/p`: exactly **one**
+        had drifted - `max-lane`, created 2026-09-01 after the sweep, carried
+        `.serena/` but no `.codegraph/`. Indexed on the spot (`codegraph init`:
+        26 files, 102 nodes, 258 edges), so the two indexes agree again on every
+        repo. That is the failure mode to expect: not decay, but each new
+        repository.
+- [~] Read-to-edit ratio computed 2026-09-01 over `~/.claude/projects/` (3.3 GB,
+  4,743 transcripts; `~/.claude-favish/projects/` is a symlink to it): Read
+  29,807 vs Edit 17,764 + Write 16,632 = **0.87 reads per edit** — far below
+  AMD's 6.6->2 regression band, though Write here includes new-file creation,
+  which inflates the denominator against AMD's definition. Remaining half: run
+  `/insights` from an interactive CLI session (user command, cannot be run from
+  inside a session). Source: `~/p/brain/topics/claude-code-practice.md`.
+
 ## Conversations export
 
 - [ ] **Publishing the archive costs a full rewrite, and the archive is 6.3

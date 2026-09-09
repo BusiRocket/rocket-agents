@@ -6,6 +6,44 @@
 
 ### 2026-09
 
+- [x] 2026-09-09 - **Conversations export:** `conversations:rewrite` repairs the
+      archived records the captures will never revisit.
+  - Result: one command for the two rewrite items - the 5,121 records whose
+    `workspace` (and 3,520 whose text) still named the real home, and the
+    repeated `provenance.relativePath` the old merge appended. Codex's
+    adjudication set the shape: a pure transform (`rewriteConversationRecord`:
+    split, dedup, sort the path; `redactConversationHome` for every explicit
+    `--home` prefix, longest first; ids, source hash, event ids and hosts
+    untouched), a streaming dry run that writes nothing, and an apply that fills
+    a fresh store one record per id (a repeated id refuses), publishes under
+    `withArchiveWriteLock` with the revision checked before the write and before
+    the rename, reads the replacement back whole before the rename and refuses
+    unless it is a complete export of the same count that the transform would
+    leave alone, keeps the backup, prunes older ones, and carries the manifest's
+    `complete`/`skipped` over. A schema-1 record refuses the apply (the writer
+    would upgrade its event ids). `--home` is explicit and must be absolute:
+    Codex's review reproduced `--home --apply` redacting the literal flag, and a
+    partial export coming out complete; both fixed with tests. Not applied to
+    the live archive: `AGENTS.md` reserves a conversation `--apply` against
+    durable data for the owner, and both Macs have to run it - parked in
+    `TODO.md` with the exact commands.
+  - Evidence: dry run on the live archive (read-only): 46,278 records, 6,231
+    would change, 2,797 paths (1,190,473,073 bytes), 1,462 titles, 5,121
+    workspaces, 56,369 events, 0 legacy, 1:37. Apply on an APFS clone in an OS
+    temporary directory: same counts, `ok`, 6.69 GB to 5.49 GB, then
+    `grep -c '"workspace":"/Users/'` 0 and `grep -c /Users/<user>` 0 on the
+    result, 46,278 records, path strings 6.06 MB (2,945 legitimately joined),
+    6:18 wall; clone removed afterwards. `pnpm run conversations:test` - 105
+    pass, 0 fail (`CONVERSATION_ARCHIVE_REWRITE_TEST.ts`, 5 cases);
+    `pnpm run check` - exit 0. Codex: one `codex review --uncommitted`.
+  - Files: `scripts/lib/conversations/rewriteConversationRecord.ts`,
+    `rewriteConversationArchive.ts`, `types/ConversationRewriteChanges.ts`,
+    `types/ConversationRewriteResult.ts`,
+    `fixtures/writeDamagedConversationArchive.ts`,
+    `CONVERSATION_ARCHIVE_REWRITE_TEST.ts`,
+    `scripts/commands/conversationsRewrite.ts`,
+    `scripts/bin/run-conversations-rewrite.ts`, `package.json`.
+
 - [x] 2026-09-09 - **Conversations export:** every captured record names the
       machine that read it, without changing what a fragment is.
   - Result: Codex adjudicated the design the "both Macs" item was parked on.

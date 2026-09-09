@@ -327,81 +327,29 @@ Moved verbatim.
   `~/p/dotfiles/TODO.md` so both launchd jobs name the Macs the way the rest of
   the tooling does.
 
-- [!] **5,121 archived records still carry the absolute home in `workspace`,
-  3,520 of them in event text too.** The capture-side gap closed on 2026-09-09
-  (`TODO_LOG.md`): capture now redacts the account's own home as well as the
-  root it was given. Measured on the live archive the same day: every one of the
-  5,121 is `claude-code`, last updated 2026-06 or 2026-07 (five in 2026-08),
-  none has a redacted twin, and 1,709 name `recovered-from-mempalace/sweep/` in
-  their provenance; the other 3,412 are single-fragment records whose paths
-  start at `.claude/projects/`, consistent with the sweep directory itself
-  having been the `--home` of that run. So these are the mempalace-era sessions
-  captured from the recovery tree, where the redaction knew only that root while
-  the sessions named the real home. The stored values are history and only a
-  rewrite changes them: the same withdraw-and-republish path the "redaction
-  cannot reach an already-archived record" item waits for. One related weakness
-  stays in code: the pairwise merge takes `workspace` from the side with the
-  smaller hash, so a redacted fragment merged with an unredacted one can keep
-  the unredacted value (1,292 records with the recovery path did come out
-  redacted; the rest did not). **Blocked on:** the owner's go for a one-off
-  rewrite of durable data - a v1 publication with the redaction re-applied, or
-  the segment migration with a normalization step. Measure:
-  `LC_ALL=C grep -c '"workspace":"/Users/' archive.jsonl` (5,121 on 2026-09-09,
-  against 13,330 already `[HOME]`).
+- [!] **Run `conversations:rewrite --apply` once on each Mac: it removes the
+  absolute home from 5,121 stored `workspace` values (56,369 event texts, 1,462
+  titles) and 1.19 GB of repeated `provenance.relativePath`.** The command
+  landed on 2026-09-09 (`TODO_LOG.md`), Codex-adjudicated and reviewed. Proven
+  on an APFS clone of the live archive in an OS temporary directory the same
+  day: 46,278 records, 6,231 rewritten, 6.69 GB to 5.49 GB, 0 `/Users/` left
+  anywhere in the file, every id, source hash, event id and host kept, manifest
+  verified, second pass a fixed point, 6:18 wall. Dry run against the live
+  archive gives the same counts in 1:37 and writes nothing. **Blocked on:** your
+  go for a `--apply` against durable user data (`AGENTS.md`: never without
+  explicit human authorization) - on both Macs, with the same `--home`, or the
+  daily sync leaves the mini's copies unredacted (equal source hashes make them
+  `duplicate`, so neither side overwrites the other). Exact commands, each under
+  the same flock the refresh and the sync take:
+  `~/.local/bin/atrium-lock --wait 5400 ~/.local/state/rocket-agents/archive.lock pnpm run conversations:rewrite -- --archive ~/.local/share/rocket-agents/conversations/archive.jsonl --home "$HOME"`
+  (dry, safe any time), then the same line with `--apply`. It takes the archive
+  write lock, checks the revision before and after, leaves the previous archive
+  as `archive.jsonl.backup-<stamp>` and prunes older ones; take an instant
+  `cp -c archive.jsonl archive.jsonl.pre-rewrite` first if you want a copy
+  outside the prune pattern. After:
+  `LC_ALL=C grep -c '"workspace":"/Users/' archive.jsonl` is 0. A record at
+  schema 1 or a repeated id makes it refuse; both are 0 today.
 
-- [ ] Remote-export adapter family (ChatGPT, Grok): design spiked 2026-09-01 at
-      `~/p/atrium/docs/designs/remote-export-adapter-family.md` — inbox
-      directory of vendor ZIPs content-addressed on arrival, vendor parser,
-      shared redaction and manifest path, `complete:false` with per-source
-      `exportedAt` staleness. Both vendors ship official JSON account exports
-      (ChatGPT Settings -> Data Controls; Grok `accounts.x.ai/data`); no
-      scraping. Smallest next step: request both exports, drop them in the inbox
-      layout, write the ChatGPT `conversations.json` parser against the real
-      file.
-
-- [~] Canonical event IDs. Producer side landed 2026-08-31 (`0f7217d`,
-  `5560479`): the id is `sha256(conversation_record_id, old_id)`, schema version
-  2, version 1 still readable, and records are upgraded at the store's read
-  boundary so a manifest can never outrank the records under it. Measured on the
-  live Cursor archive: 119 cross-conversation collisions under the old rule, 0
-  under the new one. Atrium's side is built too - `atrium rekey-synthesis`
-  (`b76e0ea`, plus the backup in `c6b0b47`) re-keys the 16,148 synthesis records
-  deterministically instead of paying for their output twice; verified here at
-  85 tests passing and a plan of 16,148 with 0 collisions, nothing written.
-  **Remaining, and it needs a window rather than more code:** upgrade the
-  archive records, then `rekey-synthesis --apply`, then `ingest-synthesis`, with
-  the drip loop paused. That is durable-data work on two stores and waits for an
-  explicit go. Exposure is smaller than it looks: `mergeFragment` returns
-  `duplicate` on an unchanged `contentSha256`, so only conversations whose
-  source artifact changes flip to v2 ids.
-- [~] Oversized artifacts vs export. **Streaming shipped 2026-08-31**: a
-  `.jsonl` artifact over the 64 MiB bound is now normalized line by line
-  (`streamJsonlConversationRecord`), so the bound applies per record instead of
-  per file, and the codex source exports `complete: true` with `skipped: 0` and
-  16,424 records - the three oversized rollouts included. `--allow-partial` is
-  back to being a rare recovery flag. **Remaining**: fragmenting a normalized
-  conversation that exceeds the record cap is still unbuilt and, measured on
-  2026-08-31, still unneeded - the largest serialized record in a full codex
-  export is 8.4 MB against a 64 MiB cap. Build it when a real conversation
-  approaches the cap, not before. Files over the bound that are not
-  line-delimited still fail, and are reported as skips rather than silently
-  truncated.
-
-- [!] **1.5 GB of the 7 GB v1 archive is repeated `provenance.relativePath`.**
-  Measured 2026-09-09: 3,225 records carry a joined path, the longest 87,269
-  entries (one sampled record held 3,869 entries naming 2 distinct paths),
-  1,515,501,660 bytes in all. Cause, fixed in code the same day (`TODO_LOG.md`):
-  the pairwise merge joined both sides' paths without splitting a side that was
-  itself a merge, and a fragment the store had already absorbed never matched
-  the merged hash-of-hashes again, so every import between the two Macs
-  re-merged every shared conversation and appended every path once more. The
-  archived strings stay until a rewrite. **Blocked on:** the same rewrite window
-  as the two items above; the segment migration is the natural place, with
-  split-dedup-sort applied to `relativePath` per record on the way through - one
-  line in `migrateConversationArchiveToSegments`, not written yet because it
-  changes the migrated bytes and therefore the generation id both Macs must
-  agree on. Measure:
-  `LC_ALL=C grep -o '"relativePath":"[^"]*"' archive.jsonl |     awk '{t+=length($0)} END {print t}'`.
 - [ ] `provenance.relativePath` joins several paths with a comma, and a comma is
       a legal filename character. Pre-existing format choice, made explicit on
       2026-09-09 when the merge started splitting on it to dedup: a source path

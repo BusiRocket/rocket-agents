@@ -68,6 +68,7 @@
     "conversations:verify-segments": "tsx scripts/bin/run-conversations-verify-segments.ts",
     "conversations:benchmark-segments": "tsx scripts/bin/run-conversations-benchmark-segments.ts",
     "conversations:import": "tsx scripts/bin/run-conversations-import.ts",
+    "conversations:rewrite": "tsx scripts/bin/run-conversations-rewrite.ts",
     "conversations:render": "tsx scripts/bin/run-conversations-render.ts",
     "conversations:test": "tsx --test \"scripts/lib/conversations/**/*_TEST.ts\"",
     "codex:test": "tsx --test \"scripts/lib/codex-state/**/*_TEST.ts\"",

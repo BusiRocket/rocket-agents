@@ -308,39 +308,24 @@ Moved verbatim.
       gone (`process.kill(pid, 0)` throwing ESRCH, the test
       `isArchiveLockAbandoned` already uses), and count them in the result.
 
-- [!] **Both Macs must be able to reference every conversation, and the archive
-  is already the place for that — the brain just does not read it.** Owner's
-  direction, 2026-09-03, after the brain had to hand-rsync the Mac mini's stores
-  to render them. Measured that day: `sync-all-safe` step 3c replicates
-  `~/.local/share/rocket-agents/conversations/archive.jsonl` (43,019 records,
-  5.1 GB) to the mini two-way every day, and `sourceDefinitions.ts` already
-  walks `.claude/projects` and the Cowork store, so the canonical archive on
-  each Mac holds both machines' conversations. Three gaps stop the brain from
-  using it. (1) No record says which machine it came from: `provenance` carries
-  `relativePath`, `contentSha256` and `redactions` only, so a reader cannot tell
-  a mini session from a MacBook one — add `provenance.host` at capture. (2) The
-  Claude root list named `Library/Application Support/Claude/` only; the Favish
-  desktop profile writes `Claude-favish/local-agent-mode-sessions` (231 files on
-  the MacBook, same account uuid) - listed since 2026-09-09
-  (`sourceDefinitions.ts`), captured by the next export. (3)
-  `~/p/brain/tools/sessions/convert.py` renders from the raw stores plus a
-  gitignored rsync mirror (`sources/agent-sessions/hosts/macmini/`), which is a
-  second sync of the same data — once (1) lands, point it at the archive and
-  retire the mirror. Two facts the design should keep: the Cowork local-mode
-  store is account-synced (506 of 506 files byte-identical on both Macs), and
-  1,895 of the mini's 2,288 `.claude/projects` files are identical copies of
-  MacBook sessions, cause unmeasured. Smallest step: (1), one field, then
-  re-export and count records per host. **Blocked on:** a design decision
-  (2026-09-09). `hashConversationFragment` identifies a fragment by its
-  canonical bytes on purpose - "not by when it arrived or which host produced
-  it" - so a `provenance.host` inside the record makes the two Macs publish two
-  fragments for identical bytes, and every fragment already archived
-  re-publishes once under a new hash. Question for the owner: record the host
-  outside the fragment identity - in the segment header, since one capture on
-  one host writes a segment, or in the capture state - and derive a record's
-  hosts from the segments that carry it, or accept the double publication? The
-  header option keeps the reducer's convergence property; smallest unblock is
-  that answer.
+- [~] **Both Macs must be able to reference every conversation, and the archive
+  is already the place for that - the brain just does not read it.** Owner's
+  direction, 2026-09-03. Of the three gaps, (1) and (2) closed on 2026-09-09
+  (`TODO_LOG.md`): every captured record now carries `hosts` - the labels of the
+  machines that read it, outside the fragment identity and unioned wherever
+  fragments meet - and the Favish desktop profile is a capture root. What is
+  left is measurement and the brain side. Measure after the next hourly refresh
+  on each Mac:
+  `LC_ALL=C grep -c '"hosts":' ~/.local/share/rocket-agents/conversations/archive.jsonl`
+  (0 before the change; expect every conversation whose source still exists on
+  that Mac, and both labels after the next daily sync). Then (3): point
+  `~/p/brain/tools/sessions/convert.py` at the archive's `hosts` and retire the
+  rsync mirror `sources/agent-sessions/hosts/macmini/` - brain work, tracked
+  there in the AI-conversation-inventory item, which already names this
+  repository as its precondition. The label defaults to the short hostname
+  (`macbook-pro-de-cristian`); `ROCKET_AGENTS_HOST` overrides it and is filed in
+  `~/p/dotfiles/TODO.md` so both launchd jobs name the Macs the way the rest of
+  the tooling does.
 
 - [!] **5,121 archived records still carry the absolute home in `workspace`,
   3,520 of them in event text too.** The capture-side gap closed on 2026-09-09
@@ -470,7 +455,14 @@ Moved verbatim.
 
 ## Cross-project
 
-Nothing open.
+- [ ] **brain: read `hosts` from the Rocket Agents archive and retire the
+      macmini rsync mirror.** Filed 2026-09-09 when capture started stamping
+      hosts (`conversationHostLabel.ts`); the brain's own backlog already
+      carries the item ("the durable fix is `convert.py` reading that archive
+      once records carry a host") and was being edited by another session when
+      this was filed, so the pointer lives here until that tree is clean.
+      Evidence: `TODO_LOG.md` 2026-09-09, "every captured record names the
+      machine that read it".
 
 ## Baseline gate debt
 

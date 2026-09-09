@@ -13,5 +13,7 @@ export const CONVERSATION_CAPTURE_VERSIONS = {
   // 2: the account home is redacted whatever root the capture was given, and
   // redaction is idempotent (2026-09-09).
   redactor: 2,
-  adapter: 1,
+  // 2: a captured record names the host that read it, and a cache hit would
+  // otherwise keep that host out of the archive forever (2026-09-09).
+  adapter: 2,
 }

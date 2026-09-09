@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import { captureConversationArtifactsIncrementally } from './captureConversationArtifactsIncrementally'
 import { CONVERSATION_SEGMENT_FRAGMENT_LIMIT } from './constants/CONVERSATION_SEGMENT_FRAGMENT_LIMIT'
 import { conversationCaptureVersionStamp } from './conversationCaptureVersionStamp'
+import { conversationHostLabel } from './conversationHostLabel'
 import { hashConversationFragment } from './hashConversationFragment'
 import { openConversationArchiveState } from './openConversationArchiveState'
 import { publishConversationSegment } from './publishConversationSegment'
@@ -28,6 +29,12 @@ import { withArchiveWriteLock } from './withArchiveWriteLock'
  * Publishing several segments from one pass is free: a segment is a set of
  * fragments, and the reducer does not care which one a fragment arrived in.
  *
+ * A fragment the archive already holds is staged again only when this host
+ * is not yet recorded as having observed it. The entry that results carries
+ * the same record under the same hash, so it costs the reducer nothing; what
+ * it adds is the host, which is the one fact about a known conversation the
+ * other machine cannot supply.
+ *
  * Cache rows are committed last, and only for artifacts whose fingerprint was
  * stable across the read and whose fragments are now published. A crash
  * anywhere before that leaves the archive correct and the cache pessimistic,
@@ -41,6 +48,7 @@ export const publishConversationCapture = async (options: {
   sources?: ReadonlySet<ConversationSource>
   createdAt: string
   fragmentLimit?: number
+  host?: string
 }) => {
   const { generation, segments } = await readConversationArchiveGeneration(
     options.root,
@@ -52,6 +60,7 @@ export const publishConversationCapture = async (options: {
   })
 
   try {
+    const host = options.host ?? conversationHostLabel()
     const limit = options.fragmentLimit ?? CONVERSATION_SEGMENT_FRAGMENT_LIMIT
     const staged = new Map<string, ConversationRecord>()
     const published: {
@@ -112,12 +121,17 @@ export const publishConversationCapture = async (options: {
       sources: options.sources,
       state,
       generationId: generation.generationId,
+      host,
       onArtifact: async ({ key, fingerprint, records }) => {
         const hashes: string[] = []
         for (const record of records.map(upgradeConversationRecord)) {
           const hash = hashConversationFragment(record)
           hashes.push(hash)
-          if (state.hasFragment(hash)) continue
+          if (state.hasFragment(hash)) {
+            const known = state.fragmentHosts(hash)
+            const observed = record.hosts ?? []
+            if (observed.every((host) => known.includes(host))) continue
+          }
           staged.set(hash, record)
         }
         if (fingerprint !== undefined) {
@@ -137,7 +151,7 @@ export const publishConversationCapture = async (options: {
         fingerprint: row.fingerprint,
         fragmentHashes: row.fragmentHashes,
         generationId: generation.generationId,
-        captureVersions: conversationCaptureVersionStamp(),
+        captureVersions: conversationCaptureVersionStamp(host),
       })
     }
 

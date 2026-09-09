@@ -11,6 +11,7 @@ export const exportConversations = async (
   output: string,
   selectedSources?: ReadonlySet<ConversationSource>,
   allowPartial = false,
+  host?: string,
 ) => {
   const directory = await mkdtemp(
     join(tmpdir(), 'rocket-agents-conversation-export-'),
@@ -23,6 +24,7 @@ export const exportConversations = async (
       (record) => {
         store.mergeFragment(record)
       },
+      host,
     )
     // Fail closed by default: a skipped artifact means the export would
     // silently under-represent a source. --allow-partial is the explicit

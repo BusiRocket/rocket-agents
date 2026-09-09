@@ -1,4 +1,5 @@
 import { hashText } from './hashText'
+import { mergeConversationHosts } from './mergeConversationHosts'
 import type { ConversationRecord } from './types/ConversationRecord'
 import { upgradeConversationRecord } from './upgradeConversationRecord'
 
@@ -58,6 +59,7 @@ export const mergeConversationRecordFragments = (
   const startedAt = timestamps.at(0) ?? left.startedAt ?? right.startedAt
   const updatedAt = timestamps.at(-1) ?? right.updatedAt ?? left.updatedAt
   const workspace = left.workspace ?? right.workspace
+  const hosts = mergeConversationHosts(left.hosts, right.hosts)
 
   // Sorted rather than left-then-right: the union is the same either way, but
   // the sequence a reader sees should not depend on which fragment arrived
@@ -78,5 +80,6 @@ export const mergeConversationRecordFragments = (
     ...(startedAt === undefined ? {} : { startedAt }),
     ...(updatedAt === undefined ? {} : { updatedAt }),
     ...(workspace === undefined ? {} : { workspace }),
+    ...(hosts === undefined ? {} : { hosts }),
   }
 }

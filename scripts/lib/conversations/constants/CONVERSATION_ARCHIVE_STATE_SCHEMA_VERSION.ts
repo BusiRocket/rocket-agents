@@ -8,4 +8,5 @@
  */
 // 2: materialized provenance paths are split, deduplicated and sorted, so a
 // state that cached the joined form has to be replayed (2026-09-09).
-export const CONVERSATION_ARCHIVE_STATE_SCHEMA_VERSION = 2
+// 3: fragments carry the hosts that observed them (2026-09-09).
+export const CONVERSATION_ARCHIVE_STATE_SCHEMA_VERSION = 3

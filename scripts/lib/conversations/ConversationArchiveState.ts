@@ -2,6 +2,7 @@ import { chmodSync } from 'node:fs'
 import { DatabaseSync } from 'node:sqlite'
 import { hashText } from './hashText'
 import { materializeConversationFragmentSet } from './materializeConversationFragmentSet'
+import { mergeConversationHosts } from './mergeConversationHosts'
 import type { ConversationArtifactFingerprint } from './types/ConversationArtifactFingerprint'
 import type { ConversationFragmentEntry } from './types/ConversationFragmentEntry'
 import type { ConversationRecord } from './types/ConversationRecord'
@@ -41,7 +42,8 @@ export class ConversationArchiveState {
         fragment_sha256 TEXT PRIMARY KEY,
         conversation_id TEXT NOT NULL,
         record_json TEXT NOT NULL,
-        segment_sha256 TEXT NOT NULL
+        segment_sha256 TEXT NOT NULL,
+        hosts_json TEXT NOT NULL DEFAULT '[]'
       ) STRICT;
       CREATE INDEX IF NOT EXISTS fragments_by_conversation
         ON fragments(conversation_id);
@@ -113,6 +115,10 @@ export class ConversationArchiveState {
    * carries one changed conversation must cost one reduction, not thirty
    * thousand; that is the difference between a refresh that finishes in
    * seconds and the 132-second full-corpus rewrite this format replaces.
+   *
+   * A fragment already held is not re-inserted, but the hosts its new entry
+   * names are unioned into the row: that is how a second machine's reading of
+   * known bytes reaches the materialized record without a second fragment.
    */
   addSegment(options: {
     sha256: string
@@ -128,16 +134,29 @@ export class ConversationArchiveState {
         )
         .run(options.sha256, options.entries.length, options.createdAt)
       const insert = this.#database.prepare(
-        'INSERT OR IGNORE INTO fragments(fragment_sha256, conversation_id, record_json, segment_sha256) VALUES (?, ?, ?, ?)',
+        'INSERT OR IGNORE INTO fragments(fragment_sha256, conversation_id, record_json, segment_sha256, hosts_json) VALUES (?, ?, ?, ?, ?)',
+      )
+      const observe = this.#database.prepare(
+        'UPDATE fragments SET hosts_json = ? WHERE fragment_sha256 = ?',
       )
       for (const entry of options.entries) {
+        const hosts = mergeConversationHosts(entry.hosts) ?? []
         const result = insert.run(
           entry.fragmentSha256,
           entry.conversationId,
           JSON.stringify(entry.record),
           options.sha256,
+          JSON.stringify(hosts),
         )
-        if (result.changes > 0) touched.add(entry.conversationId)
+        if (result.changes > 0) {
+          touched.add(entry.conversationId)
+          continue
+        }
+        const known = this.fragmentHosts(entry.fragmentSha256)
+        const union = mergeConversationHosts(known, hosts) ?? []
+        if (union.length === known.length) continue
+        observe.run(JSON.stringify(union), entry.fragmentSha256)
+        touched.add(entry.conversationId)
       }
       this.#database.exec('COMMIT')
     } catch (error) {
@@ -149,11 +168,25 @@ export class ConversationArchiveState {
 
   fragments(conversationId: string) {
     const statement = this.#database.prepare(
-      'SELECT record_json FROM fragments WHERE conversation_id = ? ORDER BY fragment_sha256',
+      'SELECT record_json, hosts_json FROM fragments WHERE conversation_id = ? ORDER BY fragment_sha256',
     )
-    return [...statement.iterate(conversationId)].map(
-      (row) => JSON.parse(String(row.record_json)) as ConversationRecord,
-    )
+    return [...statement.iterate(conversationId)].map((row) => {
+      const record = JSON.parse(String(row.record_json)) as ConversationRecord
+      const hosts = mergeConversationHosts(
+        JSON.parse(String(row.hosts_json)) as string[],
+      )
+      return hosts === undefined ? record : { ...record, hosts }
+    })
+  }
+
+  /** The hosts recorded as having observed one fragment; empty when unknown. */
+  fragmentHosts(fragmentSha256: string): string[] {
+    const row = this.#database
+      .prepare('SELECT hosts_json FROM fragments WHERE fragment_sha256 = ?')
+      .get(fragmentSha256)
+    return typeof row?.hosts_json === 'string'
+      ? (JSON.parse(row.hosts_json) as string[])
+      : []
   }
 
   materialize(conversationId: string) {

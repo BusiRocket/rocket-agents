@@ -33,5 +33,12 @@ export const validateConversationSegmentEntry = (
   if (entry.record.schemaVersion > headerSchemaVersion) {
     throw new Error('segment header is older than a record it covers')
   }
+  if (
+    entry.hosts !== undefined &&
+    (!Array.isArray(entry.hosts) ||
+      entry.hosts.some((host) => typeof host !== 'string' || host.length === 0))
+  ) {
+    throw new Error('segment entry names hosts that are not labels')
+  }
   return entry as ConversationFragmentEntry
 }

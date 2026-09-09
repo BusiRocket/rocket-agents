@@ -34,12 +34,16 @@ export const openConversationArchiveState = async (options: {
     (state.meta('generationId') !== undefined &&
       state.meta('generationId') !== options.generation.generationId)
 
+  // Any stale file is replaced, including one that has ingested nothing: the
+  // schema is written by CREATE TABLE IF NOT EXISTS, so a file from an older
+  // schema keeps its old columns and fails on the first row that needs a new
+  // one. "Rebuilt" is reported only when something was actually thrown away.
   let rebuilt = false
-  if (stale && state.counts().segments > 0) {
+  if (stale) {
+    rebuilt = state.counts().segments > 0
     state.close()
     await fs.rm(options.statePath, { force: true })
     state = open()
-    rebuilt = true
   }
   state.setMeta(
     'schemaVersion',

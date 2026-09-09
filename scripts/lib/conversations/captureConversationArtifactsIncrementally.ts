@@ -5,6 +5,7 @@ import { conversationArtifactCacheHit } from './conversationArtifactCacheHit'
 import { conversationArtifactFingerprintsEqual } from './conversationArtifactFingerprintsEqual'
 import { conversationArtifactKey } from './conversationArtifactKey'
 import { conversationCaptureVersionStamp } from './conversationCaptureVersionStamp'
+import { conversationHostLabel } from './conversationHostLabel'
 import { fingerprintConversationArtifact } from './fingerprintConversationArtifact'
 import { forgetMissingConversationArtifacts } from './forgetMissingConversationArtifacts'
 import { inspectConversationSources } from './inspectConversationSources'
@@ -34,6 +35,7 @@ export const captureConversationArtifactsIncrementally = async (options: {
   sources: ReadonlySet<ConversationSource> | undefined
   state: ConversationArchiveState
   generationId: string
+  host?: string
   onArtifact: (capture: {
     key: { source: string; relativePath: string; storageKind: string }
     fingerprint: ConversationArtifactFingerprint | undefined
@@ -44,7 +46,8 @@ export const captureConversationArtifactsIncrementally = async (options: {
     options.home,
     options.sources,
   )
-  const captureVersions = conversationCaptureVersionStamp()
+  const host = options.host ?? conversationHostLabel()
+  const captureVersions = conversationCaptureVersionStamp(host)
   const seen = new Set<string>()
   const skipped: string[] = []
   const metrics = {
@@ -109,7 +112,7 @@ export const captureConversationArtifactsIncrementally = async (options: {
     )
     const captures = await Promise.all(
       changed.map(async ({ artifact }) =>
-        captureConversationArtifact(artifact, options.home),
+        captureConversationArtifact(artifact, options.home, host),
       ),
     )
     for (const [position, captured] of captures.entries()) {

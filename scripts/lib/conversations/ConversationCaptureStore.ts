@@ -2,6 +2,7 @@ import { chmodSync } from 'node:fs'
 import { DatabaseSync } from 'node:sqlite'
 import { CONVERSATION_SCHEMA_VERSION } from './constants/CONVERSATION_SCHEMA_VERSION'
 import { conversationMergeAddedNothing } from './conversationMergeAddedNothing'
+import { mergeConversationHosts } from './mergeConversationHosts'
 import { mergeConversationRecordFragments } from './mergeConversationRecordFragments'
 import type { ConversationRecord } from './types/ConversationRecord'
 import type { ConversationStoreChange } from './types/ConversationStoreChange'
@@ -38,8 +39,22 @@ export class ConversationCaptureStore {
       return 'added'
     }
     const current = JSON.parse(existing.record_json) as ConversationRecord
-    if (current.provenance.contentSha256 === record.provenance.contentSha256)
-      return 'duplicate'
+    if (current.provenance.contentSha256 === record.provenance.contentSha256) {
+      // Same bytes, so nothing about the conversation moves - but a second
+      // machine reading them is worth one write, or the archive would never
+      // learn that the mini holds what the MacBook captured.
+      const hosts = mergeConversationHosts(current.hosts, record.hosts)
+      if (JSON.stringify(hosts ?? []) === JSON.stringify(current.hosts ?? []))
+        return 'duplicate'
+      const observed = { ...current, ...(hosts === undefined ? {} : { hosts }) }
+      this.#upsert.run(
+        observed.id,
+        JSON.stringify(observed),
+        observed.provenance.redactions,
+        observed.schemaVersion,
+      )
+      return 'updated'
+    }
     const merged = mergeConversationRecordFragments(current, record)
     if (conversationMergeAddedNothing(current, merged)) return 'duplicate'
     this.#upsert.run(

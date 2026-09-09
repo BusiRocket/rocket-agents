@@ -2,6 +2,7 @@ import { collectConversationEventVariants } from './collectConversationEventVari
 import { compareConversationEvents } from './compareConversationEvents'
 import { deriveConversationFragmentSetProvenance } from './deriveConversationFragmentSetProvenance'
 import { hashConversationFragment } from './hashConversationFragment'
+import { mergeConversationHosts } from './mergeConversationHosts'
 import type { ConversationFragmentSet } from './types/ConversationFragmentSet'
 import type { ConversationRecord } from './types/ConversationRecord'
 import { upgradeConversationRecord } from './upgradeConversationRecord'
@@ -26,6 +27,12 @@ import { upgradeConversationRecord } from './upgradeConversationRecord'
 export const materializeConversationFragmentSet = (
   fragments: ConversationRecord[],
 ): ConversationFragmentSet => {
+  // Hosts are unioned over every input before identical fragments collapse
+  // to one: two machines' readings of the same bytes are one fragment and two
+  // observations, and the second must not vanish with the duplicate.
+  const hosts = mergeConversationHosts(
+    ...fragments.map((fragment) => fragment.hosts),
+  )
   const distinct = new Map<string, ConversationRecord>()
   for (const fragment of fragments.map(upgradeConversationRecord)) {
     distinct.set(hashConversationFragment(fragment), fragment)
@@ -88,6 +95,7 @@ export const materializeConversationFragmentSet = (
       ...(startedAt === undefined ? {} : { startedAt }),
       ...(updatedAt === undefined ? {} : { updatedAt }),
       ...(workspace === undefined ? {} : { workspace }),
+      ...(hosts === undefined ? {} : { hosts }),
     },
     conflicts,
   }

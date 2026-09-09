@@ -30,6 +30,11 @@ export const isConversationRecord = (
     typeof origin.contentSha256 === 'string' &&
     typeof origin.relativePath === 'string' &&
     isSafeConversationRelativePath(origin.relativePath) &&
-    typeof origin.redactions === 'number'
+    typeof origin.redactions === 'number' &&
+    (record.hosts === undefined ||
+      (Array.isArray(record.hosts) &&
+        record.hosts.every(
+          (host) => typeof host === 'string' && host.length > 0,
+        )))
   )
 }

@@ -9,6 +9,7 @@ export const captureConversationArtifacts = async (
   home: string,
   selectedSources: ReadonlySet<ConversationSource> | undefined,
   consume: (record: ConversationRecord) => void,
+  host?: string,
 ): Promise<ConversationCaptureSummary> => {
   const { artifacts, statuses } = await inspectConversationSources(
     home,
@@ -27,7 +28,9 @@ export const captureConversationArtifacts = async (
     )
     for (const captured of await Promise.all(
       batch.map(async (artifact) =>
-        captureConversationArtifact(artifact, home),
+        host === undefined
+          ? captureConversationArtifact(artifact, home)
+          : captureConversationArtifact(artifact, home, host),
       ),
     )) {
       for (const record of captured.records) consume(record)

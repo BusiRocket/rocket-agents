@@ -6,7 +6,6 @@ import { conversationFragmentBucketIndex } from './conversationFragmentBucketInd
 import { forEachLfLine } from './forEachLfLine'
 import { hashConversationFragment } from './hashConversationFragment'
 import { initializeConversationArchiveGeneration } from './initializeConversationArchiveGeneration'
-import { serializeCanonicalConversationRecord } from './serializeCanonicalConversationRecord'
 import { serializeConversationSegment } from './serializeConversationSegment'
 import { streamConversationExport } from './streamConversationExport'
 import type { ConversationRecord } from './types/ConversationRecord'
@@ -57,14 +56,15 @@ export const migrateConversationArchiveToSegments = async (options: {
       (record: ConversationRecord) => {
         const upgraded = upgradeConversationRecord(record)
         const hash = hashConversationFragment(upgraded)
-        if (seen.has(hash)) {
-          duplicates++
-          return
-        }
+        if (seen.has(hash)) duplicates++
         seen.add(hash)
         const stream = streams[conversationFragmentBucketIndex(hash, buckets)]
         if (stream === undefined) throw new Error('bucket stream is missing')
-        stream.write(`${serializeCanonicalConversationRecord(upgraded)}\n`)
+        // The whole record, not its canonical bytes: the canonical form drops
+        // `hosts`, and the segment serializer canonicalizes on its own. A
+        // duplicate is counted and still written, because it may name a host
+        // the first copy did not; the serializer folds the two into one entry.
+        stream.write(`${JSON.stringify(upgraded)}\n`)
       },
     )
     for (const stream of streams) {

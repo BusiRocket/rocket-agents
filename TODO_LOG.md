@@ -6,6 +6,49 @@
 
 ### 2026-09
 
+- [x] 2026-09-09 - **Conversations export:** every captured record names the
+      machine that read it, without changing what a fragment is.
+  - Result: Codex adjudicated the design the "both Macs" item was parked on.
+    `provenance.host` inside the record was rejected on evidence - the canonical
+    serializer would have dropped it, and inside the identity it would have made
+    two Macs publish two fragments for identical bytes. Chosen: a record-level
+    `hosts: string[]` outside the fragment identity
+    (`serializeCanonicalConversationRecord` omits it, so hashes, segments and
+    generation ids are unchanged), stamped only at capture
+    (`captureConversationArtifact`, label from `ROCKET_AGENTS_HOST` or the short
+    hostname via `conversationHostLabel`), unioned wherever fragments meet
+    (`mergeConversationRecordFragments`, `materializeConversationFragmentSet`,
+    both v1 store paths - the same bytes from a second machine now cost one
+    `updated` and are then `duplicate` again), carried beside the record in
+    segment entries (`hosts` next to `record`, validated, hash untouched),
+    unioned into the state's `fragments.hosts_json` on replay, and published as
+    a host-only entry when a machine reads bytes the archive already holds
+    (`publishConversationCapture`). The host is part of the capture cache stamp,
+    so a renamed machine re-reads its artifacts once. State schema 3, adapter
+    version 2; a stale state file is replaced even when empty. Codex's review of
+    the wave found four P2s - the empty-cache upgrade, the union lost at
+    materialization dedup, duplicates dropped by the migration, and the cache
+    hiding a renamed host - each fixed with a test.
+  - Evidence: `pnpm run conversations:test` - 100 pass, 0 fail
+    (`CONVERSATION_HOSTS_TEST.ts`, 11 cases); `pnpm run type-check` clean;
+    `pnpm exec eslint scripts/lib/conversations` clean. Codex: one adjudication
+    (session `01a08795-c29c-7b10-a140-d7167b72ab9b`), one
+    `codex review --uncommitted`.
+  - Files: `scripts/lib/conversations/conversationHostLabel.ts`,
+    `mergeConversationHosts.ts`, `types/ConversationRecord.ts`,
+    `types/ConversationFragmentEntry.ts`, `isConversationRecord.ts`,
+    `captureConversationArtifact.ts`, `captureConversationArtifacts.ts`,
+    `captureConversationArtifactsIncrementally.ts`, `exportConversations.ts`,
+    `mergeConversationRecordFragments.ts`, `conversationMergeAddedNothing.ts`,
+    `ConversationCaptureStore.ts`, `materializeConversationFragmentSet.ts`,
+    `serializeConversationSegment.ts`,
+    `validators/validateConversationSegmentEntry.ts`,
+    `ConversationArchiveState.ts`, `openConversationArchiveState.ts`,
+    `publishConversationCapture.ts`, `conversationCaptureVersionStamp.ts`,
+    `migrateConversationArchiveToSegments.ts`,
+    `constants/CONVERSATION_ARCHIVE_STATE_SCHEMA_VERSION.ts`,
+    `constants/CONVERSATION_CAPTURE_VERSIONS.ts`, `CONVERSATION_HOSTS_TEST.ts`.
+
 - [x] 2026-09-09 - **`CONVERSATION_SEGMENT_MIGRATION_TEST` was not flaky under
       load; it was a 1-in-256 hash coincidence.**
   - Result: the case "a v1 archive becomes a chunked base, never one object"

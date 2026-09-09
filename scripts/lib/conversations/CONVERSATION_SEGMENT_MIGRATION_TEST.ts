@@ -3,14 +3,32 @@ import { promises as fs } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
+import { conversationFragmentBucketIndex } from './conversationFragmentBucketIndex'
 import { CONVERSATION_CAPTURE_FIXTURE_SOURCES } from './fixtures/CONVERSATION_CAPTURE_FIXTURE_SOURCES'
+import { createChunkedArchiveRecords } from './fixtures/createChunkedArchiveRecords'
+import { createConversationScratchDirectory } from './fixtures/createConversationScratchDirectory'
 import { exportConversationFixtureArchive } from './fixtures/exportConversationFixtureArchive'
+import { hashConversationFragment } from './hashConversationFragment'
 import { migrateConversationArchiveToSegments } from './migrateConversationArchiveToSegments'
 import { publishConversationCapture } from './publishConversationCapture'
 import { verifyConversationSegmentArchive } from './verifyConversationSegmentArchive'
+import { writeConversationExport } from './writeConversationExport'
 
 void test('a v1 archive becomes a chunked base, never one object', async (context) => {
-  const { archive } = await exportConversationFixtureArchive(context)
+  const home = await createConversationScratchDirectory(
+    context,
+    'conversation-migration-fixed-',
+  )
+  const archive = join(home, 'archive.jsonl')
+  const chunkedRecords = createChunkedArchiveRecords()
+  await writeConversationExport(chunkedRecords, archive)
+  const buckets = new Set(
+    chunkedRecords.map((record) =>
+      conversationFragmentBucketIndex(hashConversationFragment(record), 4),
+    ),
+  )
+  // The precondition the assertion depends on, stated rather than assumed.
+  assert.equal(buckets.size > 1, true)
   const root = await fs.mkdtemp(join(tmpdir(), 'conversation-migrated-'))
   context.after(async () => fs.rm(root, { recursive: true, force: true }))
 
@@ -22,7 +40,7 @@ void test('a v1 archive becomes a chunked base, never one object', async (contex
   })
   assert.equal(migrated.fragments, 5)
   assert.equal(migrated.duplicates, 0)
-  assert.equal(migrated.segments.length > 1, true)
+  assert.equal(migrated.segments.length, buckets.size)
 
   const verified = await verifyConversationSegmentArchive({ root })
   assert.equal(verified.ok, true)
@@ -30,6 +48,30 @@ void test('a v1 archive becomes a chunked base, never one object', async (contex
   assert.equal(verified.conversations, 5)
   assert.equal(verified.baseSegments, migrated.segments.length)
   assert.equal(verified.generationId, migrated.generationId)
+})
+
+void test('every fragment survives a migration whose buckets all coincide', async (context) => {
+  const home = await createConversationScratchDirectory(
+    context,
+    'conversation-migration-one-bucket-',
+  )
+  const archive = join(home, 'archive.jsonl')
+  await writeConversationExport(createChunkedArchiveRecords(), archive)
+  const root = await fs.mkdtemp(join(tmpdir(), 'conversation-migrated-one-'))
+  context.after(async () => fs.rm(root, { recursive: true, force: true }))
+
+  const migrated = await migrateConversationArchiveToSegments({
+    archive,
+    root,
+    createdAt: '2026-08-31T23:00:00.000Z',
+    buckets: 1,
+  })
+  assert.equal(migrated.fragments, 5)
+  assert.equal(migrated.segments.length, 1)
+
+  const verified = await verifyConversationSegmentArchive({ root })
+  assert.equal(verified.ok, true)
+  assert.equal(verified.conversations, 5)
 })
 
 void test('two hosts migrating the same archive derive the same generation', async (context) => {

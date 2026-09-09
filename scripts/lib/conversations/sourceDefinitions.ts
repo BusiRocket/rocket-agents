@@ -7,6 +7,10 @@ export const sourceDefinitions: readonly ConversationSourceDefinition[] = [
     roots: [
       '.claude/projects',
       'Library/Application Support/Claude/local-agent-mode-sessions',
+      // A second desktop profile writes beside the first one with the same
+      // account uuid: 231 files on the MacBook on 2026-09-09, captured by
+      // nothing until this root was listed.
+      'Library/Application Support/Claude-favish/local-agent-mode-sessions',
     ],
     storage: ['jsonl', 'json'],
   },

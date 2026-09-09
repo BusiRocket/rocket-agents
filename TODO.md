@@ -48,10 +48,6 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
   nothing in the library is forked yet, so there is no upstream change to
   reapply a local patch onto. Unblock action: the first time a library skill is
   forked and its upstream moves, run the reapplication then.
-- [!] Decide what to do with the 87 parked entries. Moved 2026-08-24 to
-  `~/p/rocket-agents-library/TODO.md`, where the entries live; it is a content
-  decision about that repository, not about this engine. Blocked here only in
-  the sense that this repo cannot execute it.
 
 ## Machine provisioning
 
@@ -176,20 +172,6 @@ from brain reading. Moved verbatim with their sources.
 - [ ] Try RTK (Rust command-output filter, 63k stars) on one real session and
       measure with `/caveman-stats` alongside; the interventions may overlap.
       Source: `~/p/brain/topics/agent-token-economy.md`.
-
-- [!] **`paused-job-guard.sh` ships in `src/hooks/hooks.json` but nothing
-  invokes it, so the guard that shipped with `5327577` is not enforcing
-  anything.** Found 2026-09-08 by `pnpm run check`, which fails on exactly two
-  assertions and only these: _"declared in src/hooks/hooks.json but nothing
-  would invoke them: paused-job-guard.sh"_ and _"~/.agents/hooks has drifted
-  from src/hooks: hooks.json, paused-job-guard.sh"_. The linked copies under
-  `~/.agents/hooks/` are still the 2026-09-04 set, so the hook exists in git and
-  nowhere else. The gate is red for this reason alone - the rule and skill
-  change committed the same day passed formatting, the rules compiled, and both
-  link steps ran clean. Fix is one command,
-  `pnpm run build && pnpm run hooks:link`, but it is a machine mutation for a
-  change this session did not write, so it waits for the owner or for whoever
-  shipped the hook.
 
 ### Serena's scoped keep, and the read-to-edit measurement, routed from `~/p/TODO.md`, 2026-09-09
 
@@ -319,21 +301,6 @@ Moved verbatim.
       store's content hash incrementally so the manifest costs no traversal at
       all.
 
-- [!] **`CONVERSATION_SEGMENT_MIGRATION_TEST` failed once under disk
-  contention.** Routed from `~/p/TODO.md` on 2026-09-08. On 2026-09-08 the case
-  "a v1 archive becomes a chunked base, never one object" failed while a 6 GB
-  import was saturating the disk, and passed on its own and in two consecutive
-  full runs afterwards. Not diagnosed. Worth a look before it fails in CI and
-  gets rerun into silence: a test that only fails when the machine is busy is a
-  test with a timing assumption in it. **Blocked on:** the failure output. Not
-  reproduced on 2026-09-09: eight concurrent runs of the file (sixteen cases)
-  all passed, and the path it exercises holds no wall-clock assumption to
-  remove - node:test runs without a timeout, the only timed code is the
-  write-lock retry with its 90-minute deadline, and the fixture writes and reads
-  its own temporary home. Smallest unblock: the assertion text of the next
-  failure (`pnpm run     conversations:test 2>&1 | tee`), or one deliberate run
-  while a multi-gigabyte copy saturates the same disk.
-
 - [ ] An interrupted `--apply` leaves `archive.jsonl.tmp-<pid>` behind (2.97 GB
       on 2026-09-04) and nothing removes it. The backup pruning that landed on
       2026-09-09 leaves it alone on purpose: a live pid may still be writing it.
@@ -352,9 +319,10 @@ Moved verbatim.
   using it. (1) No record says which machine it came from: `provenance` carries
   `relativePath`, `contentSha256` and `redactions` only, so a reader cannot tell
   a mini session from a MacBook one — add `provenance.host` at capture. (2) The
-  Claude root list names `Library/Application Support/Claude/` only; the Favish
+  Claude root list named `Library/Application Support/Claude/` only; the Favish
   desktop profile writes `Claude-favish/local-agent-mode-sessions` (231 files on
-  the MacBook, same account uuid) and is not captured. (3)
+  the MacBook, same account uuid) - listed since 2026-09-09
+  (`sourceDefinitions.ts`), captured by the next export. (3)
   `~/p/brain/tools/sessions/convert.py` renders from the raw stores plus a
   gitignored rsync mirror (`sources/agent-sessions/hosts/macmini/`), which is a
   second sync of the same data — once (1) lands, point it at the archive and

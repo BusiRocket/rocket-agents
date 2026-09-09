@@ -17,6 +17,20 @@ void test('the source catalog covers the union of both reference projects', () =
   assert.equal(new Set(sourceDefinitions.map((source) => source.id)).size, 13)
 })
 
+void test('Claude Code discovery covers every desktop profile that writes local-agent sessions', () => {
+  const definition = sourceDefinitions.find(({ id }) => id === 'claude-code')
+  assert.ok(definition)
+  assert.deepEqual(
+    definition.roots.filter((root) =>
+      root.endsWith('local-agent-mode-sessions'),
+    ),
+    [
+      'Library/Application Support/Claude/local-agent-mode-sessions',
+      'Library/Application Support/Claude-favish/local-agent-mode-sessions',
+    ],
+  )
+})
+
 void test('SQLite extraction is restricted to known conversation-bearing tables', () => {
   assert.match(
     sqliteConversationQuery('ItemTable', 'trae') ?? '',

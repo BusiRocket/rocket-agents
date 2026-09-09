@@ -6,6 +6,53 @@
 
 ### 2026-09
 
+- [x] 2026-09-09 - **`CONVERSATION_SEGMENT_MIGRATION_TEST` was not flaky under
+      load; it was a 1-in-256 hash coincidence.**
+  - Result: the case "a v1 archive becomes a chunked base, never one object"
+    migrated five captured fixture records over four buckets and asserted more
+    than one segment. The fixture records hash a document that names a random
+    temporary home, so the five fragment hashes - and the bucket each lands in
+    (`conversationFragmentBucketIndex`, hash modulo count) - changed on every
+    run, and all five coincided in one bucket with probability 4 x (1/4)^5. The
+    2026-09-08 failure "under disk contention" was that draw. Codex's
+    adjudication found the single-bucket counterexample by probing the fixtures
+    in memory. The case now migrates fixed records (`createArchiveRecord`),
+    states its bucket-spread precondition explicitly, and asserts the exact
+    segment count; a second case migrates the same archive into one bucket and
+    proves all five fragments survive.
+  - Evidence:
+    `pnpm exec tsx --test scripts/lib/conversations/CONVERSATION_SEGMENT_MIGRATION_TEST.ts scripts/lib/conversations/CONVERSATION_SOURCE_CATALOG_TEST.ts`
+    - 8 pass, 0 fail, three consecutive runs.
+  - Files: `scripts/lib/conversations/CONVERSATION_SEGMENT_MIGRATION_TEST.ts`.
+
+- [x] 2026-09-09 - **The Favish Claude desktop profile is a capture root.**
+  - Result:
+    `Library/Application Support/Claude-favish/local-agent-mode-sessions` joins
+    the `claude-code` roots in `sourceDefinitions.ts`; 231 files on the MacBook,
+    same account uuid as the primary profile, captured by nothing until now. Gap
+    (2) of the "both Macs" item.
+  - Evidence: `CONVERSATION_SOURCE_CATALOG_TEST.ts` - the two
+    `local-agent-mode-sessions` roots are asserted in order (8 pass with the
+    migration file above).
+  - Files: `scripts/lib/conversations/sourceDefinitions.ts`,
+    `CONVERSATION_SOURCE_CATALOG_TEST.ts`.
+
+- [x] 2026-09-09 - **`paused-job-guard.sh` is linked and invoked; the 2026-09-08
+      red gate is closed.**
+  - Result: `~/.agents/hooks/` carries `hooks.json` and `paused-job-guard.sh`
+    dated 2026-09-09 13:51 (the link ran on this machine that day), so both
+    assertions that failed on 2026-09-08 pass. No relink was run: `hooks:link`
+    stays owner-authorized and the current check found no drift.
+  - Evidence: `pnpm exec tsx --test scripts/lib/hooks/DOCTOR_TEST.ts` - 2 pass,
+    0 fail; `pnpm run hooks:test` - 23 pass.
+
+- [-] 2026-09-09 - **"Decide what to do with the 87 parked entries" leaves this
+  backlog.** The decision was moved to `~/p/rocket-agents-library/TODO.md` on
+  2026-08-24 and is still open there (line "Decide what to do with the 87 parked
+  entries now that parking is cheap and reversible"); this repository cannot
+  execute it, so the duplicate here recorded nothing the owning backlog does
+  not.
+
 - [x] 2026-09-09 - **Conversations export:** `redactSensitiveText` is
       idempotent.
   - Result: the Bearer, URL-credential and assigned-secret patterns no longer

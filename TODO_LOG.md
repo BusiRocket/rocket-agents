@@ -4,6 +4,122 @@
 
 ## 2026
 
+### 2026-09
+
+- [x] 2026-09-09 - **Conversations export:** `redactSensitiveText` is
+      idempotent.
+  - Result: the Bearer, URL-credential and assigned-secret patterns no longer
+    match their own `[REDACTED:...]` markers (a negative lookahead in each), so
+    a second pass over redacted text returns the same text and 0 redactions. The
+    counts had inflated `provenance.redactions` on every re-capture of unchanged
+    text and made a first archive measurement wrong by 515 records. The redactor
+    version stamp moves to 2 so a warm incremental cache re-reads its artifacts
+    once.
+  - Evidence: `pnpm run conversations:test` - 87 pass, 0 fail, including the new
+    case "redaction is idempotent: a second pass changes nothing and counts
+    nothing" (5 redactions first, 0 second, text equal).
+  - Files: `scripts/lib/conversations/redactSensitiveText.ts`,
+    `redactAssignedSecrets.ts`, `CONVERSATION_SECURITY_TEST.ts`,
+    `constants/CONVERSATION_CAPTURE_VERSIONS.ts`.
+
+- [x] 2026-09-09 - **Conversations export:** U+2028 and U+2029 in event text are
+      pinned as no line break, in every reader this repository owns.
+  - Result: the rule stands - split on `\n` only, never `readline` or
+    `splitlines` - and two tests now hold it: `forEachLfLine` reads three
+    records carrying raw separators as three lines, the canonical serialization
+    escapes both characters, and a v1 export round-trips them through
+    `writeConversationExport` and `readConversationExport`. The measurement the
+    entry recorded (1,690 U+2028 and 3 U+2029 in the live archive, 32,434 lines
+    seen for 30,741 records by a readline reader, lone CR ruled out with zero CR
+    bytes) lives on in the test's comment and in
+    `serializeCanonicalConversationRecord`.
+  - Evidence: `pnpm run conversations:test` - 87 pass, 0 fail
+    (`CONVERSATION_LINE_SEPARATOR_TEST.ts`, two cases).
+  - Files: `scripts/lib/conversations/CONVERSATION_LINE_SEPARATOR_TEST.ts`,
+    `fixtures/createConversationRecordWithLineSeparators.ts`.
+
+- [x] 2026-09-09 - **Conversations export:** a successful `--apply` keeps one
+      backup and prunes the older ones.
+  - Result: after the replacement archive is renamed into place, every file
+    beside it whose name is exactly the generated `<archive>.backup-<stamp>`
+    shape, except the copy this run wrote, is removed and listed in the result
+    as `prunedBackups`. A dry run, a first apply (no archive, so no backup) and
+    a failed write prune nothing; the lock, an interrupted run's `.tmp-<pid>`, a
+    hand-named copy and another archive's backups are never touched. The 15 GB
+    of copies found on 2026-09-04 becomes the live archive plus one previous
+    generation. The `.tmp-<pid>` leftover stays an open item. Codex's review of
+    the wave caught the first version matching a prefix rather than the full
+    generated name.
+  - Evidence: `pnpm run conversations:test` - 87 pass, 0 fail
+    (`CONVERSATION_ARCHIVE_BACKUP_TEST.ts`, two cases: two stale backups pruned
+    and four neighbours kept, then the first run's backup pruned by the second;
+    dry run and first apply prune nothing). Not run against the live 7 GB
+    archive: `--apply` on durable data waits for a human.
+  - Files: `scripts/lib/conversations/pruneConversationArchiveBackups.ts`,
+    `importConversationExport.ts`, `types/ConversationImportResult.ts`,
+    `CONVERSATION_ARCHIVE_BACKUP_TEST.ts`.
+
+- [x] 2026-09-09 - **Conversations export:** capture redacts the account's own
+      home even when `--home` points elsewhere - the cause of the `[HOME]` gap.
+  - Result: `captureConversationArtifact` now redacts every prefix in
+    `conversationHomesToRedact(home)` - the root it was given and
+    `os.homedir()`, longest first - so a recovery tree or a mirror of another
+    Mac captured from a foreign root no longer archives the real home path in
+    `workspace`, titles or event text. The redactor version stamp moves to 2 so
+    a warm incremental cache does not keep serving records captured under the
+    old rule (Codex's review of the wave caught that). Measured on the live
+    archive before the change: 5,121 `claude-code` records with an absolute
+    `/Users/...` workspace (3,520 also in text), all from 2026-06/07, 1,709
+    naming `recovered-from-mempalace/sweep/` in their provenance and the rest
+    consistent with that directory having been the root; 13,330 records already
+    `[HOME]`. The 5,121 stay as history until a rewrite (parked in `TODO.md`).
+  - Evidence: `pnpm run conversations:test` - 87 pass, 0 fail, including
+    "capture redacts the account home even when the artifacts live elsewhere"
+    (scratch home, sessions naming `homedir()`: workspace and both event texts
+    come out as `[HOME]/...`). Archive measurement:
+    `LC_ALL=C grep -o '"workspace":"/Users/[^/"]*' archive.jsonl | sort | uniq -c`
+    (one username, 5,121).
+  - Files: `scripts/lib/conversations/conversationHomesToRedact.ts`,
+    `captureConversationArtifact.ts`, `CONVERSATION_CAPTURE_TEST.ts`,
+    `constants/CONVERSATION_CAPTURE_VERSIONS.ts`.
+
+- [x] 2026-09-09 - **Conversations export:** merged provenance paths no longer
+      repeat, and a fragment the store has already absorbed is a duplicate
+      again.
+  - Result: found while measuring the `[HOME]` gap - `provenance.relativePath`
+    on one record was 434 KB, 3,869 comma-joined entries naming 2 paths, and
+    archive-wide 1.5 GB of the 7 GB file is such repetition (3,225 records,
+    longest 87,269 entries). Two causes, both in the pairwise v1 merge: it
+    joined both sides' paths without splitting a side that was already a merge,
+    and the merged `contentSha256` is a hash of hashes that the same fragment
+    never equals again, so every import between the two Macs re-merged every
+    shared conversation as "updated" and appended its paths once more. Now
+    `mergeConversationRecordFragments` and
+    `deriveConversationFragmentSetProvenance` split, dedup and sort the entries,
+    and `ConversationCaptureStore.mergeFragment` returns `duplicate` when the
+    merge changed no title, workspace, event or known path
+    (`conversationMergeAddedNothing`), leaving the stored record untouched. A
+    record stored without derived timestamps or at schema 1 reports one more
+    update on its first re-merge, then settles. The archived strings stay until
+    a rewrite (parked in `TODO.md`). `CONVERSATION_ARCHIVE_STATE_SCHEMA_VERSION`
+    moves to 2 so a segment-archive state that cached the joined form replays
+    its segments (Codex's second review of the wave caught that), and the comma
+    separator's ambiguity for a filename carrying a comma is recorded as its own
+    item (no such path exists on this Mac's sources).
+  - Evidence: `pnpm run conversations:test` - 87 pass, 0 fail
+    (`CONVERSATION_STORE_MERGE_TEST.ts`: added, updated, then duplicate twice
+    with the stored record byte-identical; a new path for known events updates
+    once to `c.jsonl,recovered/c.jsonl` and is then a duplicate; a stored joined
+    path is not repeated. `CONVERSATION_FRAGMENT_SET_TEST.ts`: a migrated
+    fragment with a joined path contributes each path once). Measurement:
+    `LC_ALL=C grep -o '"relativePath":"[^"]*"' archive.jsonl | awk ...` -
+    1,515,501,660 bytes.
+  - Files: `scripts/lib/conversations/mergeConversationRecordFragments.ts`,
+    `deriveConversationFragmentSetProvenance.ts`,
+    `conversationMergeAddedNothing.ts`, `ConversationCaptureStore.ts`,
+    `CONVERSATION_STORE_MERGE_TEST.ts`, `CONVERSATION_FRAGMENT_SET_TEST.ts`,
+    `fixtures/readStoredConversationRecords.ts`.
+
 ### 2026-08
 
 - [x] 2026-08-31 - **Two backlog items that were waiting on a list now have

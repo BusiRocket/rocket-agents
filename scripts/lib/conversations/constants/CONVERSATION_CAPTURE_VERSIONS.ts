@@ -10,6 +10,8 @@
  */
 export const CONVERSATION_CAPTURE_VERSIONS = {
   normalizer: 2,
-  redactor: 1,
+  // 2: the account home is redacted whatever root the capture was given, and
+  // redaction is idempotent (2026-09-09).
+  redactor: 2,
   adapter: 1,
 }

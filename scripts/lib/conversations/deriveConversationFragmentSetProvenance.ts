@@ -15,8 +15,13 @@ export const deriveConversationFragmentSetProvenance = (
   fragments: { hash: string; record: ConversationRecord }[],
 ): ConversationProvenance => ({
   contentSha256: hashText(fragments.map(({ hash }) => hash).join('\n')),
+  // A fragment migrated from the v1 archive may carry a joined path already.
   relativePath: [
-    ...new Set(fragments.map(({ record }) => record.provenance.relativePath)),
+    ...new Set(
+      fragments.flatMap(({ record }) =>
+        record.provenance.relativePath.split(','),
+      ),
+    ),
   ]
     .toSorted((left, right) => left.localeCompare(right))
     .join(','),

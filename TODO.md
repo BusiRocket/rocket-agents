@@ -86,13 +86,16 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
   read the two package managers (filed in `~/p/dotfiles/TODO.md`), and note that
   `agy` self-updates (1.1.17 -> 1.1.19 in two days), so the archive is a
   disaster copy, not a pin.
-- [ ] `config` apply must merge, never replace: third-party tools (orca, atuin,
-      warp) inject hooks into `settings.json` without asking, and a full rewrite
-      drops them. Verified 2026-08-22 that this is a constraint on unbuilt code,
-      not a live defect: there is no `config` domain, and the one settings
-      writer that exists (`domains/security/writeClaudeSettings.ts`) already
-      spreads the existing document. Carry the constraint into the domain when
-      it is built.
+- [!] `config` apply must merge, never replace: third-party tools (orca, atuin,
+  warp) inject hooks into `settings.json` without asking, and a full rewrite
+  drops them. Verified 2026-08-22 that this is a constraint on unbuilt code, not
+  a live defect: there is no `config` domain, and the one settings writer that
+  exists (`domains/security/writeClaudeSettings.ts`) already spreads the
+  existing document. Carry the constraint into the domain when it is built.
+  **Blocked on:** the `config` domain, which does not exist yet (re-verified
+  2026-09-09: `grep -rl "config" scripts/lib/machine/domains` names no such
+  domain). Smallest unblock: build the domain; carry this rule into its writer
+  on day one.
 
 ## Supply chain and secrets
 
@@ -316,62 +319,82 @@ Moved verbatim.
       store's content hash incrementally so the manifest costs no traversal at
       all.
 
-- [ ] **`CONVERSATION_SEGMENT_MIGRATION_TEST` failed once under disk
-      contention.** Routed from `~/p/TODO.md` on 2026-09-08. On 2026-09-08 the
-      case "a v1 archive becomes a chunked base, never one object" failed while
-      a 6 GB import was saturating the disk, and passed on its own and in two
-      consecutive full runs afterwards. Not diagnosed. Worth a look before it
-      fails in CI and gets rerun into silence: a test that only fails when the
-      machine is busy is a test with a timing assumption in it.
+- [!] **`CONVERSATION_SEGMENT_MIGRATION_TEST` failed once under disk
+  contention.** Routed from `~/p/TODO.md` on 2026-09-08. On 2026-09-08 the case
+  "a v1 archive becomes a chunked base, never one object" failed while a 6 GB
+  import was saturating the disk, and passed on its own and in two consecutive
+  full runs afterwards. Not diagnosed. Worth a look before it fails in CI and
+  gets rerun into silence: a test that only fails when the machine is busy is a
+  test with a timing assumption in it. **Blocked on:** the failure output. Not
+  reproduced on 2026-09-09: eight concurrent runs of the file (sixteen cases)
+  all passed, and the path it exercises holds no wall-clock assumption to
+  remove - node:test runs without a timeout, the only timed code is the
+  write-lock retry with its 90-minute deadline, and the fixture writes and reads
+  its own temporary home. Smallest unblock: the assertion text of the next
+  failure (`pnpm run     conversations:test 2>&1 | tee`), or one deliberate run
+  while a multi-gigabyte copy saturates the same disk.
 
-- [ ] `run-conversations-import.ts --apply` leaves a full 5.2 GB
-      `archive.jsonl.backup-<timestamp>` behind on every run and nothing prunes
-      them: on 2026-09-04 the conversations directory held the live archive plus
-      two same-day backups (14:36 and 15:20, 5.19 GB each) and a 2.97 GB
-      `archive.jsonl.tmp-28652` from the run still in progress, 15 GB of copies
-      of one file. Keep one backup (the previous generation) and delete the
-      older ones at the end of a successful apply, or write the backup as a hard
-      link when the archive is append-only. Found while clearing the Claude
-      scratchpads (`~/p/TODO.md`, Machines).
+- [ ] An interrupted `--apply` leaves `archive.jsonl.tmp-<pid>` behind (2.97 GB
+      on 2026-09-04) and nothing removes it. The backup pruning that landed on
+      2026-09-09 leaves it alone on purpose: a live pid may still be writing it.
+      Smallest step: at the start of an apply, remove temporaries whose pid is
+      gone (`process.kill(pid, 0)` throwing ESRCH, the test
+      `isArchiveLockAbandoned` already uses), and count them in the result.
 
-- [ ] **Both Macs must be able to reference every conversation, and the archive
-      is already the place for that — the brain just does not read it.** Owner's
-      direction, 2026-09-03, after the brain had to hand-rsync the Mac mini's
-      stores to render them. Measured that day: `sync-all-safe` step 3c
-      replicates `~/.local/share/rocket-agents/conversations/archive.jsonl`
-      (43,019 records, 5.1 GB) to the mini two-way every day, and
-      `sourceDefinitions.ts` already walks `.claude/projects` and the Cowork
-      store, so the canonical archive on each Mac holds both machines'
-      conversations. Three gaps stop the brain from using it. (1) No record says
-      which machine it came from: `provenance` carries `relativePath`,
-      `contentSha256` and `redactions` only, so a reader cannot tell a mini
-      session from a MacBook one — add `provenance.host` at capture. (2) The
-      Claude root list names `Library/Application Support/Claude/` only; the
-      Favish desktop profile writes `Claude-favish/local-agent-mode-sessions`
-      (231 files on the MacBook, same account uuid) and is not captured. (3)
-      `~/p/brain/tools/sessions/convert.py` renders from the raw stores plus a
-      gitignored rsync mirror (`sources/agent-sessions/hosts/macmini/`), which
-      is a second sync of the same data — once (1) lands, point it at the
-      archive and retire the mirror. Two facts the design should keep: the
-      Cowork local-mode store is account-synced (506 of 506 files byte-identical
-      on both Macs), and 1,895 of the mini's 2,288 `.claude/projects` files are
-      identical copies of MacBook sessions, cause unmeasured. Smallest step:
-      (1), one field, then re-export and count records per host.
+- [!] **Both Macs must be able to reference every conversation, and the archive
+  is already the place for that — the brain just does not read it.** Owner's
+  direction, 2026-09-03, after the brain had to hand-rsync the Mac mini's stores
+  to render them. Measured that day: `sync-all-safe` step 3c replicates
+  `~/.local/share/rocket-agents/conversations/archive.jsonl` (43,019 records,
+  5.1 GB) to the mini two-way every day, and `sourceDefinitions.ts` already
+  walks `.claude/projects` and the Cowork store, so the canonical archive on
+  each Mac holds both machines' conversations. Three gaps stop the brain from
+  using it. (1) No record says which machine it came from: `provenance` carries
+  `relativePath`, `contentSha256` and `redactions` only, so a reader cannot tell
+  a mini session from a MacBook one — add `provenance.host` at capture. (2) The
+  Claude root list names `Library/Application Support/Claude/` only; the Favish
+  desktop profile writes `Claude-favish/local-agent-mode-sessions` (231 files on
+  the MacBook, same account uuid) and is not captured. (3)
+  `~/p/brain/tools/sessions/convert.py` renders from the raw stores plus a
+  gitignored rsync mirror (`sources/agent-sessions/hosts/macmini/`), which is a
+  second sync of the same data — once (1) lands, point it at the archive and
+  retire the mirror. Two facts the design should keep: the Cowork local-mode
+  store is account-synced (506 of 506 files byte-identical on both Macs), and
+  1,895 of the mini's 2,288 `.claude/projects` files are identical copies of
+  MacBook sessions, cause unmeasured. Smallest step: (1), one field, then
+  re-export and count records per host. **Blocked on:** a design decision
+  (2026-09-09). `hashConversationFragment` identifies a fragment by its
+  canonical bytes on purpose - "not by when it arrived or which host produced
+  it" - so a `provenance.host` inside the record makes the two Macs publish two
+  fragments for identical bytes, and every fragment already archived
+  re-publishes once under a new hash. Question for the owner: record the host
+  outside the fragment identity - in the segment header, since one capture on
+  one host writes a segment, or in the capture state - and derive a record's
+  hosts from the segments that carry it, or accept the double publication? The
+  header option keeps the reducer's convergence property; smallest unblock is
+  that answer.
 
-- [ ] **The `[HOME]` redaction misses some conversations, and it leaks the
-      username.** Measured 2026-09-01 from atrium's index: 29 projects appear
-      under both `[HOME]/p/x` and `/Users/<name>/p/x`, with 4,053 conversations
-      carrying the unredacted absolute path in their `workspace` field. Two
-      consequences. First, privacy: the redaction exists to clear exactly that,
-      and the real home path is being archived. Second, retrieval: anything
-      prefix-matching the canonical `[HOME]` form sees only half of such a
-      project -- 1,331 of intelifactu's conversations, a third of it, were
-      unreachable from project-scoped recall until atrium started normalizing at
-      ingest (`canonical_workspace`, atrium `54fa859`). That normalization is a
-      workaround in a derived index; the archive still holds the unredacted
-      values. Smallest step: find which exporter path skips the home redaction
-      on `workspace` and close it, then decide whether existing archived records
-      get rewritten or left as history.
+- [!] **5,121 archived records still carry the absolute home in `workspace`,
+  3,520 of them in event text too.** The capture-side gap closed on 2026-09-09
+  (`TODO_LOG.md`): capture now redacts the account's own home as well as the
+  root it was given. Measured on the live archive the same day: every one of the
+  5,121 is `claude-code`, last updated 2026-06 or 2026-07 (five in 2026-08),
+  none has a redacted twin, and 1,709 name `recovered-from-mempalace/sweep/` in
+  their provenance; the other 3,412 are single-fragment records whose paths
+  start at `.claude/projects/`, consistent with the sweep directory itself
+  having been the `--home` of that run. So these are the mempalace-era sessions
+  captured from the recovery tree, where the redaction knew only that root while
+  the sessions named the real home. The stored values are history and only a
+  rewrite changes them: the same withdraw-and-republish path the "redaction
+  cannot reach an already-archived record" item waits for. One related weakness
+  stays in code: the pairwise merge takes `workspace` from the side with the
+  smaller hash, so a redacted fragment merged with an unredacted one can keep
+  the unredacted value (1,292 records with the recovery path did come out
+  redacted; the rest did not). **Blocked on:** the owner's go for a one-off
+  rewrite of durable data - a v1 publication with the redaction re-applied, or
+  the segment migration with a normalization step. Measure:
+  `LC_ALL=C grep -c '"workspace":"/Users/' archive.jsonl` (5,121 on 2026-09-09,
+  against 13,330 already `[HOME]`).
 
 - [ ] Remote-export adapter family (ChatGPT, Grok): design spiked 2026-09-01 at
       `~/p/atrium/docs/designs/remote-export-adapter-family.md` — inbox
@@ -411,26 +434,31 @@ Moved verbatim.
   line-delimited still fail, and are reported as skips rather than silently
   truncated.
 
-- [ ] `redactSensitiveText` is not idempotent:
-      `Authorization: Bearer     [REDACTED:token]` re-matches its own marker on
-      every pass - the text is stable, the count is not. So
-      `provenance.redactions` inflates on every re-capture of unchanged text,
-      and any "does this still need redaction?" check has to compare text rather
-      than counts. Found 2026-08-31 while measuring the archive; it made a first
-      measurement wrong by 515 records. Owned by the archive-format session
-      while it holds `scripts/lib/conversations/`.
-- [ ] Event text contains raw U+2028 and U+2029, and Node's `readline` treats
-      both as line terminators while `JSON.parse` accepts them unescaped inside
-      strings. Measured on the live archive: 1,690 U+2028 plus 3 U+2029, so a
-      readline-based reader sees 32,434 lines where the file has 30,741 and
-      mangles 1,634 records into unparseable fragments. Reproduced twice.
-      Nothing in this repository is affected - `forEachLfLine` splits on `\n`
-      alone - and Atrium's archive readers iterate the file handle, which is
-      also safe; Python's `str.splitlines()` would not be. The rule for any new
-      format and any new consumer: split on `\n` only, never `readline` or
-      `splitlines`. A first version of this entry blamed lone CR; the archive
-      contains zero CR bytes, and the corrected cause was found by probing each
-      separator class.
+- [!] **1.5 GB of the 7 GB v1 archive is repeated `provenance.relativePath`.**
+  Measured 2026-09-09: 3,225 records carry a joined path, the longest 87,269
+  entries (one sampled record held 3,869 entries naming 2 distinct paths),
+  1,515,501,660 bytes in all. Cause, fixed in code the same day (`TODO_LOG.md`):
+  the pairwise merge joined both sides' paths without splitting a side that was
+  itself a merge, and a fragment the store had already absorbed never matched
+  the merged hash-of-hashes again, so every import between the two Macs
+  re-merged every shared conversation and appended every path once more. The
+  archived strings stay until a rewrite. **Blocked on:** the same rewrite window
+  as the two items above; the segment migration is the natural place, with
+  split-dedup-sort applied to `relativePath` per record on the way through - one
+  line in `migrateConversationArchiveToSegments`, not written yet because it
+  changes the migrated bytes and therefore the generation id both Macs must
+  agree on. Measure:
+  `LC_ALL=C grep -o '"relativePath":"[^"]*"' archive.jsonl |     awk '{t+=length($0)} END {print t}'`.
+- [ ] `provenance.relativePath` joins several paths with a comma, and a comma is
+      a legal filename character. Pre-existing format choice, made explicit on
+      2026-09-09 when the merge started splitting on it to dedup: a source path
+      carrying a comma would be split into two entries and re-sorted. Measured
+      that day: no artifact path under the Claude, Codex, Cursor or Cowork roots
+      on this Mac carries one, and splitting every archived value yields 0
+      entries that look absolute, empty or traversing. Smallest step: when the
+      segment format next changes, carry the paths as an array or join on a
+      character no filename can hold, and migrate the joined strings then.
+
 - [ ] Redaction cannot reach an already-archived record. `contentSha256` hashes
       the source artifact, so `mergeFragment` returns `duplicate` when the
       source is unchanged and an improved redactor never revisits the record;
@@ -458,12 +486,14 @@ Moved verbatim.
   transport between installations, handing the pending slice to
   `atrium ingest --partial`, and the scheduler/hook freeze sentinel. Nothing is
   pointed at `~/.local/share/rocket-agents` yet.
-- [ ] JSONL suffix resume is deliberately unbuilt. A changed artifact is
-      recaptured whole. Measured at 25,000 artifacts the changed pass costs
-      1.72s against a 22.691s bound, so the checkpoint machinery - prefix chunk
-      hashes, a cached normalized accumulator, an incomplete-tail boundary - is
-      correctness surface nobody is paying for yet. Build it when a real
-      artifact misses the bound, not before.
+- [!] JSONL suffix resume is deliberately unbuilt. A changed artifact is
+  recaptured whole. Measured at 25,000 artifacts the changed pass costs 1.72s
+  against a 22.691s bound, so the checkpoint machinery - prefix chunk hashes, a
+  cached normalized accumulator, an incomplete-tail boundary - is correctness
+  surface nobody is paying for yet. Build it when a real artifact misses the
+  bound, not before. **Blocked on:** a real artifact missing the 22.691 s bound;
+  none has (re-checked 2026-09-09, the changed pass measures 1.72 s). Smallest
+  unblock: a measured miss.
 - [ ] A capture publishes at most 2,000 fragments per segment
       (`CONVERSATION_SEGMENT_FRAGMENT_LIMIT`). The bound exists because staged
       fragments live in memory: at 25,000 artifacts in one segment, peak RSS

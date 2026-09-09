@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { promises as fs } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { homedir, tmpdir } from 'node:os'
 import { join, sep } from 'node:path'
 import test from 'node:test'
 import { captureConversations } from './captureConversations'
@@ -116,4 +116,42 @@ void test('capture fails closed on malformed conversation JSON', async (context)
   assert.equal(report.ok, false)
   assert.equal(report.records.length, 0)
   assert.match(report.skipped[0] ?? '', /invalid conversation JSON/u)
+})
+
+void test('capture redacts the account home even when the artifacts live elsewhere', async (context) => {
+  // A recovery sweep or a mirror of another Mac is captured with --home
+  // pointing at its root, while the sessions inside name the real home. The
+  // archive held 5,121 such records with an absolute workspace.
+  const home = await fs.mkdtemp(join(tmpdir(), 'rocket-conversations-mirror-'))
+  context.after(async () => fs.rm(home, { recursive: true, force: true }))
+  const claudeRoot = join(home, '.claude', 'projects', 'project-a')
+  await fs.mkdir(claudeRoot, { recursive: true })
+  const realWorkspace = join(homedir(), 'p', 'project-a')
+  await fs.writeFile(
+    join(claudeRoot, 'claude-session.jsonl'),
+    [
+      JSON.stringify({
+        type: 'user',
+        sessionId: 'claude-2',
+        timestamp: '2026-08-19T08:00:00Z',
+        cwd: realWorkspace,
+        message: { role: 'user', content: `Look at ${realWorkspace}` },
+      }),
+      JSON.stringify({
+        type: 'user',
+        sessionId: 'claude-2',
+        timestamp: '2026-08-19T08:01:00Z',
+        message: { role: 'user', content: `And at ${join(home, 'p', 'x')}` },
+      }),
+    ].join('\n'),
+  )
+
+  const report = await captureConversations(home, new Set(['claude-code']))
+
+  assert.equal(report.records.length, 1)
+  const record = report.records[0]
+  if (record === undefined) throw new Error('expected one record')
+  assert.equal(record.workspace, `[HOME]${sep}p${sep}project-a`)
+  assert.equal(record.events[0]?.text, `Look at [HOME]${sep}p${sep}project-a`)
+  assert.equal(record.events[1]?.text, `And at [HOME]${sep}p${sep}x`)
 })

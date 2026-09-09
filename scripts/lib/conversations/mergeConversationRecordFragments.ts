@@ -38,9 +38,17 @@ export const mergeConversationRecordFragments = (
     left.provenance.contentSha256,
     right.provenance.contentSha256,
   ].toSorted((a, b) => a.localeCompare(b))
+  // Each side may already be a merge, so its path is a joined list; split it
+  // before taking the union or every re-merge repeats every earlier entry.
+  // Measured on the live archive: 3,225 records carried a joined path, one of
+  // them 87,269 entries long, 1.5 GB of the 7 GB file. The comma is the
+  // format's separator, so a source filename carrying one would be split
+  // here; none does on either Mac's sources (measured 2026-09-09), and the
+  // separator is the thing to change when the format next moves.
   const relativePaths = [
-    left.provenance.relativePath,
-    right.provenance.relativePath,
+    ...new Set(
+      [left, right].flatMap((side) => side.provenance.relativePath.split(',')),
+    ),
   ].toSorted((a, b) => a.localeCompare(b))
   const timestamps = [...events.values()]
     .flatMap((event) =>

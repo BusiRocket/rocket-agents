@@ -20,7 +20,10 @@ export const redactAssignedSecrets = (input: string): RedactedText => {
   ]) {
     const result = applyRedactionPattern(
       text,
-      new RegExp(`(\\b${key}\\b\\s*[=:]\\s*)["']?[^\\s,"'}]{8,}`, 'giu'),
+      new RegExp(
+        `(\\b${key}\\b\\s*[=:]\\s*)["']?(?!\\[REDACTED:)[^\\s,"'}]{8,}`,
+        'giu',
+      ),
       '$1[REDACTED:secret]',
     )
     text = result.text

@@ -7,5 +7,6 @@ export interface ConversationImportResult {
   total: number
   archive: string
   backup?: string
+  prunedBackups?: string[]
   errors: string[]
 }

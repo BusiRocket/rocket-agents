@@ -149,3 +149,18 @@ void test('identical bytes hash identically and different bytes do not', () => {
     hashConversationFragment(other),
   )
 })
+
+void test('a migrated fragment with a joined path contributes each path once', () => {
+  const legacy: ConversationRecord = {
+    ...createConversationFragment({ id: 'c', events: 3, source: 'legacy' }),
+    provenance: {
+      contentSha256: 'legacy-merge',
+      relativePath: 'a.jsonl,b.jsonl',
+      redactions: 0,
+    },
+  }
+  const fresh = createConversationFragment({ id: 'c', events: 2, source: 'a' })
+
+  const { record } = materializeConversationFragmentSet([legacy, fresh])
+  assert.equal(record.provenance.relativePath, 'a.jsonl,b.jsonl')
+})

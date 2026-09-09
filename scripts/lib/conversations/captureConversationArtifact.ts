@@ -1,3 +1,4 @@
+import { conversationHomesToRedact } from './conversationHomesToRedact'
 import { conversationRecordsFromArtifact } from './conversationRecordsFromArtifact'
 import { redactConversationHome } from './redactConversationHome'
 import type { ConversationArtifact } from './types/ConversationArtifact'
@@ -8,8 +9,13 @@ export const captureConversationArtifact = async (
   home: string,
 ): Promise<ConversationArtifactCapture> => {
   try {
+    const homes = conversationHomesToRedact(home)
     const records = (await conversationRecordsFromArtifact(artifact)).map(
-      (record) => redactConversationHome(record, home),
+      (record) =>
+        homes.reduce(
+          (redacted, prefix) => redactConversationHome(redacted, prefix),
+          record,
+        ),
     )
     return {
       source: artifact.source,

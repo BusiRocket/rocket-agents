@@ -5,6 +5,7 @@ import { backupConversationArchive } from './backupConversationArchive'
 import { ConversationArchiveChangedError } from './ConversationArchiveChangedError'
 import { ConversationCaptureStore } from './ConversationCaptureStore'
 import { loadConversationExportStore } from './loadConversationExportStore'
+import { pruneConversationArchiveBackups } from './pruneConversationArchiveBackups'
 import { readArchiveRevision } from './readArchiveRevision'
 import type { ConversationImportResult } from './types/ConversationImportResult'
 import { withArchiveWriteLock } from './withArchiveWriteLock'
@@ -64,6 +65,7 @@ export const importConversationExport = async (options: {
     }
 
     let backup: string | undefined
+    let prunedBackups: string[] = []
     if (options.apply) {
       await withArchiveWriteLock(options.archive, async () => {
         if ((await readArchiveRevision(options.archive)) !== mergedFrom)
@@ -85,6 +87,14 @@ export const importConversationExport = async (options: {
               throw new ConversationArchiveChangedError(options.archive)
           },
         )
+        // The archive is replaced, so the copy taken above is the previous
+        // generation and every older backup is surplus. Pruned only after the
+        // rename: a failed write leaves all of them in place.
+        if (backup !== undefined)
+          prunedBackups = await pruneConversationArchiveBackups(
+            options.archive,
+            backup,
+          )
       })
     }
     return {
@@ -96,6 +106,7 @@ export const importConversationExport = async (options: {
       total: store.count(),
       archive: options.archive,
       ...(backup === undefined ? {} : { backup }),
+      ...(prunedBackups.length === 0 ? {} : { prunedBackups }),
       errors: [],
     }
   } finally {

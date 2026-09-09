@@ -1,6 +1,7 @@
 import { chmodSync } from 'node:fs'
 import { DatabaseSync } from 'node:sqlite'
 import { CONVERSATION_SCHEMA_VERSION } from './constants/CONVERSATION_SCHEMA_VERSION'
+import { conversationMergeAddedNothing } from './conversationMergeAddedNothing'
 import { mergeConversationRecordFragments } from './mergeConversationRecordFragments'
 import type { ConversationRecord } from './types/ConversationRecord'
 import type { ConversationStoreChange } from './types/ConversationStoreChange'
@@ -40,6 +41,7 @@ export class ConversationCaptureStore {
     if (current.provenance.contentSha256 === record.provenance.contentSha256)
       return 'duplicate'
     const merged = mergeConversationRecordFragments(current, record)
+    if (conversationMergeAddedNothing(current, merged)) return 'duplicate'
     this.#upsert.run(
       merged.id,
       JSON.stringify(merged),

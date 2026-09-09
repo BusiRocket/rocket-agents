@@ -33,3 +33,22 @@ void test('import validation rejects traversal paths', () => {
     false,
   )
 })
+
+void test('redaction is idempotent: a second pass changes nothing and counts nothing', () => {
+  const fakeAccessKey = 'AKIA' + 'ABCDEFGHIJKLMNOP'
+  const first = redactSensitiveText(
+    `Authorization: Bearer abcdefghijklmnopqrstuvwxyz password="supersecret" api_key: 'abcdefghijkl' ${fakeAccessKey} https://user:pass@example.test`,
+  )
+  assert.equal(first.redactions, 5)
+  assert.equal(first.text.includes('supersecret'), false)
+  assert.equal(first.text.includes('abcdefghijkl'), false)
+
+  // Every marker used to re-match its own pattern: `Bearer [REDACTED:token]`
+  // is sixteen non-space characters, `[REDACTED:credentials]@` is a
+  // userinfo, `[REDACTED:secret]` is an assigned value. The text was stable
+  // and the count was not, which inflated `provenance.redactions` on every
+  // re-capture of unchanged text.
+  const second = redactSensitiveText(first.text)
+  assert.equal(second.text, first.text)
+  assert.equal(second.redactions, 0)
+})

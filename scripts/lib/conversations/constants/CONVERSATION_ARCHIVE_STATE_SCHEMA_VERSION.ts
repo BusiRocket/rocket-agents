@@ -6,4 +6,6 @@
  * only safe while nothing canonical is kept here -- which is the reason this
  * number exists rather than a migration.
  */
-export const CONVERSATION_ARCHIVE_STATE_SCHEMA_VERSION = 1
+// 2: materialized provenance paths are split, deduplicated and sorted, so a
+// state that cached the joined form has to be replayed (2026-09-09).
+export const CONVERSATION_ARCHIVE_STATE_SCHEMA_VERSION = 2

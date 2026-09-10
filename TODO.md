@@ -36,6 +36,18 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
 
 ## Skill library and learning loop
 
+- [ ] **`job-application` skill names none of the seven career gates.** The
+      skill is the source of truth for submitting an application, and on
+      2026-09-10 it referenced neither `pnpm career:check`,
+      `check-attachment.mjs`, `build-audit-brief.mjs` /
+      `write-audit-verdict.mjs`, nor `render-resumes.mjs` - every one of which
+      exists in `~/p/cristian-deluxe-developer-portfolio/scripts/career/` and
+      gates a real failure that already happened once. Evidence:
+      `grep -n "career:check\|check-attachment" \     src/skills/core/job-application/SKILL.md`
+      returns nothing. Smallest next step: add the gate sequence written up in
+      that repo's `career/application-procedure.md` to Phase 5 and Phase 6 of
+      the skill.
+
 > Shipped 2026-08-18: the four curation states, seeding from the lock, per-skill
 > curation, linking what is adopted, the transcript observer, trigger learning
 > with secret redaction, delegated classification, the router audit, proposals

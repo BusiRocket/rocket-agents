@@ -150,13 +150,37 @@ phrases are absent:
   waiting for actionability. Remove the class and force
   `position:static;opacity:1;display:block;visibility:visible` first, then
   upload against the input's uid.
-- Comboboxes are react-select. A CDP click opens the menu; a plain
-  `element.click()` on the option then selects it. A synthetic `mousedown` on
-  the control does **not** open it.
-- **An 8-character email verification code is required.** The first submit
-  returns "A verification code was sent to ...". Fetch it, enter it, submit
-  again. The code splits across eight `#security-input-N` boxes; filling the
-  visible field distributes it automatically.
+- Comboboxes are react-select. Neither a synthetic `mousedown` nor
+  `element.click()` on the control opens the menu, and
+  `execCommand("insertText")` types into it without opening it either. What
+  works from `chrome-cli`, with no CDP: focus the input, then send a **real**
+  ArrowDown through System Events behind the frontmost guard below. The menu
+  then renders as `[id^=react-select-<field-id>-option]` and a plain
+  `element.click()` on the matching option selects it (measured 2026-09-10 on
+  Kalepa and Elastic).
+- A react-select input reads back `value=""` after a selection: the choice lives
+  in React state and shows in the control's own text. Verify with
+  `.select__control` innerText, never with `input.value`, or a filled form looks
+  empty.
+- **A location typeahead needs real keystrokes.** `insertText` sets the text and
+  fires input, and the async city search still returns nothing. Focus the field,
+  clear it, then `keystroke` the query (ASCII — "Caceres" finds "Caceres,
+  Spain").
+- **File inputs take a `DataTransfer` regardless of visibility.** Removing
+  `visually-hidden` then assigning `input.files` and dispatching `change` works;
+  no picker, no actionability wait.
+- **The 8-character email verification code is not always required.** Kalepa's
+  board submitted on the first click with no code on 2026-09-10. Expect the code
+  flow, and do not treat its absence as a failed submit — read the confirmation
+  text. When it does appear, the first submit returns "A verification code was
+  sent to ...". Fetch it, enter it, submit again; the code splits across eight
+  `#security-input-N` boxes and filling the visible field distributes it.
+- **An embedded board hides the form in an iframe.**
+  `jobs.elastic.co/form?gh_jid=<id>` reports zero inputs because
+  `chrome-cli execute` only reaches the top frame. Read
+  `document.querySelector("iframe").src` and navigate the tab to it: the
+  `job-boards.greenhouse.io/embed/job_app` URL carries its own validity token
+  and works top-level.
 
 ```bash
 vexa sync me@cristiandeluxe.dev
@@ -177,6 +201,12 @@ first and poll — the code can take a couple of minutes to arrive.
 - Fields can appear only after a failed submit (a Location combobox did). Re-run
   the snapshot after every rejection rather than assuming the form is unchanged.
 - A rejected submit sends nothing. It is safe to iterate.
+- File inputs on Ashby carry an `id` and **no `name`**, so a `[name=...]`
+  selector silently finds nothing. Address them by id (`#_systemfield_resume`,
+  `#cover_letter`).
+- Where a board has a Cover Letter **file** input and no free-text field, render
+  the prepared text to PDF and upload it rather than dropping the argument.
+  Render with headless Chrome and a unique `--user-data-dir`.
 - **Its spam gate is configured per tenant and blocks automation profiles.**
   LocalStack rejected two submissions with "Your application submission was
   flagged as possible spam", clearing the whole form each time, while Toggl's

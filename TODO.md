@@ -57,6 +57,20 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
 > already owns brew, shell, symlinks, launchd and secrets. Measured inventories
 > behind these items: `~/p/dotfiles/docs/machine-inventory/`.
 
+- [ ] Decide whether a global rule should carry "never rsync a live database,
+      and never rsync anything that has its own sync protocol". On 2026-09-10 a
+      bidirectional `rsync -au` of `~/.local/share/atuin` between the two Macs
+      truncated both of the Mac mini's SQLite databases into
+      `database disk image is malformed`, and carried `meta.db` with them, which
+      cloned the machine identity so both Macs claimed one `host_id` in an
+      append-only record store. A SQLite database is not one file, `-au` is
+      whole-file newest-wins, and a daemon holds it open continuously, so there
+      is no safe moment. The specific entries are already gone from
+      `dotfiles/home-sync.list`; this item is only about whether the general
+      trap earns a line in the always-loaded rules or stays as
+      `~/p/brain/topics/atuin-shell-history` and
+      `~/p/brain/topics/machine-sync`. Smallest next step: the owner says rule
+      or wiki-only.
 - [!] Complete account-local authentication on `macmini`. Managed configuration
   is converged, but `agents:doctor` still reports Cursor MCP failed; Claude
   needs Cloudflare in personal and Favish plus OpenSEO in personal. ZeroHedge is

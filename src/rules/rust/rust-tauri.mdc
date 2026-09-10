@@ -105,6 +105,20 @@ If both exist, the compiler fails with: `failed to resolve mod 'foo': file for m
 - Prefer **`map.contains_key("key")`** over **`map.get("key").is_some()`**.
 - For stripping a prefix and then searching, use **`s.strip_prefix('x')`** and work on the returned slice instead of **`s[1..].find(...)`** (satisfies `manual_strip`).
 
+## Verifying the UI as an agent (macOS)
+
+An agent cannot drive a Tauri window from outside on macOS: without an
+Accessibility grant AppleScript sees zero windows and a synthetic `CGEventPost`
+click is swallowed silently, and that grant cannot be given non-interactively.
+The route that works is an in-process WebDriver server over the real
+`WKWebView`, which needs no TCC permission at all.
+
+Invoke the `tauri-ui-automation` skill before adding any automation surface to a
+Tauri app, and before spending time on `tauri-driver` (no macOS backend),
+`isInspectable` (no CDP port), an iOS inspector proxy, or `tccutil`. It carries
+the wiring, the four gates that keep an unauthenticated `/wdio/eval` out of a
+release build, and what DOM-level input does not prove.
+
 ## Validation
 
 After meaningful changes, run the project's check script (e.g. `pnpm run check`, `npm run check`).

@@ -110,6 +110,13 @@
         "@rules/core/text-hygiene.mdc"
       ]
     },
+    "job-day": {
+      "rules": [
+        "@rules/core/agent-discipline.mdc",
+        "@rules/core/security-baseline.mdc",
+        "@rules/core/text-hygiene.mdc"
+      ]
+    },
     "job-search": {
       "rules": [
         "@rules/core/agent-discipline.mdc",

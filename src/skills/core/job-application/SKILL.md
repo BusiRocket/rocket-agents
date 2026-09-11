@@ -201,6 +201,15 @@ first and poll — the code can take a couple of minutes to arrive.
 - Fields can appear only after a failed submit (a Location combobox did). Re-run
   the snapshot after every rejection rather than assuming the form is unchanged.
 - A rejected submit sends nothing. It is safe to iterate.
+- **A radio group rejected as missing after a synthetic click needs a real arrow
+  key, not another click.** On n8n's board (2026-09-11) `input.checked = true`
+  and `.click()` both left "Missing entry for required field" on an
+  experience-level radio, and clicking the label or sending Space changed
+  nothing because the element was already checked, so no change event fired.
+  What worked: focus the radio, then send **ArrowUp followed by ArrowDown**
+  (`key code 126` then `key code 125`) through System Events behind the
+  frontmost guard below. The group then moves off and back onto the choice, and
+  React records it.
 - File inputs on Ashby carry an `id` and **no `name`**, so a `[name=...]`
   selector silently finds nothing. Address them by id (`#_systemfield_resume`,
   `#cover_letter`).
@@ -219,6 +228,13 @@ first and poll — the code can take a couple of minutes to arrive.
 
 `chrome-cli` reaches the real browser but only runs JavaScript, and other apps
 hold the foreground. This combination fills everything except a trusted click:
+
+**Wrap every script in an IIFE, and return a string.** Page scope persists
+between calls, so a top-level `const e = ...` in one call makes the next call
+with the same name throw `Identifier 'e' has already been declared` — and
+chrome-cli reports that as empty output, identical to every other silent
+failure. `(function(){ ... return String(x) })()` is the only shape that is safe
+to repeat (2026-09-11, measured across five boards).
 
 **Every evaluated expression must return a string.** `chrome-cli` hard-crashes
 with `NSInvalidArgumentException: -[__NSCFNumber UTF8String]` when the result is
@@ -298,6 +314,65 @@ accessibility tree, so `process "Google Chrome"` reports zero windows.
 **Chrome autofill rewrites fields you already set.** It silently replaced a Name
 value on interaction. Re-read identity fields after any interaction, not just
 after your own writes.
+
+### Teamtailor
+
+- **A checkbox shares its `name` with a hidden input that carries the unchecked
+  value**, and the hidden one comes first in the DOM, so
+  `querySelector('[name="candidate[consent_given]"]')` returns the hidden input:
+  it reads `checked === false` forever, and a label lookup by its (empty) id
+  finds nothing. Address the real control by id — `#candidate_consent_given`,
+  `#candidate_consent_given_future_jobs` — and the same applies to the
+  `[boolean]` radio pairs. Verify a radio group by listing its members and their
+  `checked`, never by reading `[name=...]`.
+- **The CV input empties itself on success.** Teamtailor ships the file straight
+  to S3 and sets `candidate[resume_remote_url]`, so `input.files.length` reads 0
+  a second later even though the upload worked. Confirm by searching the page
+  text for the filename, and by that hidden field having an S3 URL in it.
+- Question fields are `candidate[answers_attributes][N][text|choice|boolean]`
+  and N follows the visual order; `choice` takes the option's numeric value.
+
+### LinkedIn Easy Apply
+
+Cheap and worth using in volume: the modal is four pages and reuses the CV
+across applications once one has been uploaded.
+
+- **The modal has no `role="dialog"` and no stable class.** Detect it by reading
+  `document.body.innerText` for "1/4 páginas" instead, and drive it with the
+  buttons named Siguiente, Revisar and Enviar solicitud.
+- **Field ids are React-generated (`«rf»`, `«rg»`) and are reassigned on every
+  interaction.** Read them, fill them, then re-read before touching anything
+  else; an id captured two calls ago points at a different field.
+- **The CV file input does not exist until "Cargar currículum" is clicked.** It
+  then appears with no id and no name: assign an id yourself, attach through
+  `DataTransfer`, and confirm the filename appears in the modal. LinkedIn stores
+  it, so the next Easy Apply already has it selected.
+- **Numeric questions are free text capped at 20 characters and validated.**
+  "90000 EUR brutos/ano" came back as "Información incorrecta"; the bare number
+  was accepted. Put the currency in a covering answer, not in that box.
+- Confirm by reading "Solicitud enviada justo ahora" from the page, not by the
+  submit click returning.
+
+### Lever
+
+- Field names are plain: `name`, `email`, `phone`, `location`, `org`,
+  `urls[LinkedIn]`, and each custom question is `cards[<uuid>][field0]` as a
+  textarea, radio or checkbox group.
+- **Uploading the CV triggers a resume parse that rewrites fields you already
+  filled** — on Qonto (2026-09-11) `location` changed from "Caceres, Spain" to
+  "Caceres, ESP". Upload first, fill afterwards, and re-dump every identity
+  field before submitting.
+
+### Boards that refuse a second application
+
+Two limits met on 2026-09-11, both discovered only at submit:
+
+- **ElevenLabs (Ashby):** "As you have applied for a position in this domain
+  within the last 90 days, you cannot submit an application for this position."
+  One application per company per quarter, whatever the role.
+- **n8n (Ashby):** its board rejects a second application inside 15 days.
+
+Check the tracker for a same-company send before drafting anything.
 
 ### Calendly
 

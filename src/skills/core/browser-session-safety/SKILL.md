@@ -39,6 +39,42 @@ unusable for any logged-in site, so do not launch one for that.
    lost, but the trace reads like a broken browser. Wrap the result in
    `String()` or end with a literal (measured 2026-09-11).
 
+**To READ a tab, never take the focus: `chrome-cli source -t <tab-id>`.** This
+is the answer to sessions fighting over tabs, and it is the one route that does
+not compete at all — it returns that tab's hydrated DOM wherever the tab sits,
+in any window, on any profile, with nothing raised and nothing stolen from
+whoever is working in the front window. Pair it with
+`chrome-cli info -t <tab-id>`, which prints that tab's title and URL, so you can
+confirm you have the right tab before reading it and map ids to URLs afterwards.
+Measured 2026-09-11 on a Medium article behind a paid membership: 296 KB of
+rendered DOM, no focus change.
+
+Everything else tried that day failed, and each failure is silent or expensive:
+
+- **`execute` read someone else's page.** It acts on the active tab of the
+  frontmost window, which was a 1Password service-account wizard, and it
+  returned that page's text as though it were the article. Nothing errors. You
+  get a plausible answer about the wrong page, which is the worst shape a
+  failure can take.
+- **Raising a chosen window failed twice** — an AppleScript
+  `set index of (first window whose id is N) to 1` followed by `activate`, and
+  `chrome-cli activate -t <tab-id>`. The 1Password window kept the front in both
+  cases. Do not build a read on top of a raise, and if you do raise, verify with
+  `chrome-cli info` before acting rather than assuming it took.
+- **The Playwright extension MCP hung on `browser_tabs list`**, past 120 s, on a
+  Chrome holding roughly 400 tabs. Same shape as the `chrome-devtools`
+  `--autoConnect` trap: tab enumeration is what does not scale here.
+
+The division to keep in mind: **reading a page that has already rendered needs
+no focus, and interacting with one does.** Scroll-driven capture, clicking and
+form-filling still go through `execute` and therefore still need the front
+window, which is exactly when to confirm whose window it is. A read has no such
+excuse.
+
+To find the tabs you opened without touching anyone else's, diff
+`chrome-cli list tabs` before and after your `open -na`, then close only the ids
+that appeared.
+
 **`open -na` does not open a new window.** It reuses an existing window of that
 profile and adds a tab to it, so the window you think you created is the user's,
 with their tabs in it. Never close a Chrome window by id to tidy up after

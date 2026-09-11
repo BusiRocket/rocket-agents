@@ -98,6 +98,18 @@ Sending it (measured 2026-09-11):
   no InMail credit is needed. Check for it before assuming a connection request
   is the only route.
 
+When the recruiter is 2nd degree and not an open profile, the compose URL
+silently lands on the messaging inbox with no composer: there is no free
+message, and nothing announces it. The free route is a connection request with a
+note. Its control is an anchor too,
+`/preload/custom-invite/?vanityName=<the profile's vanity name>`; open it, click
+"Anadir una nota", and write into the textarea with the native value setter plus
+an `input` event, because assigning `.value` leaves the counter at zero and Send
+disabled. The note caps at **200 characters** on a free account, so the message
+is the posting name, one line of evidence, the one question, and the portfolio
+URL. Verify at `/mynetwork/invitation-manager/sent/`, which shows the note text
+back.
+
 Read the recruiter's other recent posts before writing: a second opening from
 the same person is free triage, and it tells you where these roles are being
 sourced. On 2026-09-11 the sibling post required an Argentine base with a

@@ -153,11 +153,15 @@ phrases are absent:
 - Comboboxes are react-select. Neither a synthetic `mousedown` nor
   `element.click()` on the control opens the menu, and
   `execCommand("insertText")` types into it without opening it either. What
-  works from `chrome-cli`, with no CDP: focus the input, then send a **real**
-  ArrowDown through System Events behind the frontmost guard below. The menu
-  then renders as `[id^=react-select-<field-id>-option]` and a plain
-  `element.click()` on the matching option selects it (measured 2026-09-10 on
-  Kalepa and Elastic).
+  works from `chrome-cli`, with no CDP: focus the input, then send **real typed
+  characters** through System Events behind the frontmost guard below, and press
+  Return to take the highlighted option. ArrowDown alone opened nothing on
+  Grafana's board (2026-09-11) while typing "Spa" opened it immediately, so
+  prefer typing a filter over arrowing. Activation and typing must sit in
+  **one** `osascript` call: with them split, another app took the front between
+  the two and the keystrokes were lost every time. The menu then renders as
+  `[id^=react-select-<field-id>-option]` and a plain `element.click()` on the
+  matching option selects it (measured 2026-09-10 on Kalepa and Elastic).
 - A react-select input reads back `value=""` after a selection: the choice lives
   in React state and shows in the control's own text. Verify with
   `.select__control` innerText, never with `input.value`, or a filled form looks
@@ -362,6 +366,32 @@ across applications once one has been uploaded.
   filled** — on Qonto (2026-09-11) `location` changed from "Caceres, Spain" to
   "Caceres, ESP". Upload first, fill afterwards, and re-dump every identity
   field before submitting.
+
+### Workday
+
+Its tenants are separate: an account on one careers site does not exist on
+another, so "Apply Manually" starts at Create Account. Owner's standing decision
+(2026-09-11): create the account and store it in 1Password, one item per tenant
+in the `Cristian` vault, generated password, with a note naming the requisition.
+
+- **Drive it with the `chrome-devtools` MCP, not chrome-cli.** Workday's submit
+  buttons ignore `.click()`, a dispatched full mouse sequence, and even a real
+  System Events click; the CDP client's `click` works first time. The form is
+  five steps and every control is a listbox rather than a `<select>`.
+- **Its a11y snapshot lags the page.** A Create Account click that appears to do
+  nothing has often succeeded: the network panel showed `jobapplication`
+  requests while the snapshot still rendered step 1. Re-snapshot, or read the
+  requests, before concluding a click failed.
+- **The honeypot is visible in the tree** ("Enter website. This input is for
+  robots only"). Leave it empty; touching it fails the submission silently.
+- Prefix is mandatory on the Spain form and offers only Dr/Miss/Mr/Mrs/Ms/Mx.
+  Never infer one: take Mx, the neutral option, and tell the owner it can be
+  changed in the candidate profile.
+- The multi-select "How Did You Hear About Us?" nests: the first click opens a
+  category (Job Sites) and the options appear only after it.
+- Submitting can leave a follow-up task (a Right to Work questionnaire) on the
+  candidate home page. The application is not finished until that reads
+  completed.
 
 ### Boards that refuse a second application
 

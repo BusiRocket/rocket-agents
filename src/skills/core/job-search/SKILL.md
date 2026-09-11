@@ -73,6 +73,37 @@ and note the default limit is 20. `vexa search` accepts no `--since` and ranks
 by relevance, which buries a recent ATS confirmation under years of newsletters
 — filter a dated `messages` dump with `grep` instead of searching.
 
+## Postings that are a recruiter's LinkedIn post, not a requisition
+
+No company, no ATS, "escribime por privado". The whole application is one direct
+message, so the usual offer.md flow has nothing to resolve against. Score it,
+log it, and spend the DM — that is the cheap send the 55-74 band asks for. What
+to ask: eligibility (contractor resident in Spain, invoicing from here) and the
+band. Ask in the language the post is written in.
+
+Sending it (measured 2026-09-11):
+
+- The profile's **"Enviar mensaje" anchor does not respond to `.click()`** and
+  neither do synthetic mouse events. Read its `href` instead — it is a
+  `linkedin.com/messaging/compose/?profileUrn=...&recipient=...` URL — and
+  navigate to it. The composer renders with the recipient already attached.
+- Fill the contenteditable with `execCommand("insertText")` per paragraph,
+  separated by `execCommand("insertParagraph")`; setting `innerText` leaves
+  React's state empty and the send button never enables.
+- The send button carries no text. Find it by class,
+  `button.msg-form__send-btn`.
+- Confirm the send by reading the conversation list for a `Tú:` line, not by the
+  click returning.
+- A recruiter with an open profile shows "Mensaje gratis" above the composer, so
+  no InMail credit is needed. Check for it before assuming a connection request
+  is the only route.
+
+Read the recruiter's other recent posts before writing: a second opening from
+the same person is free triage, and it tells you where these roles are being
+sourced. On 2026-09-11 the sibling post required an Argentine base with a
+monthly onsite, which both killed it and confirmed the cost-arbitrage risk on
+the first one.
+
 ## Sources feeding this pipeline
 
 - This CLI (proactive search).

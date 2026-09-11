@@ -32,35 +32,41 @@ unusable for any logged-in site, so do not launch one for that.
    **active tab of the frontmost window**, so the working shape is: open the URL
    in the right identity, raise that window, then call `execute` bare.
 
-   **`open -na` does not open a new window.** It reuses an existing window of
-   that profile and adds a tab to it, so the window you think you created is the
-   user's, with their tabs in it. Never close a Chrome window by id to tidy up
-   after yourself: count its tabs first, and prefer leaving it open.
+   **Always return a string from `execute`.** A script whose last expression is
+   a number or `undefined` crashes chrome-cli with
+   `-[__NSCFNumber UTF8String]: unrecognized selector` and a full Objective-C
+   stack — the JavaScript already ran, so the work is done and only the reply is
+   lost, but the trace reads like a broken browser. Wrap the result in
+   `String()` or end with a literal (measured 2026-09-11).
 
-   ```bash
-   open -na "Google Chrome" --args --profile-directory="Profile 2" "<url>"
-   osascript -e 'tell application "Google Chrome"
-     activate
-     repeat with i from 1 to count of windows
-       if id of window i is <WINDOW-ID> then set index of window i to 1
-     end repeat
-   end tell'
-   timeout 25 chrome-cli execute 'document.body.innerText.slice(0,2000)'
-   ```
+**`open -na` does not open a new window.** It reuses an existing window of that
+profile and adds a tab to it, so the window you think you created is the user's,
+with their tabs in it. Never close a Chrome window by id to tidy up after
+yourself: count its tabs first, and prefer leaving it open.
 
-   This reads and drives **SPAs**, which is what makes it worth preferring:
-   `source` returns the served shell, `execute` sees the rendered DOM, so an
-   Angular console like Google Play answers the second and not the first. Read
-   with `innerText`, find controls by their text, and click them with `.click()`
-   rather than coordinates. Three routes that look plausible for SPA work and
-   are not: Chrome does not expose its accessibility tree unless an assistive
-   technology is attached, no CDP port listens by default, and copying a
-   profile's cookies into another Chrome profile does not carry a Google
-   session - those are bound to the device and profile on purpose, and moving
-   them around is session handling you should not be doing anyway. With two
-   Chrome instances running (a Playwright-launched one beside the real one)
-   AppleScript may resolve "Google Chrome" to the wrong process; chrome-cli
-   still hits the real one.
+```bash
+open -na "Google Chrome" --args --profile-directory="Profile 2" "<url>"
+osascript -e 'tell application "Google Chrome"
+  activate
+  repeat with i from 1 to count of windows
+    if id of window i is <WINDOW-ID> then set index of window i to 1
+  end repeat
+end tell'
+timeout 25 chrome-cli execute 'document.body.innerText.slice(0,2000)'
+```
+
+This reads and drives **SPAs**, which is what makes it worth preferring:
+`source` returns the served shell, `execute` sees the rendered DOM, so an
+Angular console like Google Play answers the second and not the first. Read with
+`innerText`, find controls by their text, and click them with `.click()` rather
+than coordinates. Three routes that look plausible for SPA work and are not:
+Chrome does not expose its accessibility tree unless an assistive technology is
+attached, no CDP port listens by default, and copying a profile's cookies into
+another Chrome profile does not carry a Google session - those are bound to the
+device and profile on purpose, and moving them around is session handling you
+should not be doing anyway. With two Chrome instances running (a
+Playwright-launched one beside the real one) AppleScript may resolve "Google
+Chrome" to the wrong process; chrome-cli still hits the real one.
 
 2. **Playwright `--extension` MCP for the rest**: DOM snapshots and element
    interaction, screenshots, network, console on a real tab, connected through

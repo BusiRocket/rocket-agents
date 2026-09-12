@@ -32,12 +32,12 @@ so a run cut short is finished by running it again.
 
 ## What the steps do and refuse
 
-| step   | does                                                                                                                                                                         | refuses (PROBLEM)                                                                                       |
-| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| system | RocketUpdater `--scheduled` here and on the mini                                                                                                                             | `SYSTEM_FAIL`; a degraded preflight defers work and reports `INFO SYSTEM_DEGRADED`                      |
-| repos  | commits dirty repos owned by an org in `bin/daily/owned-orgs.txt`, rebases, pushes, on both Macs; then `repo-sync.sh` fast-forwards everything                               | `HUGE_DIRTY` (>200 files), `IN_PROGRESS`, `UNMERGED`, `SECRET_FILE`, `MARKERS`, `DIVERGED`, `PUSH_FAIL` |
-| ncu    | `ncu -u` to latest in every owned repo with a package.json (minus `bin/daily/ncu-denylist.txt`), install, typecheck or build, commit `chore(deps)`, push; reverts what fails | `REVERTED` is not a PROBLEM: it is the expected outcome for a breaking major                            |
-| atrium | `atrium status` and `atrium doctor` on both Macs, then `sync-conversations`                                                                                                  | `ATRIUM_STALE` (>24 h), `ATRIUM_DOCTOR`, `ARCHIVE_SYNC_FAIL`                                            |
+| step   | does                                                                                                                                                                                                                                                                                 | refuses (PROBLEM)                                                                                               |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| system | RocketUpdater `--scheduled` here and on the mini                                                                                                                                                                                                                                     | `SYSTEM_FAIL`; a degraded preflight defers work and reports `INFO SYSTEM_DEGRADED`                              |
+| repos  | commits dirty repos owned by an org in `bin/daily/owned-orgs.txt`, rebases, pushes, on both Macs; then `repo-sync.sh` fast-forwards everything                                                                                                                                       | `HUGE_DIRTY` (>200 files), `IN_PROGRESS`, `UNMERGED`, `SECRET_FILE`, `MARKERS`, `DIVERGED`, `PUSH_FAIL`         |
+| ncu    | `ncu -u` to latest in every owned repo with a package.json (minus `bin/daily/ncu-denylist.txt`, plus `ncu-allowlist.txt`), 3-day cooldown, TypeScript held to its minor, `packageManager` pin untouched; install, typecheck or build, commit `chore(deps)`, push; reverts what fails | `REVERTED` is not a PROBLEM: it is the expected outcome for a breaking major. `NCU_FAIL` is: ncu itself errored |
+| atrium | `atrium status` and `atrium doctor` on both Macs, then `sync-conversations`                                                                                                                                                                                                          | `ATRIUM_STALE` (>24 h), `ATRIUM_DOCTOR`, `ARCHIVE_SYNC_FAIL`                                                    |
 
 ## Acting on the report
 
@@ -63,6 +63,19 @@ its host (`@local`, `@macmini`).
 
 Finish by committing and pushing `~/p` (its standing authorization covers this),
 so the mini and the next session read the same `TODO.md`.
+
+## Decisions already taken (do not re-ask, do not quietly reverse)
+
+- pnpm repos install with `--dangerously-allow-all-builds`: pnpm 12 refuses to
+  install when any dependency's build script is not allowlisted in the repo, and
+  no `strict-dep-builds` spelling turns that off. It runs every postinstall
+  script unattended; the cooldown is the only mitigation.
+  `DAILY_PNPM_ALLOW_BUILDS=0` makes those repos revert instead. Owner accepted
+  the trade on 2026-09-12.
+- TypeScript stays within its minor. TypeScript 7 changed compiler defaults and
+  failed the type-check of nearly every repository; that migration is per-repo.
+- A partial run (`--steps`) writes `<date>-<steps>.md`, never the day's full
+  report.
 
 ## Common mistakes
 

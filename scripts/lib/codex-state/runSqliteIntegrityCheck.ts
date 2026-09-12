@@ -17,10 +17,17 @@ export const runSqliteIntegrityCheck = async (
   }
 
   return new Promise((resolve) => {
-    const child = spawn('sqlite3', [path, 'PRAGMA integrity_check;'], {
-      shell: false,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
+    // -readonly: without it a current sqlite3 (Homebrew 3.53) deletes the stale
+    // -wal and -shm sidecars of a file that is not a database, and the family
+    // that quarantine must move is gone before it is listed.
+    const child = spawn(
+      'sqlite3',
+      ['-readonly', path, 'PRAGMA integrity_check;'],
+      {
+        shell: false,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      },
+    )
     let output = ''
 
     const append = (chunk: Buffer) => {

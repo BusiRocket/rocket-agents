@@ -167,18 +167,14 @@ content decisions live in `~/p/rocket-agents-library/TODO.md`.
 
 ## Harness
 
-- [ ] `pnpm run check` is red on
-      `scripts/lib/codex-state/REBUILD_DERIVED_DATABASE_TEST.ts`: "only the
-      corrupt derived database family moves after snapshot verification" expects
-      `result.entries.length` 3 (sqlite + `-wal` + `-shm`) and gets 1.
-      Reproduced 2026-09-12 on HEAD 205dd73 with a clean tree, twice, so it is
-      not flaky and not caused by the rules change shipped that day; the code
-      and test are untouched since 0bd3259 (2026-08-26). Every other step of
-      `check:all` passes. Smallest step: run the test with a log of
-      `result.entries` to see which of the three files `rebuildDerivedDatabase`
-      stops quarantining, then decide whether the sidecar handling or the test
-      changed meaning.
-
+- [x] `pnpm run check` was red on `REBUILD_DERIVED_DATABASE_TEST.ts` (entries 1,
+      expected 3). Root cause, 2026-09-12: `runSqliteIntegrityCheck` spawned
+      `sqlite3 <db> 'PRAGMA integrity_check;'`, and Homebrew sqlite3 3.53.4,
+      first on PATH via `.zprofile`, deletes the stale `-wal` and `-shm` of a
+      file that is not a database; Apple's 3.51 in `/usr/bin` does not, which is
+      why the test was green until the machine's PATH changed. Fixed by passing
+      `-readonly`, which both binaries honour and which still reports the
+      corruption. Verified: codex-state suite 28/28, `pnpm run check` exit 0.
 - [ ] Dependency sweep for native replacements across the `~/p` frontends:
       `Intl.*` for formatting, `crypto.randomUUID`, `structuredClone`,
       `URLSearchParams`, `AbortController`. Measured elsewhere: audit

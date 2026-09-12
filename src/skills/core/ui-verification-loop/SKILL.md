@@ -1,14 +1,13 @@
 ---
 name: ui-verification-loop
 description:
-  Driving a running UI to find what is broken, slow, or empty - sweeping routes,
-  asserting what actually paints, timing the calls behind each screen, then
-  landing and recording the fix. Trigger when asked to test an app through its
-  UI, to keep testing until nothing is left, to check a screen really renders
-  what it should, or to explain why a screen takes seconds. Covers any UI with a
-  JavaScript eval channel (web app, Electron, Tauri). Do not use for writing a
-  test suite from scratch, for a one-off screenshot, or for reviewing code that
-  is not running.
+  Drives a running UI to find what is broken, slow or empty, asserts what
+  actually paints, times the calls behind each screen, and lands the fix.
+  Trigger when asked to test an app through its UI, to keep testing until
+  nothing is left, to check a screen really renders what it should, or to
+  explain why a screen takes seconds. Covers any UI with a JavaScript eval
+  channel (web app, Electron, Tauri). Do not use for writing a test suite from
+  scratch, for a one-off screenshot, or for reviewing code that is not running.
 allowed-tools: Read, Grep, Glob, Bash, Write, Edit
 ---
 

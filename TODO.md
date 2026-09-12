@@ -459,11 +459,6 @@ Filed by `~/p/bin/daily`; one bullet per finding, updated in place while it
 repeats.
 
 - [ ] <!-- daily-tasks:COMMIT_FAIL --> **COMMIT_FAIL** (first seen 2026-09-12,
-      last seen 2026-09-12): the daily checkpoint cannot commit here: the
-      working tree carries an old eslint.config.mjs (imports
-      `eslint-plugin-import`, which is not in node_modules; HEAD uses
-      `eslint-plugin-import-x`) and an old docs/templates/AGENTS.template.md
-      (`agents-tools` wording), both modified before 2026-09-12. Decide:
-      `git checkout -- eslint.config.mjs docs/templates/AGENTS.template.md` if
-      nobody owns them, else finish that work. Until then `pnpm run check` fails
-      with ERR_MODULE_NOT_FOUND.
+      last seen 2026-09-12): the daily checkpoint cannot commit (main, 2 dirty):
+      Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'eslint-plugin-import'
+      imported from /Users/cristiandeluxe/p/rocket-ag.

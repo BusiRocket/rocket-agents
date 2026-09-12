@@ -49,7 +49,9 @@ its host (`@local`, `@macmini`).
   `--steps repos`), `ARCHIVE_SYNC_FAIL` on a lock (rerun `--steps atrium` after
   the hourly refresh finishes), `SYSTEM_FAIL` when the log shows a transient
   network error.
-- **Record, never resolve:** `HUGE_DIRTY`, `DIVERGED`, `SECRET_FILE`,
+- **Record, never resolve:** `HUGE_DIRTY`, `DIVERGED` (only when a file other
+  than `TODO.md`/`TODO_LOG.md` conflicts: a TODO-only conflict is merged by
+  union inside the round, owner's rule of 2026-09-12), `SECRET_FILE`,
   `UNMERGED`, `IN_PROGRESS`, `MARKERS`. These are decisions about someone's
   work. The script has already filed each one under `## Daily round` in that
   repository's `TODO.md` (`bin/daily/record-repo-finding.sh`, one bullet per

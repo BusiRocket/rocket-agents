@@ -81,8 +81,14 @@ so the mini and the next session read the same `TODO.md`.
   turn on `noPropertyAccessFromIndexSignature`; the only breakage is `TS4111`,
   and `bin/daily/ts4111-bracket-access.mjs` rewrites `.prop` to `['prop']` from
   the tsc output, up to five passes, before the repo is given up as REVERTED.
-  Repos that also depend on typescript-eslint keep TS 6 under the side-by-side
-  alias recipe in `brain/topics/dev-environment.md`.
+  Repos that also depend on typescript-eslint get the side-by-side pair from
+  `brain/topics/dev-environment.md` applied by `bin/daily/ts7-side-by-side.mjs`
+  (`typescript` on the `@typescript/typescript6` shim, TS 7 under
+  `@typescript/native`), because typescript-eslint refuses TS 7 in the
+  pre-commit lint.
+- A filed finding is committed on its own (`chore: record daily round findings`,
+  `bin/daily/commit-repo-findings.sh`) before the next attempt, so it neither
+  blocks the repo as dirty nor dies in that attempt's revert.
 - A partial run (`--steps`) writes `<date>-<steps>.md`, never the day's full
   report.
 

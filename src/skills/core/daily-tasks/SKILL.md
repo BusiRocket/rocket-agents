@@ -32,12 +32,12 @@ so a run cut short is finished by running it again.
 
 ## What the steps do and refuse
 
-| step   | does                                                                                                                                                                                                                                                                                 | refuses (PROBLEM)                                                                                               |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| system | RocketUpdater `--scheduled` here and on the mini                                                                                                                                                                                                                                     | `SYSTEM_FAIL`; a degraded preflight defers work and reports `INFO SYSTEM_DEGRADED`                              |
-| repos  | commits dirty repos owned by an org in `bin/daily/owned-orgs.txt`, rebases, pushes, on both Macs; then `repo-sync.sh` fast-forwards everything                                                                                                                                       | `HUGE_DIRTY` (>200 files), `IN_PROGRESS`, `UNMERGED`, `SECRET_FILE`, `MARKERS`, `DIVERGED`, `PUSH_FAIL`         |
-| ncu    | `ncu -u` to latest in every owned repo with a package.json (minus `bin/daily/ncu-denylist.txt`, plus `ncu-allowlist.txt`), 3-day cooldown, TypeScript held to its minor, `packageManager` pin untouched; install, typecheck or build, commit `chore(deps)`, push; reverts what fails | `REVERTED` is not a PROBLEM: it is the expected outcome for a breaking major. `NCU_FAIL` is: ncu itself errored |
-| atrium | `atrium status` and `atrium doctor` on both Macs, then `sync-conversations`                                                                                                                                                                                                          | `ATRIUM_STALE` (>24 h), `ATRIUM_DOCTOR`, `ARCHIVE_SYNC_FAIL`                                                    |
+| step   | does                                                                                                                                                                                                                                                                                                                                                                                   | refuses (PROBLEM)                                                                                               |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| system | RocketUpdater `--scheduled` here and on the mini                                                                                                                                                                                                                                                                                                                                       | `SYSTEM_FAIL`; a degraded preflight defers work and reports `INFO SYSTEM_DEGRADED`                              |
+| repos  | commits dirty repos owned by an org in `bin/daily/owned-orgs.txt`, rebases, pushes, on both Macs; then `repo-sync.sh` fast-forwards everything                                                                                                                                                                                                                                         | `HUGE_DIRTY` (>200 files), `IN_PROGRESS`, `UNMERGED`, `SECRET_FILE`, `MARKERS`, `DIVERGED`, `PUSH_FAIL`         |
+| ncu    | `ncu -u` to latest in every owned repo with a package.json (minus `bin/daily/ncu-denylist.txt`, plus `ncu-allowlist.txt`), 3-day cooldown, `packageManager` pin untouched; install, typecheck or build, rewrite `TS4111` property accesses when TypeScript 7 is the only breakage, commit `chore(deps)`, push; reverts what fails and files the finding in that repository's `TODO.md` | `REVERTED` is not a PROBLEM: it is the expected outcome for a breaking major. `NCU_FAIL` is: ncu itself errored |
+| atrium | `atrium status` and `atrium doctor` on both Macs, then `sync-conversations`                                                                                                                                                                                                                                                                                                            | `ATRIUM_STALE` (>24 h), `ATRIUM_DOCTOR`, `ARCHIVE_SYNC_FAIL`                                                    |
 
 ## Acting on the report
 
@@ -51,13 +51,18 @@ its host (`@local`, `@macmini`).
   network error.
 - **Record, never resolve:** `HUGE_DIRTY`, `DIVERGED`, `SECRET_FILE`,
   `UNMERGED`, `IN_PROGRESS`, `MARKERS`. These are decisions about someone's
-  work. Add one `TODO.md` entry per repository under the most relevant category
-  with the line verbatim and the smallest next step.
-- **Read before recording:** every `REVERTED`. Open
-  `.daily/logs/<date>/ncu-<repo>.log`, name the package and the error, and
-  record it in that repository's own `TODO.md` when the repository has one, else
-  in `~/p/TODO.md`. A repository that reverts three days running needs a pinned
-  version, not a fourth attempt.
+  work. The script has already filed each one under `## Daily round` in that
+  repository's `TODO.md` (`bin/daily/record-repo-finding.sh`, one bullet per
+  code, updated in place while it repeats); your job is to open that bullet and
+  add the smallest next step it lacks.
+- **Read before enriching:** every `REVERTED`. The filed bullet quotes the
+  decisive log line; open `.daily/logs/<date>/ncu-<repo>.log` when that line
+  does not name the package, and write the package and the fix into the bullet.
+  A repository that reverts three days running needs a pinned version, not a
+  fourth attempt.
+- **Where a finding lives:** in the repository it is about, never only in the
+  day's report. `~/p/TODO.md` takes only cross-repo decisions (a denylist entry,
+  a policy change, a machine gap).
 - **Ignore:** `SKIP ACTIVE` (a live session), `SKIP NOT_OWNED`, `INFO OUTDATED`
   on repositories that are not ours.
 
@@ -72,8 +77,12 @@ so the mini and the next session read the same `TODO.md`.
   script unattended; the cooldown is the only mitigation.
   `DAILY_PNPM_ALLOW_BUILDS=0` makes those repos revert instead. Owner accepted
   the trade on 2026-09-12.
-- TypeScript stays within its minor. TypeScript 7 changed compiler defaults and
-  failed the type-check of nearly every repository; that migration is per-repo.
+- TypeScript goes to latest. TypeScript 7 (and `@busirocket/tsconfig` 0.3.0)
+  turn on `noPropertyAccessFromIndexSignature`; the only breakage is `TS4111`,
+  and `bin/daily/ts4111-bracket-access.mjs` rewrites `.prop` to `['prop']` from
+  the tsc output, up to five passes, before the repo is given up as REVERTED.
+  Repos that also depend on typescript-eslint keep TS 6 under the side-by-side
+  alias recipe in `brain/topics/dev-environment.md`.
 - A partial run (`--steps`) writes `<date>-<steps>.md`, never the day's full
   report.
 

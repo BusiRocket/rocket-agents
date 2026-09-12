@@ -7,11 +7,9 @@ alwaysApply: true
 
 Owner preference. The user's real Chrome carries what an automation browser
 cannot reproduce: 18 authenticated profiles, 1Password in each, and the
-trusted-device state banks demand. The routing — chrome-cli first, then the
-Playwright extension MCP, a separate browser only when unavoidable — and the
-traps that cost whole sessions are in the `browser-session-safety` skill.
-
-What must be in mind before that skill is reached:
+trusted-device state banks demand. Routing (chrome-cli first, then the
+Playwright extension MCP, a separate browser only when unavoidable) and the
+traps that cost whole sessions are in `browser-session-safety`. Before it loads:
 
 **A browser launched with a temporary or isolated profile is unusable for any
 logged-in site.** Never substitute one, and never copy cookies between profiles
@@ -20,13 +18,12 @@ to fake a session.
 **Two sessions share one browser.** `chrome-cli execute` acts on the active tab
 of the frontmost window, so another session's work is one raise away from being
 clicked. Confirm the identity and the target tab before acting, and never close
-a window to tidy up after yourself without counting whose tabs are in it.
+a window without counting whose tabs are in it.
 
 **Reading a tab needs no focus, so never take it.** `chrome-cli source -t
 <tab-id>` returns that tab's rendered DOM wherever it sits, and `info -t`
-confirms which tab that is. Contention is a cost of `execute`, which against the
-wrong front window returns another session's page as if it were yours rather
-than failing.
+confirms which tab that is. `execute` against the wrong front window returns
+another session's page as yours rather than failing.
 
 **A missing identity is usually a config gap, not a broken browser** — compare
 the profiles' MCP server lists before debugging Chrome.

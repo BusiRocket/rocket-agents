@@ -8,19 +8,17 @@ alwaysApply: true
 Two profiles, two Anthropic accounts, two quotas. **busirocket** (personal, the
 default) is plain `claude`; **favish** is `CLAUDE_CONFIG_DIR="$HOME/.claude-favish"
 claude` - write `$HOME`, never a bare `~`, because an unexpanded tilde makes
-Claude Code create `./~/.claude-favish/` under the current directory: that is
-how a directory literally named `~` appeared in `~/p` on 2026-09-04, holding a
-third empty profile. Everything that is not credentials or session state is shared by
-symlink. The full map — what is linked, what must never be, and how to prove a
-profile loaded new config — is in the `claude-profile-safety` skill.
+Claude Code create `./~/.claude-favish/` under the current directory, which is
+how a `~` directory appeared in `~/p` on 2026-09-04. Everything but credentials
+and session state is shared by symlink; the full map is in
+`claude-profile-safety`.
 
-**Never set `CLAUDE_CONFIG_DIR=~/.claude`.** It looks like the way to name the
-personal profile and it is not: unset, Claude Code reads `$HOME/.claude.json`;
+**Never set `CLAUDE_CONFIG_DIR=~/.claude`.** Unset, Claude Code reads `$HOME/.claude.json`;
 set, it reads `$CLAUDE_CONFIG_DIR/.claude.json`, so pointing it at `~/.claude`
 starts a THIRD, empty profile with its own login and none of the MCP servers.
 It fails silently — servers simply do not appear.
 
-Two more that are cheap to state and expensive to rediscover: editing a file
+Two more: editing a file
 under `~/.claude-favish/` directly is a bug (it belongs in `~/.claude` and
 should be linked, or it is session state); and **a missing MCP server reads as a
 broken browser**, so compare the two profiles' server lists before debugging

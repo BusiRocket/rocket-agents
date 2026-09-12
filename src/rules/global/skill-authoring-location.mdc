@@ -5,23 +5,12 @@ alwaysApply: true
 
 # Skills are authored in rocket-agents, nowhere else
 
-Unscoped on purpose: the moment this matters is the first `Write` of a new
-`SKILL.md`, before any skill file has been read and before any path-scoped rule
-can fire. The superpowers `writing-skills` skill says personal skills live in
-`~/.claude/skills/`. On this estate that advice deletes the skill.
+Unscoped on purpose: it matters at the first Write of a new `SKILL.md`, before
+any path-scoped rule loads, and the superpowers `writing-skills` skill points at
+`~/.claude/skills/`, which here deletes the skill.
 
-**The only source is `~/p/rocket-agents/src/skills/core/<name>/SKILL.md`**,
-registered by name in `src/skills/skill-rules.map.json`. Everything else is
-generated output that `pnpm run skills:link` wipes and rewrites from `dist/`:
-`~/.claude/skills/<name>` is a symlink into `~/.agents/skills/core/`, which is
-the `rocket-agents-library` checkout, and `compileLibraryTarget` removes that
-whole tree before repopulating it. A skill written into the library, into
-`~/.claude/skills/` or into a project's `.claude/skills/` survives until the next
-link and no longer. On 2026-09-11 `ui-verification-loop` was authored in the
-library, committed there three times, and erased that night; it was rebuilt
-from the library's history on 2026-09-12 and moved into source.
-
-Ship sequence, gates, the self-healing section and the `Trigger when` /
-`Do not use` requirements are in `skill-self-healing` (loaded when a
-`SKILL.md` is in scope). What must be known before that rule loads is only the
-location: source in rocket-agents, map entry, `skills:compile`, `skills:link`.
+The only source is `~/p/rocket-agents/src/skills/core/<name>/SKILL.md`,
+registered in `src/skills/skill-rules.map.json`, then `skills:compile` and
+`skills:link`. `~/.claude/skills/`, `~/.agents/` and the rocket-agents-library
+checkout are generated output the link wipes: `ui-verification-loop` was
+written there on 2026-09-11 and erased that night. Gates: `skill-self-healing`.
